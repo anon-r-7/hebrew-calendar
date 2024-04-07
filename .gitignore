@@ -1,0 +1,8 @@
+**dist
+**build
+**node_modules
+.envrc
+**.DS_Store
+k8s-hebrew-feasts-kubeconfig.yaml
+**logs**
+tmp

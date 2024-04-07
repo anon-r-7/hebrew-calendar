@@ -1,0 +1,6 @@
+export TZ=UTC
+export DB_ENDPOINT=db
+export POSTGRES_DB=hebrew_feasts
+export POSTGRES_USER=postgres
+export POSTGRES_PASSWORD=postgres
+export SERVER_PORT=5000

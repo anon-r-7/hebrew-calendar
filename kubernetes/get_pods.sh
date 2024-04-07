@@ -1,0 +1,1 @@
+kubectl --kubeconfig=k8s-hebrew-feasts-kubeconfig.yaml get pods -n kube-system
