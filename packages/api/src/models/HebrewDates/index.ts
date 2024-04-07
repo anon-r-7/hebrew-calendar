@@ -53,7 +53,7 @@ export default (sequelize: Sequelize) => {
     },
     {
       sequelize,
-      modelName: 'HebrewDate',
+      modelName: 'HebrewDates',
       tableName: 'hebrew_dates',
       timestamps: true
     }

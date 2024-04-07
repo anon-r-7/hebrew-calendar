@@ -2,6 +2,7 @@ import Sequelize from 'sequelize'
 import { logger } from '@api/utils/logger'
 
 import HebrewDatesModel from './HebrewDates'
+import HebrewEventsModel from './HebrewEvents'
 
 const host = process.env.DB_ENDPOINT
 const database = process.env.POSTGRES_DB
@@ -29,5 +30,6 @@ sequelize
 export default {
   Sequelize,
   sequelize,
-  HebrewDates: HebrewDatesModel(sequelize)
+  HebrewDates: HebrewDatesModel(sequelize),
+  HebrewEvents: HebrewEventsModel(sequelize)
 }
