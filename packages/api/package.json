@@ -10,6 +10,7 @@
     "serve": "node build/index.js",
     "db:migrate": "npx sequelize-cli db:migrate",
     "db:migrate:undo": "npx sequelize-cli db:migrate:undo:all",
+    "db:migrate:undo:last": "npx sequelize-cli db:migrate:undo",
     "db:seed": "npx sequelize-cli db:seed:all",
     "db:seed:undo": "npx sequelize-cli db:seed:undo:all",
     "prettier": "prettier --check \"src/**/**/*.ts*\"",
