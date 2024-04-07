@@ -2,12 +2,15 @@ import { NextFunction, Request, Response } from 'express'
 
 import { logger } from '@api/utils/logger'
 import HttpException from '@api/utils/HttpException'
-import { findAllByGregorian } from './methods/gregorian'
 import {
-  findAllByHebrew,
+  createSafeJsDate,
   isValidHebrewDateFormat,
   parseHebrewDate
-} from './methods/hebrew'
+} from '@api/utils/dates'
+import {
+  findAllByGregorian,
+  findAllByHebrew
+} from '@api/models/HebrewDates/methods'
 
 class DatesController {
   public getDates = async (req: Request, res: Response, next: NextFunction) => {
@@ -18,18 +21,20 @@ class DatesController {
       let response
 
       if (type !== 'hebrew') {
-        const dtStart = new Date(start)
-        const dtEnd = new Date(end)
+        const dtStart = createSafeJsDate(start)
+        const dtEnd = createSafeJsDate(end)
 
         if (isNaN(dtStart.getTime()) || isNaN(dtEnd.getTime())) {
-          next(new HttpException(400, 'Invalid start or end date'))
+          next(new HttpException(400, 'Invalid gregorian start or end date'))
           return
         }
 
         response = await findAllByGregorian(dtStart, dtEnd)
       } else {
         if (!isValidHebrewDateFormat(start) || !isValidHebrewDateFormat(end)) {
-          next(new HttpException(400, 'Invalid start or end Hebrew date'))
+          next(
+            new HttpException(400, 'Invalid hebrew start or end Hebrew date')
+          )
           return
         }
 
