@@ -25,9 +25,7 @@ export const findAllByGregorian = async (
         [Op.lte]: createSafeSqlDate(end)
       }
     },
-    order: [
-      'gregorian',
-    ]
+    order: ['gregorian']
   })
   return response
 }
@@ -66,9 +64,7 @@ export const findAllByGregorianWithEvents = async (
         ]
       }
     ],
-    order: [
-      'gregorian',
-    ]
+    order: ['gregorian']
   })
   return response
 }
@@ -111,9 +107,7 @@ export const findAllByHebrew = async (
         [Op.lte]: end_row.day_index
       }
     },
-    order: [
-      'gregorian',
-    ]
+    order: ['gregorian']
   })
   return response
 }
@@ -165,9 +159,7 @@ export const findAllByHebrewWithEvents = async (
         ]
       }
     ],
-    order: [
-      'gregorian',
-    ]
+    order: ['gregorian']
   })
   return response
 }
