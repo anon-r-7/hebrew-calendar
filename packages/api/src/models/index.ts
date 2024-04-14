@@ -3,6 +3,7 @@ import { logger } from '@api/utils/logger'
 
 import HebrewDatesModel from './HebrewDates'
 import HebrewEventsModel from './HebrewEvents'
+import HebrewEventDatesModel from './HebrewEventDates'
 
 const host = process.env.DB_ENDPOINT
 const database = process.env.POSTGRES_DB
@@ -27,9 +28,20 @@ sequelize
     )
   })
 
+const HebrewDates = HebrewDatesModel(sequelize)
+const HebrewEvents = HebrewEventsModel(sequelize)
+const HebrewEventDates = HebrewEventDatesModel(sequelize)
+
+HebrewEventDates.belongsTo(HebrewDates, { foreignKey: 'hebrew_date' })
+HebrewEventDates.belongsTo(HebrewEvents, { foreignKey: 'hebrew_event' })
+
+HebrewDates.hasMany(HebrewEventDates, { foreignKey: 'hebrew_date' })
+HebrewEvents.hasMany(HebrewEventDates, { foreignKey: 'hebrew_event' })
+
 export default {
   Sequelize,
   sequelize,
-  HebrewDates: HebrewDatesModel(sequelize),
-  HebrewEvents: HebrewEventsModel(sequelize)
+  HebrewDates,
+  HebrewEvents,
+  HebrewEventDates
 }

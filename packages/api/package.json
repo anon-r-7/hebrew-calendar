@@ -20,6 +20,7 @@
     "tsc": "tsc"
   },
   "dependencies": {
+    "@hebcal/core": "^5.2.2",
     "@types/sequelize": "^4.28.20",
     "axios": "^1.6.7",
     "body-parser": "^1.20.2",

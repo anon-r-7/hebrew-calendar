@@ -9,6 +9,16 @@ export const findByName = async (name: string): Promise<HebrewEventsModel> => {
   })
 }
 
+export const findByShortName = async (
+  short_name: string
+): Promise<HebrewEventsModel> => {
+  return Models.HebrewEvents.findOne({
+    where: {
+      short_name
+    }
+  })
+}
+
 export const findAll = async (): Promise<HebrewEventsModel[]> => {
   return Models.HebrewEvents.findAll()
 }

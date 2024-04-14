@@ -3,12 +3,13 @@ import { Model, DataTypes, Sequelize, Optional } from 'sequelize'
 export interface HebrewDates {
   uuid: string
   gregorian: Date
+  day_of_week: string
+  day_index: number
   dd: number
   mm: number
   yy: number
-  rd: number
-  createdAt?: Date
-  updatedAt?: Date
+  created_at?: Date
+  updated_at?: Date
 }
 
 interface HebrewDatesCreationAttributes extends Optional<HebrewDates, 'uuid'> {}
@@ -19,10 +20,11 @@ export class HebrewDatesModel
 {
   public uuid!: string
   public gregorian!: Date
+  public day_of_week!: string
+  public day_index!: number
   public dd!: number
   public mm!: number
   public yy!: number
-  public rd!: number
 }
 
 export default (sequelize: Sequelize) => {
@@ -34,6 +36,12 @@ export default (sequelize: Sequelize) => {
         primaryKey: true
       },
       gregorian: DataTypes.DATEONLY,
+      day_of_week: {
+        type: DataTypes.STRING
+      },
+      day_index: {
+        type: DataTypes.BIGINT
+      },
       dd: {
         allowNull: false,
         type: DataTypes.INTEGER
@@ -43,10 +51,6 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.INTEGER
       },
       yy: {
-        allowNull: false,
-        type: DataTypes.INTEGER
-      },
-      rd: {
         allowNull: false,
         type: DataTypes.INTEGER
       }

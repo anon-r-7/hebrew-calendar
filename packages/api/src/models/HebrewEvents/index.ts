@@ -3,8 +3,9 @@ import { Model, DataTypes, Sequelize, Optional } from 'sequelize'
 export interface HebrewEvents {
   uuid: string
   name: string
-  createdAt?: Date
-  updatedAt?: Date
+  short_name: string
+  created_at?: Date
+  updated_at?: Date
 }
 
 interface HebrewEventsCreationAttributes
@@ -16,6 +17,7 @@ export class HebrewEventsModel
 {
   public uuid!: string
   public name!: string
+  public short_name!: string
 }
 
 export default (sequelize: Sequelize) => {
@@ -27,6 +29,10 @@ export default (sequelize: Sequelize) => {
         primaryKey: true
       },
       name: {
+        allowNull: false,
+        type: DataTypes.STRING
+      },
+      short_name: {
         allowNull: false,
         type: DataTypes.STRING
       }
