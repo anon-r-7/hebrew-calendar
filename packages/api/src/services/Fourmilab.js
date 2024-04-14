@@ -3,7 +3,7 @@
 let document = {
     gregorian: {
         year: { value: null },
-        month: { selectedIndex: { value: null } },
+        month: { selectedIndex: null },
         day: { value: null },
         hour: { value: null },
         min: { value: null },
@@ -19,7 +19,7 @@ let document = {
     },
     juliancalendar: {
         year: { value: null },
-        month: { selectedIndex: { value: null } },
+        month: { selectedIndex: null },
         day: { value: null },
         leap: { value: null },
         wday: { value: null }
@@ -27,7 +27,7 @@ let document = {
     hebrew: {
         year: { value: null },
         month: {
-            selectedIndex: { value: null },
+            selectedIndex: null,
             options: [
                 { value: null },
                 { value: null },
@@ -50,21 +50,21 @@ let document = {
     },
     islamic: {
         year: { value: null },
-        month: { selectedIndex: { value: null } },
+        month: { selectedIndex: null },
         day: { value: null },
         wday: { value: null },
         leap: { value: null }
     },
     persian: {
         year: { value: null },
-        month: { selectedIndex: { value: null } },
+        month: { selectedIndex: null },
         day: { value: null },
         wday: { value: null },
         leap: { value: null }
     },
     persiana: {
         year: { value: null },
-        month: { selectedIndex: { value: null } },
+        month: { selectedIndex: null },
         day: { value: null },
         wday: { value: null },
         leap: { value: null }
@@ -80,16 +80,16 @@ let document = {
     },
     indiancivilcalendar: {
         year: { value: null },
-        month: { selectedIndex: { value: null } },
+        month: { selectedIndex: null },
         day: { value: null },
         weekday: { value: null },
         leap: { value: null }
     },
     french: {
         an: { value: null },
-        mois: { selectedIndex: { value: null } },
-        decade: { selectedIndex: { value: null } },
-        jour: { selectedIndex: { value: null } }
+        mois: { selectedIndex: null },
+        decade: { selectedIndex: null },
+        jour: { selectedIndex: null }
     },
     gregserial: {
         day: { value: null }
@@ -2235,15 +2235,17 @@ var EquinoxpTerms = new Array(
                          9, 227.73,   1222.114,
                          8,  15.45,  16859.074
                              );
-
-JDE0tab1000 = new Array(
+// @RyanOstrom
+// patched this with var
+var JDE0tab1000 = new Array(
    new Array(1721139.29189, 365242.13740,  0.06134,  0.00111, -0.00071),
    new Array(1721233.25401, 365241.72562, -0.05323,  0.00907,  0.00025),
    new Array(1721325.70455, 365242.49558, -0.11677, -0.00297,  0.00074),
    new Array(1721414.39987, 365242.88257, -0.00769, -0.00933, -0.00006)
                        );
-
-JDE0tab2000 = new Array(
+// @RyanOstrom
+// patched this with var
+var JDE0tab2000 = new Array(
    new Array(2451623.80984, 365242.37404,  0.05169, -0.00411, -0.00057),
    new Array(2451716.56767, 365241.62603,  0.00325,  0.00888, -0.00030),
    new Array(2451810.21715, 365242.01767, -0.11575,  0.00337,  0.00078),

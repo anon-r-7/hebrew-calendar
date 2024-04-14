@@ -1,5 +1,5 @@
 import { HDate } from '@hebcal/core'
-const { from_hebrew } = require(`${__dirname}/../../src/services/Fourmilab`)
+const { from_hebrew } = require('@api/services/Fourmilab')
 
 export const createSafeJsDate = (dateString) => {
   const parts = dateString.split('-').map((part) => parseInt(part, 10)) // Assumes YYYY-MM-DD format
@@ -78,7 +78,7 @@ export const hebrewToGregorian = ({ yy, mm, dd }: HebrewParts): Date => {
   const { gregorian } = from_hebrew(partial)
 
   const year = gregorian.year.value
-  const month = gregorian.month.selectedIndex // already 0 indexed
+  const month = gregorian.month.selectedIndex.value // already 0 indexed
   const day = gregorian.day.value
   const dt = new Date(year, month, day)
   return dt

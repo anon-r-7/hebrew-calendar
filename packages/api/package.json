@@ -5,8 +5,8 @@
   "author": "",
   "private": true,
   "scripts": {
-    "build": "tsc && babel src --out-dir dist --extensions '.ts' --source-maps",
-    "start": "nodemon -r tsconfig-paths/register --exec ts-node --ignore tmp/ src/index.ts",
+    "build": "tsc && babel src --out-dir dist --extensions '.ts,.js' --source-maps",
+    "start": "nodemon -r tsconfig-paths/register --exec ts-node --ext ts,js src/index.ts",
     "serve": "node build/index.js",
     "db:migrate": "npx sequelize-cli db:migrate",
     "db:migrate:undo": "npx sequelize-cli db:migrate:undo:all",
