@@ -8,248 +8,133 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.literal('uuid_generate_v4()'),
       },
-      hebrewDateUuid: {
+      hebrew_event: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'hebrew_dates', 
+          model: 'hebrew_events', 
           key: 'uuid',
         },
       },
-      hebrewEventUuid: {
+      hebrew_date: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'hebrew_events',
+          model: 'hebrew_dates',
           key: 'uuid',
         },
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
     });
 
+    const events = await queryInterface.sequelize.query(
+      `SELECT uuid, name, short_name FROM "hebrew_events";`,
+      { type: Sequelize.QueryTypes.SELECT }
+    );
+
     const uniqueYears = await queryInterface.sequelize.query(
       `SELECT DISTINCT "yy" FROM "hebrew_dates" ORDER BY "yy";`,
       { type: Sequelize.QueryTypes.SELECT }
     );
 
-    const events = getEvents(years)
+    for (const { yy } of uniqueYears) {
+      try {
+        console.log('yy', yy)
+        const dates = await queryInterface.sequelize.query(
+          `SELECT * FROM "hebrew_dates" WHERE "yy" = :yy ORDER BY gregorian;`,
+          {
+            type: Sequelize.QueryTypes.SELECT,
+            replacements: { yy }
+          }
+        )
+
+        const shabbat = getSabbaths(dates)
+        const rosh_chodesh = dates.filter(({ dd }) => dd === 1);
+        const pesach = dates.filter(({ mm, dd }) => mm === 1 && dd === 14)
+        const matzot = dates.filter(( { mm, dd }) => mm === 1 && [15,16,17,18,19,20,21].includes(dd))
+        const yom_bikkurim = [nextDay(dates, matzot[0], 'Sunday')]
+        const shavuot = [incrementDays(dates, yom_bikkurim[0], 50)]
+        const yom_teruah = dates.filter(({ mm, dd }) => mm === 7 && dd === 1)
+        const yom_kippur = dates.filter(({ mm, dd }) => mm === 7 && dd === 10)
+        const sukkot = dates.filter(({ mm, dd }) => mm === 7 && [15, 16, 17, 18, 19, 20, 21, 22].includes(dd))
+
+        const chanukkah = [
+          ...dates.filter(({ mm, dd }) => mm === 9 && [25,26,27,28,29,30].includes(dd)),
+          ...dates.filter(({ mm, dd }) => mm === 10 && [1, 2].includes(dd)),
+        ]
+
+        if (!dates.find(({ mm, dd }) => mm === 9 && dd === 30)) chanukkah.push(
+          dates.find(({ mm, dd }) => mm === 10 && dd == 3)
+        )
+
+        const lastMonth = dates[dates.length - 1].mm
+        const purim = dates.filter(({ mm, dd }) => mm == lastMonth && dd === 14)
+        const tisha_bav = dates.filter(({ mm, dd }) => mm === 5 && dd === 9)
+        const yearEvents = {
+          shabbat,
+          rosh_chodesh,
+          pesach,
+          matzot,
+          yom_bikkurim,
+          shavuot,
+          yom_teruah,
+          yom_kippur,
+          sukkot,
+          chanukkah,
+          purim,
+          tisha_bav
+        }
+
+        const yearInserts = []
+        Object.keys(yearEvents).map((key) => {
+          const hebrew_event = events.find(({ short_name }) => short_name === key).uuid
+          const eventDates = yearEvents[key]
+          eventDates.map((date) => {
+            const hebrew_date = date.uuid
+            yearInserts.push({
+              hebrew_date,
+              hebrew_event,
+            })
+          })
+        })
+
+        await queryInterface.bulkInsert('hebrew_event_dates', yearInserts)
+      } catch (error) {
+      }
+    }
+
   },
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable('hebrew_event_dates');
   },
 };
 
-const getEvents = (years) => {
-  const events = []
-  years.map(({ yy }) => {
+const incrementDays = (dates, date, incrementDays) => dates.find((x) => parseFloat(x.day_index) === (parseFloat(date.day_index) + incrementDays))
 
-    const dates = await queryInterface.sequelize.query(
-      `SELECT * FROM "hebrew_dates" WHERE "yy" = :yy;`
-      {
-        type: Sequelize.QueryTypes.SELECT,
-        replacements: { yy }
-      }
-    )
+const nextDay = (dates, date, day_of_week) => dates.find((_date) => _date.day_index > date.day_index && _date.day_of_week === day_of_week)
 
-    const sabbath1 = dates.findByGregorian(
-      dates,
-      getNextSaturday(dates[0].gregorian)
-    )
+const getSabbaths = (dates) => {
+  const sabbaths = [nextDay(dates, dates[0], 'Saturday')]
+  let i = 1
+  while(i !== null) {
+    const nextSabbath = nextDay(dates, sabbaths[i - 1], 'Saturday')
 
-    const passover = dates.find(
-      (date) => mm === 1 && dd === 14
-    )
-    const unleavened1 = dates.find(
-      (date) => mm === 1 && dd === 15
-    )
-    const unleavened2 = dates.find(
-      (date) => mm === 1 && dd === 16
-    )
-    const unleavened3 = dates.find(
-      (date) => mm === 1 && dd === 17
-    )
-    const unleavened4 = dates.find(
-      (date) => mm === 1 && dd === 18
-    )
-    const unleavened5 = dates.find(
-      (date) => mm === 1 && dd === 19
-    )
-    const unleavened6 = dates.find(
-      (date) => mm === 1 && dd === 20
-    )
-    const unleavened7 = dates.find(
-      (date) => mm === 1 && dd === 21
-    )
-    const firstFruits = findByGregorian(
-      dates,
-      getNextSunday(unleavened1.gregorian)
-    )
-    const pentecost = findByGregorian(
-      dates,
-      incrementDays(firstFruits.gregorian, 50)
-    )
-
-    const roshTeruah = dates.find(
-      (date) => mm === 7 && dd === 1
-    )
-    const yomKipur = dates.find(
-      (date) => mm === 7 && dd === 10
-    )
-    const sukkot1 = dates.find(
-      (date) => mm === 7 && dd === 15
-    )
-    const sukkot2 = dates.find(
-      (date) => mm === 7 && dd === 16
-    )
-    const sukkot3 = dates.find(
-      (date) => mm === 7 && dd === 17
-    )
-    const sukkot4 = dates.find(
-      (date) => mm === 7 && dd === 18
-    )
-    const sukkot5 = dates.find(
-      (date) => mm === 7 && dd === 19
-    )
-    const sukkot6 = dates.find(
-      (date) => mm === 7 && dd === 20
-    )
-    const sukkot7 = dates.find(
-      (date) => mm === 7 && dd === 21
-    )
-    const sukkot8 = dates.find(
-      (date) => mm === 7 && dd === 22
-    )
-
-    const roshChodesh1 = dates.find(
-      (date) => mm === 1 && dd === 1
-    )
-    const roshChodesh2 = dates.find(
-      (date) => mm === 2 && dd === 1
-    )
-    const roshChodesh3 = dates.find(
-      (date) => mm === 3 && dd === 1
-    )
-    const roshChodesh4 = dates.find(
-      (date) => mm === 4 && dd === 1
-    )
-    const roshChodesh5 = dates.find(
-      (date) => mm === 5 && dd === 1
-    )
-    const roshChodesh6 = dates.find(
-      (date) => mm === 6 && dd === 1
-    )
-    const roshChodesh7 = dates.find(
-      (date) => mm === 7 && dd === 1
-    )
-    const roshChodesh8 = dates.find(
-      (date) => mm === 8 && dd === 1
-    )
-    const roshChodesh9 = dates.find(
-      (date) => mm === 9 && dd === 1
-    )
-    const roshChodesh10 = dates.find(
-      (date) => mm === 10 && dd === 1
-    )
-    const roshChodesh11 = dates.find(
-      (date) => mm === 11 && dd === 1
-    )
-    const roshChodesh12 = dates.find(
-      (date) => mm === 12 && dd === 1
-    )
-    const roshChodesh13 = dates.find(
-      (date) => mm === 13 && dd === 1
-    )
-
-    // get sabbaths
-    // const sabbath1 = dates.find((date) => mm === 13 && dd === 1)
-
-    if (year === 5784) {
-      console.log({
-        passover,
-        unleavened1,
-        unleavened2,
-        unleavened3,
-        unleavened4,
-        unleavened5,
-        unleavened6,
-        unleavened7,
-        firstFruits,
-        pentecost,
-        roshTeruah,
-        yomKipur,
-        sukkot1,
-        sukkot2,
-        sukkot3,
-        sukkot4,
-        sukkot5,
-        sukkot6,
-        sukkot7,
-        sukkot8,
-        roshChodesh1,
-        roshChodesh2,
-        roshChodesh3,
-        roshChodesh4,
-        roshChodesh5,
-        roshChodesh6,
-        roshChodesh7,
-        roshChodesh8,
-        roshChodesh9,
-        roshChodesh10,
-        roshChodesh11,
-        roshChodesh12,
-        roshChodesh13
-      })
+    if (!nextSabbath) {
+      i = null
+    } else {
+      sabbaths.push(nextSabbath)    
+      i++    
     }
-  })
-  return events
-}
+  }
 
-const findByGregorian = (dates, targetDate) => {
-  const [y, m, d] = targetDate.split('-')
-
-  return dates.find((date) => {
-    const [gYear, gMonth, gDate] = date.gregorian
-    return m === gMonth && d === gDate && y === gYear
-  })
-}
-
-const incrementDays = (date, incrementDays) => {
-  const [y, m, d] = date.split('-')
-  const dt = new Date(2000, m - 1, d)
-  dt.setFullYear(y)
-  dt.setDate(dt.getDate() + incrementDays)
-  return `${dt.getFullYear()}-${dt.getMonth() + 1}-${dt.getDate()}`
-}
-
-const getNextSunday = (date) => {
-  const [y, m, d] = date.split('-')
-  const dt = new Date(2000, m - 1, d)
-  dt.setFullYear(y)
-
-  let daysToAdd = (7 - dt.getDay()) % 7
-  daysToAdd = daysToAdd === 0 ? 7 : daysToAdd
-  dt.setDate(dt.getDate() + daysToAdd)
-
-  return `${dt.getFullYear()}-${dt.getMonth() + 1}-${dt.getDate()}`
-}
-
-const getNextSaturday = (date) => {
-  const [y, m, d] = date.split('-');
-  const dt = new Date(2000, m - 1, d);
-  dt.setFullYear(y);
-
-  let daysToAdd = 6 - dt.getDay();
-  daysToAdd = daysToAdd < 0 ? 6 : daysToAdd === 0 ? 7 : daysToAdd;
-  dt.setDate(dt.getDate() + daysToAdd);
-
-  return `${dt.getFullYear()}-${dt.getMonth() + 1}-${dt.getDate()}`;
+  return sabbaths;
 };

@@ -1,42 +1,83 @@
 'use strict';
-const { HDate } = require('@hebcal/core');
+console.log(__dirname)
+const {
+  from_julian_calendar,
+  from_gregorian
+} = require(`${__dirname}/../../src/services/Fourmilab`)
+
+// Gregorian Transition Notes:
+// Pope: 1582 oct 4->15
+// Brit: 1752 sep 2->14
 
 const getGregorian = () => {
-  // Hebrew Year 3790, Month 7, Day 1
-  // The beginning of the Hebrew year in which Jesus died
-  const start = new Date('2024-09-25')
-  start.setFullYear(29)
+  const start = new Date('2024-01-01');
+  start.setFullYear(1);
 
   // Hebrew Year 5835 Month 6 Day 29 (last day of year 5835)
-  const end = new Date('2075-09-09')
-  const dates = []
+  const end = new Date('2075-09-09');
+
+  const dates = [];
+  let day_index = 0;
 
   for (
     let date = new Date(start);
     date <= end;
     date.setDate(date.getDate() + 1)
   ) {
-    dates.push(new Date(date))
+    // Skip the dates from Oct 5 to Oct 14, 1582 so that we can apply gregorian back in time
+    const skipJulianDates = date >= new Date(1582, 9, 5) && date <= new Date(1582, 9, 14) 
+
+    if (!skipJulianDates) dates.push({
+      date: new Date(date),
+      day_index: ++day_index
+    });      
   }
 
-  return dates
+  return dates;
 }
+
+const calendar_methods = {
+  from_gregorian,
+  from_julian_calendar
+};
 
 const getHebrew = (gDates) => {
   const hDates = [];
-  gDates.forEach((date) => {
-    const gdate = new Date(date);
-    const hdate = new HDate(gdate);
+  gDates.forEach((entry) => {
+    const { date, day_index } = entry;
+    console.log(day_index)
+    const isGregorian = date >= new Date(1582,9,15) 
+    const key = isGregorian ? 'gregorian' : 'juliancalendar'
+    const method = isGregorian ? 'from_gregorian' : 'from_julian_calendar'
 
-    const gregorian = gdate.toISOString().split('T')[0];
+    const partial = {
+      year: { value: date.getFullYear() },
+      month: { selectedIndex: date.getMonth() },
+      day: { value: date.getDate() },
+      leap: { value: null },
+      wday: { value: null }
+    }
 
-    hDates.push({
-      gregorian,
-      dd: hdate.dd,
-      mm: hdate.mm,
-      yy: hdate.yy,
-      rd: hdate.rd,
-    });
+    if (isGregorian) {
+      partial.hour = { value: null }
+      partial.min = { value: null }
+      partial.sec = { value: null }
+    }
+
+    try {
+      const { hebrew, gregorian } = calendar_methods[method]({ [key]: partial })
+
+      hDates.push({
+          gregorian: date.toISOString().split('T')[0],
+          day_of_week: gregorian.wday.value,
+          day_index,
+          dd: hebrew.day.value,
+          mm: hebrew.month.selectedIndex + 1,
+          yy: hebrew.year.value,
+      });
+    } catch(error) {
+      console.log(error)
+    }
   });
 
   return hDates;
@@ -51,10 +92,16 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
-        defaultValue: Sequelize.literal('uuid_generate_v4()'), // Use PostgreSQL's UUID function
+        defaultValue: Sequelize.literal('uuid_generate_v4()'),
       },
       gregorian: {
         type: Sequelize.DATEONLY
+      },
+      day_of_week: {
+        type: Sequelize.STRING
+      },
+      day_index: {
+        type: Sequelize.BIGINT
       },
       dd: {
         type: Sequelize.INTEGER
@@ -65,18 +112,15 @@ module.exports = {
       yy: {
         type: Sequelize.INTEGER
       },
-      rd: {
-        type: Sequelize.INTEGER
-      },
-      createdAt: {
+      created_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'), // Use PostgreSQL's CURRENT_TIMESTAMP for default value
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
-      updatedAt: {
+      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'), // Use PostgreSQL's CURRENT_TIMESTAMP for default value
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       }
     });
 
