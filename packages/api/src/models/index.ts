@@ -32,11 +32,24 @@ const HebrewDates = HebrewDatesModel(sequelize)
 const HebrewEvents = HebrewEventsModel(sequelize)
 const HebrewEventDates = HebrewEventDatesModel(sequelize)
 
-HebrewEventDates.belongsTo(HebrewDates, { foreignKey: 'hebrew_date' })
-HebrewEventDates.belongsTo(HebrewEvents, { foreignKey: 'hebrew_event' })
 
-HebrewDates.hasMany(HebrewEventDates, { foreignKey: 'hebrew_date' })
-HebrewEvents.hasMany(HebrewEventDates, { foreignKey: 'hebrew_event' })
+HebrewEventDates.belongsTo(HebrewDates, {
+  foreignKey: 'hebrew_date',
+  as: 'hebrewDate'  
+});
+HebrewEventDates.belongsTo(HebrewEvents, {
+  foreignKey: 'hebrew_event',
+  as: 'event'  
+});
+
+HebrewDates.hasMany(HebrewEventDates, {
+  foreignKey: 'hebrew_date',
+  as: 'events'  
+});
+HebrewEvents.hasMany(HebrewEventDates, {
+  foreignKey: 'hebrew_event',
+  as: 'eventDates'  
+});
 
 export default {
   Sequelize,

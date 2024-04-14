@@ -10,7 +10,9 @@ import {
 } from '@api/utils/dates'
 import {
   findAllByGregorian,
-  findAllByHebrew
+  findAllByGregorianWithEvents,
+  findAllByHebrew,
+  findAllByHebrewWithEvents
 } from '@api/models/HebrewDates/methods'
 
 class DatesController {
@@ -19,6 +21,10 @@ class DatesController {
       const type = typeof req.query.type === 'string' ? req.query.type : ''
       const start = typeof req.query.start === 'string' ? req.query.start : ''
       const end = typeof req.query.end === 'string' ? req.query.end : ''
+      const with_events =
+        typeof req.query.with_events === 'string'
+          ? req.query.with_events
+          : false
       let response
 
       if (type !== 'hebrew') {
@@ -30,7 +36,9 @@ class DatesController {
           return
         }
 
-        response = await findAllByGregorian(dtStart, dtEnd)
+        response = with_events
+          ? await findAllByGregorianWithEvents(dtStart, dtEnd)
+          : await findAllByGregorian(dtStart, dtEnd)
       } else {
         if (!isValidHebrewDateFormat(start) || !isValidHebrewDateFormat(end)) {
           next(
@@ -39,10 +47,12 @@ class DatesController {
           return
         }
 
-        response = await findAllByHebrew(
-          parseHebrewDate(start),
-          parseHebrewDate(end)
-        )
+        const dtStart = parseHebrewDate(start)
+        const dtEnd = parseHebrewDate(end)
+
+        response = with_events
+          ? await findAllByHebrewWithEvents(dtStart, dtEnd)
+          : await findAllByHebrew(dtStart, dtEnd)
       }
 
       if (!response || !response.length) {

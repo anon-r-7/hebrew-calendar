@@ -1,10 +1,7 @@
 import { Op } from 'sequelize'
 import Models from '@api/models'
 import { HebrewEventDatesModel } from '@api/models/HebrewEventDates'
-import {
-  createSafeSqlDate,
-  HebrewParts
-} from '@api/utils/dates'
+import { createSafeSqlDate } from '@api/utils/dates'
 
 export const findByGregorian = async (
   date: Date
