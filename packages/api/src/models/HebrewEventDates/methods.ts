@@ -3,7 +3,6 @@ import Models from '@api/models'
 import { HebrewEventDatesModel } from '@api/models/HebrewEventDates'
 import {
   createSafeSqlDate,
-  hebrewToGregorian,
   HebrewParts
 } from '@api/utils/dates'
 
@@ -49,18 +48,18 @@ export const findAllByGregorian = async (
   })
 }
 
-export const findByHebrew = async (
-  dateParts: HebrewParts
-): Promise<HebrewEventDatesModel> => {
-  const date = hebrewToGregorian(dateParts)
-  return await findByGregorian(date)
-}
+// export const findByHebrew = async (
+//   dateParts: HebrewParts
+// ): Promise<HebrewEventDatesModel> => {
+//   const date = hebrewToGregorian(dateParts)
+//   return await findByGregorian(date)
+// }
 
-export const findAllByHebrew = async (
-  start: HebrewParts,
-  end: HebrewParts
-): Promise<HebrewEventDatesModel[]> => {
-  const gStart = hebrewToGregorian(start)
-  const gEnd = hebrewToGregorian(end)
-  return await findAllByGregorian(gStart, gEnd)
-}
+// export const findAllByHebrew = async (
+//   start: HebrewParts,
+//   end: HebrewParts
+// ): Promise<HebrewEventDatesModel[]> => {
+//   const gStart = hebrewToGregorian(start)
+//   const gEnd = hebrewToGregorian(end)
+//   return await findAllByGregorian(gStart, gEnd)
+// }

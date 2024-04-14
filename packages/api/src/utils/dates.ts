@@ -1,5 +1,4 @@
 import { HDate } from '@hebcal/core'
-const { from_hebrew } = require('@api/services/Fourmilab')
 
 export const createSafeJsDate = (dateString) => {
   const parts = dateString.split('-').map((part) => parseInt(part, 10)) // Assumes YYYY-MM-DD format
@@ -44,42 +43,4 @@ export const isValidHebrewDateFormat = (dateString: string): boolean => {
 export const parseHebrewDate = (dateStr: string): HebrewParts => {
   const [yy, mm, dd] = dateStr.split('-').map((part) => parseInt(part, 10))
   return { yy, mm, dd }
-}
-
-export const hebrewToGregorian = ({ yy, mm, dd }: HebrewParts): Date => {
-  const partial = {
-    hebrew: {
-      year: { value: yy },
-      month: {
-        selectedIndex: { value: mm - 1 }, // selectedIndex is 0-indexed wheres mm is not 0-indexerd
-        options: [
-          // we don't care about these but need to define them as empty
-          { value: null },
-          { value: null },
-          { value: null },
-          { value: null },
-          { value: null },
-          { value: null },
-          { value: null },
-          { value: null },
-          { value: null },
-          { value: null },
-          { value: null },
-          { value: null },
-          { value: null }
-        ]
-      },
-      day: { value: dd },
-      hebmonth: { src: { value: null } }, // we don't care about these but need to define them as empty
-      leap: { value: null } // we don't care about these but need to define them as empty
-    }
-  }
-
-  const { gregorian } = from_hebrew(partial)
-
-  const year = gregorian.year.value
-  const month = gregorian.month.selectedIndex.value // already 0 indexed
-  const day = gregorian.day.value
-  const dt = new Date(year, month, day)
-  return dt
 }

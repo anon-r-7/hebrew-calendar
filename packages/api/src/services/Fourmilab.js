@@ -390,8 +390,10 @@ function gregorian_to_jd(year, month, day)
 //  JD_TO_GREGORIAN  --  Calculate Gregorian calendar date from Julian day
 
 function jd_to_gregorian(jd) {
+    // @RyanOstrom
+    // patch to add `month` and `day`
     var wjd, depoch, quadricent, dqc, cent, dcent, quad, dquad,
-        yindex, dyindex, year, yearday, leapadj;
+        yindex, dyindex, year, yearday, leapadj, month, day;
 
     wjd = Math.floor(jd - 0.5) + 0.5;
     depoch = wjd - GREGORIAN_EPOCH;
@@ -564,8 +566,10 @@ function hebrew_year_months(year)
 //  Sunday, Wednesday, and Friday as start of the new year.
 
 function hebrew_delay_1(year)
-{
-    var months, days, parts;
+{  
+    // @RyanOstrom
+    // patch `days` to `day`
+    var months, day, parts;
 
     months = Math.floor(((235 * year) - 234) / 19);
     parts = 12084 + (13753 * months);
@@ -1132,7 +1136,9 @@ function indian_civil_to_jd(year, month, day)
 
 function jd_to_indian_civil(jd)
 {
-    var Caitra, Saka, greg, greg0, leap, start, year, yday, mday;
+    // @RyanOstrom
+    // patch to add `month` and `day`
+    var Caitra, Saka, greg, greg0, leap, start, year, yday, mday, month, day;
 
     Saka = 79 - 1;                    // Offset in years from Saka era to Gregorian epoch
     start = 80;                       // Day offset between Saka and Gregorian
@@ -1179,10 +1185,12 @@ function jd_to_indian_civil(jd)
 
 function updateFromGregorian()
 {
+    // @RyanOstrom
+    // patch to add `perscal`
     var j, year, mon, mday, hour, min, sec,
         weekday, julcal, hebcal, islcal, hmindex, utime, isoweek,
         may_countcal, mayhaabcal, maytzolkincal, frrcal,
-        indcal, isoday, xgregcal;
+        indcal, isoday, xgregcal, perscal;
 
     year = new Number(document.gregorian.year.value);
     mon = document.gregorian.month.selectedIndex;

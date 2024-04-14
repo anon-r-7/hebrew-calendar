@@ -43,13 +43,27 @@ export default (sequelize: Sequelize) => {
           model: 'hebrew_dates',
           key: 'uuid'
         }
+      },
+      created_at: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        field: 'created_at'
+      },
+      updated_at: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        field: 'updated_at'
       }
     },
     {
       sequelize,
       modelName: 'HebrewEventDates',
       tableName: 'hebrew_event_dates',
-      timestamps: true
+      timestamps: true,
+      createdAt: 'created_at',
+      updatedAt: 'updated_at'
     }
   )
 

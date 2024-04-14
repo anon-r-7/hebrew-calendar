@@ -35,13 +35,27 @@ export default (sequelize: Sequelize) => {
       short_name: {
         allowNull: false,
         type: DataTypes.STRING
+      },
+      created_at: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        field: 'created_at'
+      },
+      updated_at: {
+        allowNull: false,
+        type: DataTypes.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        field: 'updated_at'
       }
     },
     {
       sequelize,
       modelName: 'HebrewEvents',
       tableName: 'hebrew_events',
-      timestamps: true
+      timestamps: true,
+      createdAt: 'created_at',
+      updatedAt: 'updated_at'
     }
   )
 
