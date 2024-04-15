@@ -42,7 +42,7 @@ export const findAllByGregorianWithEvents = async (
       }
     },
     attributes: {
-      exclude: ['created_at', 'updated_at'] // Exclude timestamps from HebrewDates
+      exclude: ['created_at', 'updated_at'] 
     },
     include: [
       {
@@ -57,7 +57,7 @@ export const findAllByGregorianWithEvents = async (
             model: Models.HebrewEvents,
             as: 'event',
             attributes: {
-              exclude: ['created_at', 'updated_at']
+              exclude: ['created_at', 'updated_at', 'uuid']
             },
             required: true
           }
@@ -139,6 +139,9 @@ export const findAllByHebrewWithEvents = async (
         [Op.lte]: end_row.day_index
       }
     },
+    attributes: {
+      exclude: ['created_at', 'updated_at'] 
+    },
     include: [
       {
         model: Models.HebrewEventDates,
@@ -152,7 +155,7 @@ export const findAllByHebrewWithEvents = async (
             model: Models.HebrewEvents,
             as: 'event',
             attributes: {
-              exclude: ['created_at', 'updated_at']
+              exclude: ['created_at', 'updated_at', 'uuid']
             },
             required: true
           }

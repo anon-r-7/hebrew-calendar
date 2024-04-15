@@ -2,7 +2,7 @@ import React from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
 
 import { Routes } from '@ui/Routes'
-import { Home } from '@ui/features/Home'
+import { Home } from '@ui/features/Home/components/Home'
 
 export const App = () => (
   <>

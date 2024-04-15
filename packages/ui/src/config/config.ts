@@ -11,6 +11,6 @@ export const env = {
       typeof envApiUrl == 'string'
         ? // @ts-expect-error:next-line
           envApiUrl
-        : 'http://localhost:8080'
+        : 'http://localhost:5000'
     )
 }
