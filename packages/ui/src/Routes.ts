@@ -1,5 +1,5 @@
 export const Routes = {
-  Home: '/'
+  Calendar: '/calendar'
 }
 
 export const createRoute = ({ route, id }) => route.replace(':id', id)

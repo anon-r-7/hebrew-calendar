@@ -2,22 +2,22 @@ import React from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
 
 import { Routes } from '@ui/Routes'
-import { Home } from '@ui/features/Home/components/Home'
+import { Calendar } from '@ui/features/Calendar/Calendar'
 
 export const App = () => (
   <>
     <Switch>
       <Route
         exact
-        path={Routes.Home}
+        path={Routes.Calendar}
         render={(props) => (
           <>
-            <Home {...props} />
+            <Calendar {...props} />
           </>
         )}
       />
 
-      <Redirect to={Routes.Home} />
+      <Redirect to={Routes.Calendar} />
     </Switch>
   </>
 )

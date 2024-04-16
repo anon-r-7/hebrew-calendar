@@ -1,4 +1,4 @@
-import api from '@ui/api'
+import api from '@ui/api/dates'
 
 interface Payload {
   start: string
@@ -17,7 +17,7 @@ const payloadDefault = {
 export const getDates = async ({ payload, asyncManager, store }) => {
   try {
     asyncManager.start()
-    const dates = await api.dates.get({ ...payloadDefault, ...payload })
+    const dates = await api.get({ ...payloadDefault, ...payload })
     asyncManager.success()
     store.update({ dates })
     asyncManager.success()
