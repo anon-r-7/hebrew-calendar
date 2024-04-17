@@ -42,7 +42,7 @@ export const findAllByGregorianWithEvents = async (
       }
     },
     attributes: {
-      exclude: ['created_at', 'updated_at'] 
+      exclude: ['created_at', 'updated_at']
     },
     include: [
       {
@@ -140,7 +140,7 @@ export const findAllByHebrewWithEvents = async (
       }
     },
     attributes: {
-      exclude: ['created_at', 'updated_at'] 
+      exclude: ['created_at', 'updated_at']
     },
     include: [
       {

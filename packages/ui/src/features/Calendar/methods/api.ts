@@ -11,7 +11,7 @@ const payloadDefault = {
   start: '',
   end: '',
   type: 'gregorian',
-  with_events: true,
+  with_events: true
 }
 
 export const getDates = async ({ payload, asyncManager, store }) => {
@@ -22,6 +22,8 @@ export const getDates = async ({ payload, asyncManager, store }) => {
     store.update({ dates })
     asyncManager.success()
   } catch (error) {
-    asyncManager.fail(`Hmm, there was a problem getting dates. Please try again.`)
+    asyncManager.fail(
+      `Hmm, there was a problem getting dates. Please try again.`
+    )
   }
 }

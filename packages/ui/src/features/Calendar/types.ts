@@ -23,4 +23,3 @@ export interface Date {
 export interface InitialState {
   dates: Date[]
 }
-

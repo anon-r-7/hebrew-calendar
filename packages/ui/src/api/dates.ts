@@ -8,7 +8,7 @@ const get = async ({ start, end, type, with_events }) => {
       start,
       end,
       type,
-      with_events,
+      with_events
     }
   })
   return response.data

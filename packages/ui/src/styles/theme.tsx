@@ -8,41 +8,34 @@ import { Select } from './select'
 export const theme = extendTheme({
   colors: {
     brand: {
-      primary: '#375bd2',
-      mirage: '#0c162c',
-      biscay: '#1a2b6b',
-      perano: '#a0b3f2',
-      lavender: '#dfe7fb',
-      zircon: '#f5f7fd',
-      red: '#ff5e57',
-      yellow: '#ffdd59',
-      green: '#05c46b',
-      black: '#000000',
-      gray_90: '#252e42',
-      gray_80: '#3d4556',
-      gray_70: '#555c6c',
-      gray_60: '#6d7380',
-      gray_50: '#858a95',
-      gray_40: '#9ea2ab',
-      gray_30: '#b7bac0',
-      gray_20: '#ced0d5',
-      gray_10: '#e7e8ea',
-      gray_05: '#f3f3f4',
-      white: '#ffffff',
-      link: '#375bd2'
+      primary: '#005b96', // A deep blue
+      secondary: '#e1eef6', // Very light blue for backgrounds
+      accent: '#ffc107', // Bright yellow for accents
+      dark: '#212529', // Almost black for strong contrast
+      light: '#f8f9fa', // Very light gray for card backgrounds
+      grey: '#d7d7dd', // Very light gray for card backgrounds
+      success: '#28a745', // Green, for success states
+      error: '#dc3545', // Red, for errors or warnings
+      warning: '#ffc107' // Yellow, for warnings or mild alerts
     }
   },
   fonts: {
-    body: 'Lato, system-ui, sans-serif',
-    heading: 'Montserrat, system-ui, sans-serif',
+    body: 'Lato, sans-serif',
+    heading: 'Montserrat, serif',
     mono: 'Menlo, monospace'
+  },
+  components: {
+    Button,
+    Heading,
+    Switch,
+    Input,
+    Select
   },
   styles: {
     global: {
-      'html, body': {
-        color: 'brand.gray_60',
-        lineHeight: 'base',
-        backgroundColor: 'brand.zircon'
+      body: {
+        bg: 'brand.secondary',
+        color: 'brand.dark'
       }
     }
   },
@@ -56,12 +49,66 @@ export const theme = extendTheme({
     brand: {
       base: '0px 14px 21px rgba(0, 0, 0, 0.06)'
     }
-  },
-  components: {
-    Button,
-    Heading,
-    Switch,
-    Input,
-    Select
   }
 })
+
+// export const theme = extendTheme({
+//   colors: {
+//     brand: {
+//       primary: '#375bd2',
+//       mirage: '#0c162c',
+//       biscay: '#1a2b6b',
+//       perano: '#a0b3f2',
+//       lavender: '#dfe7fb',
+//       zircon: '#f5f7fd',
+//       red: '#ff5e57',
+//       yellow: '#ffdd59',
+//       green: '#05c46b',
+//       black: '#000000',
+//       gray_90: '#252e42',
+//       gray_80: '#3d4556',
+//       gray_70: '#555c6c',
+//       gray_60: '#6d7380',
+//       gray_50: '#858a95',
+//       gray_40: '#9ea2ab',
+//       gray_30: '#b7bac0',
+//       gray_20: '#ced0d5',
+//       gray_10: '#e7e8ea',
+//       gray_05: '#f3f3f4',
+//       white: '#ffffff',
+//       link: '#375bd2'
+//     }
+//   },
+//   fonts: {
+//     body: 'Lato, system-ui, sans-serif',
+//     heading: 'Montserrat, system-ui, sans-serif',
+//     mono: 'Menlo, monospace'
+//   },
+//   styles: {
+//     global: {
+//       'html, body': {
+//         color: 'brand.gray_60',
+//         lineHeight: 'base',
+//         backgroundColor: 'brand.zircon'
+//       }
+//     }
+//   },
+//   sizes: {
+//     container: {
+//       xl: '1200px',
+//       '2xl': '1440px'
+//     }
+//   },
+//   shadows: {
+//     brand: {
+//       base: '0px 14px 21px rgba(0, 0, 0, 0.06)'
+//     }
+//   },
+//   components: {
+//     Button,
+//     Heading,
+//     Switch,
+//     Input,
+//     Select
+//   }
+// })
