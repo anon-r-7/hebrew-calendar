@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { Box } from '@chakra-ui/react'
+import { Flex, Box, Heading, useTheme } from '@chakra-ui/react'
 import { useStore } from '@ui/hooks/useStore'
 import { useAsyncManager } from '@ui/hooks/useAsyncManager'
-import { getCurrentMonthFirstIso, getMonthRange } from '@ui/utils/date'
+import { getCurrentMonthFirstIso, getMonthRange, months } from '@ui/utils/date'
 
 import { CalendarGrid } from '@ui/components/CalendarGrid'
 
@@ -23,6 +23,7 @@ export const Calendar = () => {
   const asyncManager = useAsyncManager()
   const [apiControls, setApiControls] = useState(defaultApiControls)
   const [reload, setReload] = useState(false)
+  const theme = useTheme()
 
   const parseQueryParams = () => {
     const searchParams = new URLSearchParams(window.location.search)
@@ -74,13 +75,32 @@ export const Calendar = () => {
     })
   }
 
+  const [primaryYear, monthIndex] = apiControls.start.split('-')
+  const monthName = months[parseFloat(monthIndex) - 1]
+
   return (
     <Box w="100vw" minH="100vh" p={0} m={0}>
-      <DateControls
-        apiControls={apiControls}
-        setApiControls={setApiControls}
-        onSubmit={onSubmit}
-      />
+      <Flex direction="column" align="center" justify="center">
+        <Flex
+          w="full"
+          maxW={theme.sizes.container.xl}
+          align="center"
+          justify="space-around"
+          align="center"
+          p={4} 
+        >
+          <Heading size="lg" fontWeight="700" color="brand.dark">
+            {monthName}, {primaryYear} AD
+          </Heading>
+          <Box>
+            <DateControls
+              apiControls={apiControls}
+              setApiControls={setApiControls}
+              onSubmit={onSubmit}
+            />
+          </Box>
+        </Flex>
+      </Flex>
       <CalendarGrid dates={store.state.dates} />
     </Box>
   )

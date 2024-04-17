@@ -1,7 +1,12 @@
 import React from 'react'
-import { Box, Flex, Text, useTheme } from '@chakra-ui/react'
+import { Box, Flex, Text, Heading, useTheme } from '@chakra-ui/react'
+import { daysOfWeek } from '@ui/utils/date'
 
-import { Box, Text } from '@chakra-ui/react'
+const isPrimaryMonth = (date, primaryDate) => {
+  const [dateYear, dateMonth] = date.split('-')
+  const [primaryYear, primaryMonth] = primaryDate.split('-')
+  return dateMonth === primaryMonth
+}
 
 const Day = ({ day, isPrimary }) => {
   if (!day) {
@@ -43,26 +48,12 @@ const Day = ({ day, isPrimary }) => {
   )
 }
 
-const isPrimaryMonth = (date, primaryDate) => {
-  const [dateYear, dateMonth] = date.split('-')
-  const [primaryYear, primaryMonth] = primaryDate.split('-')
-  return dateMonth === primaryMonth
-}
-
 export const CalendarGrid = ({ dates }) => {
   const theme = useTheme()
 
   if (!dates || !dates.length) return <div>No dates available</div>
 
-  const daysOfWeek = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday'
-  ]
+
 
   // Find the first "day 1" of the primary month
   const firstDayIndex = dates.findIndex((date) =>
@@ -123,8 +114,10 @@ export const CalendarGrid = ({ dates }) => {
     grid = grid.slice(0, 5)
   }
 
+  const primaryDate = dates[firstDayIndex].gregorian
+
   return (
-    <Flex direction="column" align="center" justify="center" h="100vh" p={4}>
+    <Flex direction="column" align="center" justify="center">
       <Flex justify="space-around" w="full" maxW={theme.sizes.container.xl}>
         {daysOfWeek.map((day, j) => (
           <Box
@@ -162,7 +155,7 @@ export const CalendarGrid = ({ dates }) => {
               p={2}
               m={1}
               bg={
-                isPrimaryMonth(day.gregorian, dates[firstDayIndex].gregorian)
+                isPrimaryMonth(day.gregorian, primaryDate)
                   ? 'brand.light'
                   : 'brand.grey'
               }
@@ -178,7 +171,7 @@ export const CalendarGrid = ({ dates }) => {
                 day={day}
                 isPrimary={isPrimaryMonth(
                   day.gregorian,
-                  dates[firstDayIndex].gregorian
+                  primaryDate
                 )}
               />
             </Box>

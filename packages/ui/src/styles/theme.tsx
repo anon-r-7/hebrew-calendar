@@ -9,7 +9,7 @@ export const theme = extendTheme({
   colors: {
     brand: {
       primary: '#005b96', // A deep blue
-      secondary: '#e1eef6', // Very light blue for backgrounds
+      secondary: '#dee8f1', // Very light blue for backgrounds
       accent: '#ffc107', // Bright yellow for accents
       dark: '#212529', // Almost black for strong contrast
       light: '#f8f9fa', // Very light gray for card backgrounds
@@ -21,7 +21,7 @@ export const theme = extendTheme({
   },
   fonts: {
     body: 'Lato, sans-serif',
-    heading: 'Montserrat, serif',
+    heading: 'Lato, serif',
     mono: 'Menlo, monospace'
   },
   components: {
