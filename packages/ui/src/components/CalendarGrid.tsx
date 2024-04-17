@@ -53,8 +53,6 @@ export const CalendarGrid = ({ dates }) => {
 
   if (!dates || !dates.length) return <div>No dates available</div>
 
-
-
   // Find the first "day 1" of the primary month
   const firstDayIndex = dates.findIndex((date) =>
     date.gregorian.endsWith('-01')
@@ -169,10 +167,7 @@ export const CalendarGrid = ({ dates }) => {
               boxShadow={day ? theme.shadows.brand.base : 'none'}>
               <Day
                 day={day}
-                isPrimary={isPrimaryMonth(
-                  day.gregorian,
-                  primaryDate
-                )}
+                isPrimary={isPrimaryMonth(day.gregorian, primaryDate)}
               />
             </Box>
           ))}

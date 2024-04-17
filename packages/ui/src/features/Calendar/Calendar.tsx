@@ -87,8 +87,7 @@ export const Calendar = () => {
           align="center"
           justify="space-around"
           align="center"
-          p={4} 
-        >
+          p={4}>
           <Heading size="lg" fontWeight="700" color="brand.dark">
             {monthName}, {primaryYear} AD
           </Heading>
