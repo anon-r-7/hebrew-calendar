@@ -22,7 +22,7 @@ spec:
         command: ['sh', '-c', 'rm -rf /var/lib/postgresql/data/pgdata/lost+found']
         volumeMounts:
         - mountPath: /var/lib/postgresql/data/pgdata
-          name: db-data
+          name: db-data-volume
       containers:
         - env:
             - name: POSTGRES_DB
@@ -43,9 +43,9 @@ spec:
               protocol: TCP
           volumeMounts:
             - mountPath: /var/lib/postgresql/data/pgdata
-              name: db-data
+              name: db-data-volume
       restartPolicy: Always
       volumes:
-        - name: db-data
+        - name: db-data-volume
           persistentVolumeClaim:
-            claimName: db-data
+            claimName: db-data-volume

@@ -23,8 +23,10 @@ spec:
           image: ghcr.io/anon-r-7/hebrew-calendar-api:latest
           imagePullPolicy: Always
           ports:
-            - containerPort: 8080
+            - containerPort: 80
           env:
+            - name: TZ
+              value: "UTC"
             - name: POSTGRES_USER
               value: "postgres"
             - name: POSTGRES_PASSWORD
@@ -39,9 +41,9 @@ spec:
             - name: POSTGRES_DB
               value: "hebrew_calendar"
             - name: SERVER_PORT
-              value: "8080"
+              value: "80"
           command: ["/bin/sh"]
-          args: ["-c", "export DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_ENDPOINT}:${POSTGRES_PORT}/${POSTGRES_DB} && exec yarn db:migrate && node dist/index.js"]
+          args: ["-c", "export DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_ENDPOINT}:${POSTGRES_PORT}/${POSTGRES_DB} && exec node dist/index.js"]
           readinessProbe:
             exec:
               command:
@@ -52,3 +54,5 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
       restartPolicy: Always
+
+# yarn db:migrate && node dist/index.js
