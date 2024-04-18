@@ -27,11 +27,11 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       # Auto update Digital Ocean when new tag is pulled in
-      - name: Update DigitalOcean App with new image
-        run: |
-          DO_APP_ID="your-app-id" # Replace with your DigitalOcean App ID
-          DO_IMAGE="ghcr.io/${{ github.repository }}-api:${{ github.ref_name }}"
-          curl -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" -d "{\"image\":\"$DO_IMAGE\"}" "https://api.digitalocean.com/v2/apps/$DO_APP_ID"
+      # - name: Update DigitalOcean App with new image
+      #   run: |
+      #     DO_APP_ID="your-app-id" # Replace with your DigitalOcean App ID
+      #     DO_IMAGE="ghcr.io/${{ github.repository }}-api:${{ github.ref_name }}"
+      #     curl -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" -d "{\"image\":\"$DO_IMAGE\"}" "https://api.digitalocean.com/v2/apps/$DO_APP_ID"
 
   ui:
     runs-on: "ubuntu-20.04"
@@ -55,10 +55,10 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
  
       # Auto update Digital Ocean when new tag is pulled in
-      - name: Update DigitalOcean App with new image
-        run: |
-          DO_APP_ID="your-app-id" # Replace with your DigitalOcean App ID
-          DO_IMAGE="ghcr.io/${{ github.repository }}-ui:${{ github.ref_name }}"
-          curl -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" -d "{\"image\":\"$DO_IMAGE\"}" "https://api.digitalocean.com/v2/apps/$DO_APP_ID"
+      # - name: Update DigitalOcean App with new image
+      #   run: |
+      #     DO_APP_ID="your-app-id" # Replace with your DigitalOcean App ID
+      #     DO_IMAGE="ghcr.io/${{ github.repository }}-ui:${{ github.ref_name }}"
+      #     curl -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" -d "{\"image\":\"$DO_IMAGE\"}" "https://api.digitalocean.com/v2/apps/$DO_APP_ID"
 
 
