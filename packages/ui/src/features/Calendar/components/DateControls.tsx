@@ -6,7 +6,8 @@ import {
   NumberInputField,
   NumberInputStepper,
   NumberIncrementStepper,
-  NumberDecrementStepper
+  NumberDecrementStepper,
+  useBreakpointValue
 } from '@chakra-ui/react'
 
 export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
@@ -23,85 +24,50 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
     }))
   }
 
+  const buttonSize = useBreakpointValue({ base: 'md', md: 'sm' });
+  const inputSize = useBreakpointValue({ base: 'md', md: 'sm' });
+  const marginSide = useBreakpointValue({ base: '2', md: '2' });
+  const marginBottom = useBreakpointValue({ base: '2', md: '0' });
+
   return (
-    <Flex>
+    <Flex align="center" w="full" p={2}>
       <NumberInput
         bg="white"
-        size="sm"
+        size={inputSize}
         max={2075}
         min={1}
-        onChange={(valueString) =>
-          handleDateChange('start', 'year', valueString)
-        }
+        onChange={(valueString) => handleDateChange('start', 'year', valueString)}
         value={apiControls.start.split('-')[0]}
-        mr={2}>
+        mr={marginSide} mb={{ base: 2, md: 0 }}>
         <NumberInputField />
         <NumberInputStepper>
-          <NumberIncrementStepper
-            sx={{
-              '& > svg': {
-                // Targeting the SVG element directly
-                width: '8px', // Adjust the width as needed
-                height: '8px' // Adjust the height as needed
-              }
-            }}
-          />
-          <NumberDecrementStepper
-            sx={{
-              '& > svg': {
-                // Targeting the SVG element directly
-                width: '8px', // Adjust the width as needed
-                height: '8px' // Adjust the height as needed
-              }
-            }}
-          />
+          <NumberIncrementStepper />
+          <NumberDecrementStepper />
         </NumberInputStepper>
       </NumberInput>
       <NumberInput
         bg="white"
-        size="sm"
+        size={inputSize}
         max={12}
         min={1}
-        onChange={(valueString) =>
-          handleDateChange('start', 'month', valueString.padStart(2, '0'))
-        }
+        onChange={(valueString) => handleDateChange('start', 'month', valueString.padStart(2, '0'))}
         value={parseInt(apiControls.start.split('-')[1], 10)}
-        precision={0}>
+        precision={0}
+        mr={marginSide} mb={{ base: 2, md: 0 }}>
         <NumberInputField />
         <NumberInputStepper>
-          <NumberIncrementStepper
-            sx={{
-              '& > svg': {
-                // Targeting the SVG element directly
-                width: '8px', // Adjust the width as needed
-                height: '8px' // Adjust the height as needed
-              }
-            }}
-          />
-          <NumberDecrementStepper
-            sx={{
-              '& > svg': {
-                // Targeting the SVG element directly
-                width: '8px', // Adjust the width as needed
-                height: '8px' // Adjust the height as needed
-              }
-            }}
-          />
+          <NumberIncrementStepper />
+          <NumberDecrementStepper />
         </NumberInputStepper>
       </NumberInput>
       <Button
-        size="sm"
+        size={buttonSize}
         onClick={onSubmit}
         bg="brand.red"
         fontWeight="500"
         fontFamily="HubotSans"
         color="white"
-        ml={2}
-        style={{
-          fontVariantCaps: 'all-small-caps',
-          fontSize: '18',
-          boxShadow: '1px 1px 1px #222'
-        }}
+        mb={marginBottom}
         sx={{
           ':hover': {
             bg: '#691818' // Use Chakra's color tokens or any CSS color
@@ -110,5 +76,5 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
         Search
       </Button>
     </Flex>
-  )
-}
+  );
+};

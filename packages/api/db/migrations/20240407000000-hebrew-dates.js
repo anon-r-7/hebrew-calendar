@@ -1,5 +1,5 @@
 'use strict';
-console.log(__dirname)
+
 const {
   from_julian_calendar,
   from_gregorian
@@ -45,7 +45,7 @@ const getHebrew = (gDates) => {
   const hDates = [];
   gDates.forEach((entry) => {
     const { date, day_index } = entry;
-    console.log(day_index)
+
     const isGregorian = date >= new Date(1582,9,15) 
     const key = isGregorian ? 'gregorian' : 'juliancalendar'
     const method = isGregorian ? 'from_gregorian' : 'from_julian_calendar'

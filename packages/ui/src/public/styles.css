@@ -15,3 +15,7 @@
   font-weight: 200 900;
   font-stretch: 75% 125%;
 }
+
+:focus {
+  outline: none !important;
+}
