@@ -10,14 +10,6 @@ jobs:
     
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0 
-
-      - name: Extract version from tag
-        id: tag_parser
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
-        env:
-          GITHUB_REF: ${{ github.ref }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
@@ -25,9 +17,6 @@ jobs:
           context: .
           file: api.dockerfile
           push: true
-          tags: |
-            ghcr.io/${{ github.repository }}-api:latest
-            ghcr.io/${{ github.repository }}-api:${{ steps.tag_parser.outputs.version }}
 
       # Auto update Digital Ocean when new tag is pulled in
       # - name: Update DigitalOcean App with new image
@@ -40,14 +29,6 @@ jobs:
     runs-on: "ubuntu-20.04"
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0 
-
-      - name: Extract version from tag
-        id: tag_parser
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
-        env:
-          GITHUB_REF: ${{ github.ref }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
@@ -55,9 +36,6 @@ jobs:
           context: .
           file: ui.dockerfile
           push: true
-          tags: |
-            ghcr.io/${{ github.repository }}-ui:latest
-            ghcr.io/${{ github.repository }}-ui:${{ steps.tag_parser.outputs.version }}
 
       # Auto update Digital Ocean when new tag is pulled in
       # - name: Update DigitalOcean App with new image
