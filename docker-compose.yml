@@ -35,18 +35,18 @@ services:
     depends_on:
       - db
 
-  ui:
-    build:
-      context: .
-      dockerfile: ui.dockerfile
-    ports:
-      - "80:3005"
-    volumes:
-      - .:/app
-      - /app/node_modules
-    environment:
-      DOCKER_BUILDKIT: 1
-      UI_API_URL: ${UI_API_URL:-}
+  # ui:
+  #   build:
+  #     context: .
+  #     dockerfile: ui.dockerfile
+  #   ports:
+  #     - "80:3005"
+  #   volumes:
+  #     - .:/app
+  #     - /app/node_modules
+  #   environment:
+  #     DOCKER_BUILDKIT: 1
+  #     UI_API_URL: ${UI_API_URL:-}
 
 volumes:
   db_data:

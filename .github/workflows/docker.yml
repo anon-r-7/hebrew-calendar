@@ -9,22 +9,24 @@ jobs:
     runs-on: "ubuntu-20.04"
     steps:
       - uses: actions/checkout@v2
-
-      # - name: Login to Docker Hub
-      #   run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PAT }}
-
-      # - name: Build and push Docker image
-      #   run: |
-      #     docker build -t ${{ secrets.DOCKER_USERNAME }}/ara-dev-api:latest -f api.dockerfile .
-      #     docker push ${{ secrets.DOCKER_USERNAME }}/ara-dev-api:latest
-
-      # Use ghcr once github resolve issue with container registry
-      - name: Build and publish a Docker image for ${{ github.repository }}
-        uses: macbre/push-to-ghcr@v13
         with:
-          image_name: ${{ github.repository }}-api
-          dockerfile: "api.dockerfile"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0 
+
+     - name: Extract version from tag
+        id: tag_parser
+        run: echo "##[set-output name=version;]$(echo ${GITHUB_REF#refs/tags/v})"
+        env:
+          GITHUB_REF: ${{ github.ref }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: api.dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}-api:latest
+            ghcr.io/${{ github.repository }}-api:${{ steps.tag_parser.outputs.version }}
 
       # Auto update Digital Ocean when new tag is pulled in
       # - name: Update DigitalOcean App with new image
@@ -37,23 +39,25 @@ jobs:
     runs-on: "ubuntu-20.04"
     steps:
       - uses: actions/checkout@v2
-
-      # - name: Login to Docker Hub
-      #   run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PAT }}
-
-      # - name: Build and push Docker image
-      #   run: |
-      #     docker build -t ${{ secrets.DOCKER_USERNAME }}/ara-dev-ui:latest -f ui.dockerfile .
-      #     docker push ${{ secrets.DOCKER_USERNAME }}/ara-dev-ui:latest
-
-      # Use ghcr once github resolve issue with container registry
-      - name: Build and publish a Docker image for ${{ github.repository }}
-        uses: macbre/push-to-ghcr@v13
         with:
-          image_name: ${{ github.repository }}-ui
-          dockerfile: "ui.dockerfile"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
- 
+          fetch-depth: 0 
+
+     - name: Extract version from tag
+        id: tag_parser
+        run: echo "##[set-output name=version;]$(echo ${GITHUB_REF#refs/tags/v})"
+        env:
+          GITHUB_REF: ${{ github.ref }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ui.dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}-ui:latest
+            ghcr.io/${{ github.repository }}-ui:${{ steps.tag_parser.outputs.version }}
+
       # Auto update Digital Ocean when new tag is pulled in
       # - name: Update DigitalOcean App with new image
       #   run: |

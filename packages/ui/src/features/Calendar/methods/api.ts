@@ -19,7 +19,7 @@ export const getDates = async ({ payload, asyncManager, store }) => {
     asyncManager.start()
     const dates = await api.get({ ...payloadDefault, ...payload })
     asyncManager.success()
-    store.update({ dates })
+    store.update({ dates, type: payload.type })
     asyncManager.success()
   } catch (error) {
     asyncManager.fail(

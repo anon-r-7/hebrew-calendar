@@ -15,6 +15,7 @@ import {
 import { daysOfWeek } from '@ui/utils/date'
 
 const isPrimaryMonth = (date, primaryDate) => {
+  if (!date) return false
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [dateYear, dateMonth] = date.split('-')
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -117,7 +118,7 @@ const Event = ({ event, day, isPrimary }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const eventName = useBreakpointValue({
-    base: event.name.slice(0, 10),
+    base: event.name.slice(0, 3) + '..',
     md: event.name
   })
 
@@ -148,6 +149,7 @@ const Event = ({ event, day, isPrimary }) => {
       <PopoverContent
         _focus={{ outline: 'none' }}
         sx={{
+          display: isOpen ? 'flex' : 'none',
           bg: 'white',
           borderColor: 'white', // Ensure this color is visible
           borderWidth: '0', // Adjusted to be visible
@@ -177,13 +179,21 @@ const Event = ({ event, day, isPrimary }) => {
   )
 }
 
-const Day = ({ day, isPrimary }) => {
+const Day = ({ day, type, isPrimary }) => {
   if (!day) {
     return null
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [numYear, numMonth, numDay] = day.gregorian.split('-')
+  const [GnumYear, GnumMonth, GnumDay] = day.gregorian.split('-')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [HnumYear, HnumMonth, HnumDay] = day.hebrew.split('-')
+
+  const primaryDate =
+    type === 'gregorian' ? `${GnumMonth}/${GnumDay}` : `${HnumMonth}/${HnumDay}`
+  const secondaryDate =
+    type === 'gregorian' ? `${HnumMonth}/${HnumDay}` : `${GnumMonth}/${GnumDay}`
+
   const events = day.events.map((event) => event.event)
 
   return (
@@ -195,7 +205,18 @@ const Day = ({ day, isPrimary }) => {
         top="0"
         right="0"
         fontSize={'xs'}>
-        {numMonth}/{numDay}
+        {primaryDate}
+      </Text>
+      <Text
+        color={'#777'}
+        fontFamily={isPrimary ? 'HubotSans' : 'HubotSans-Light'}
+        fontWeight={isPrimary ? '500' : '300'}
+        position="absolute"
+        top="0"
+        left="0"
+        display={{ base: 'none', sm: 'block' }}
+        fontSize={'xs'}>
+        {secondaryDate}
       </Text>
       <Box mt={{ base: 5, md: 4 }}>
         {events.map((event, k) => (
@@ -206,28 +227,36 @@ const Day = ({ day, isPrimary }) => {
   )
 }
 
-export const CalendarGrid = ({ dates }) => {
+export const CalendarGrid = ({ dates, type }) => {
   const theme = useTheme()
 
   if (!dates || !dates.length) return <div>No dates available</div>
 
+  const datesGrid = dates.map((date) => ({
+    ...date,
+    hebrew: `${date.yy}-${String(date.mm).padStart(2, '0')}-${String(
+      date.dd
+    ).padStart(2, '0')}`
+  }))
+
   // Find the first "day 1" of the primary month
-  const firstDayIndex = dates.findIndex((date) =>
-    date.gregorian.endsWith('-01')
-  )
+  const firstDayIndex = datesGrid.findIndex((date) => {
+    return date[type].endsWith('-01')
+  })
+
   if (firstDayIndex === -1) return <div>Invalid date range provided.</div>
 
   // Get the start day of the week for the first day of the primary month
-  const startingDay = daysOfWeek.indexOf(dates[firstDayIndex].day_of_week)
+  const startingDay = daysOfWeek.indexOf(datesGrid[firstDayIndex].day_of_week)
 
   // Determine the index of the last day of the primary month
-  const nextMonthStartIndex = dates
+  const nextMonthStartIndex = datesGrid
     .slice(firstDayIndex)
-    .findIndex((date, i) => i > 0 && date.gregorian.endsWith('-01'))
+    .findIndex((date, i) => i > 0 && date[type].endsWith('-01'))
   const lastDayIndex =
     nextMonthStartIndex !== -1
       ? firstDayIndex + nextMonthStartIndex - 1
-      : dates.length - 1
+      : datesGrid.length - 1
 
   // Initialize the grid with up to 6 rows initially
   let grid = Array.from({ length: 6 }, () => Array(7).fill(null))
@@ -235,15 +264,15 @@ export const CalendarGrid = ({ dates }) => {
 
   // Populate the grid starting from the first day of the primary month
   let index = firstDayIndex
-  while (index < dates.length) {
-    const date = dates[index]
+  while (index < datesGrid.length) {
+    const date = datesGrid[index]
     const dayIndex = daysOfWeek.indexOf(date.day_of_week) // Get the day index from the daysOfWeek array
 
     // Place the date object in the correct cell
     grid[currentWeek][dayIndex] = date
 
     // Check if we need to increment the week (i.e., start a new week row)
-    if (dayIndex === 6 && index !== dates.length - 1) {
+    if (dayIndex === 6 && index !== datesGrid.length - 1) {
       currentWeek++
     }
 
@@ -258,19 +287,21 @@ export const CalendarGrid = ({ dates }) => {
       i >= 0 && col >= 0;
       i--, col--
     ) {
-      grid[currentWeek][col] = dates[i]
+      grid[currentWeek][col] = datesGrid[i]
     }
   }
 
   // Check if the grid needs adjustment: remove the 6th row if unused
   if (
     grid[5] &&
-    !grid[5].find((date) => date?.day_index === dates[lastDayIndex]?.day_index)
+    !grid[5].find(
+      (date) => date?.day_index === datesGrid[lastDayIndex]?.day_index
+    )
   ) {
     grid = grid.slice(0, 5)
   }
 
-  const primaryDate = dates[firstDayIndex].gregorian
+  const primaryDate = datesGrid[firstDayIndex][type]
 
   return (
     <Flex direction="column" align="center" justify="center">
@@ -287,32 +318,38 @@ export const CalendarGrid = ({ dates }) => {
           maxW={theme.sizes.container.xl}
           mb={1} // Add margin bottom to each week row for spacing
         >
-          {week.map((day, j) => (
-            <Box
-              key={j}
-              w="14%" // Fixed width for day cells
-              h="150px" // Fixed height for day cells
-              p={2}
-              m={1}
-              bg={
-                isPrimaryMonth(day.gregorian, primaryDate)
-                  ? 'brand.light'
-                  : 'brand.grey'
-              }
-              border="1px solid"
-              borderColor="brand.dark"
-              borderRadius="md"
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-              justifyContent="center"
-              boxShadow={day ? theme.shadows.brand.base : 'none'}>
-              <Day
-                day={day}
-                isPrimary={isPrimaryMonth(day.gregorian, primaryDate)}
-              />
-            </Box>
-          ))}
+          {week.map((day, j) => {
+            return (
+              <Box
+                key={j}
+                w="14%" // Fixed width for day cells
+                h="150px" // Fixed height for day cells
+                p={2}
+                m={1}
+                bg={
+                  isPrimaryMonth(day ? day[type] : null, primaryDate)
+                    ? 'brand.light'
+                    : 'brand.grey'
+                }
+                border="1px solid"
+                borderColor="brand.dark"
+                borderRadius="md"
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                boxShadow={day ? theme.shadows.brand.base : 'none'}>
+                <Day
+                  day={day}
+                  type={type}
+                  isPrimary={isPrimaryMonth(
+                    day ? day[type] : null,
+                    primaryDate
+                  )}
+                />
+              </Box>
+            )
+          })}
         </Flex>
       ))}
     </Flex>

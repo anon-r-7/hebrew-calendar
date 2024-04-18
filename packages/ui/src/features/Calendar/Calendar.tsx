@@ -2,7 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { Flex, Box, Heading, useTheme } from '@chakra-ui/react'
 import { useStore } from '@ui/hooks/useStore'
 import { useAsyncManager } from '@ui/hooks/useAsyncManager'
-import { getCurrentMonthFirstIso, getMonthRange, months } from '@ui/utils/date'
+import {
+  getCurrentMonthFirstIso,
+  getMonthRangeGregorian,
+  getMonthRangeHebrew,
+  months
+} from '@ui/utils/date'
 
 import { CalendarGrid } from '@ui/components/CalendarGrid'
 
@@ -10,7 +15,7 @@ import { InitialState } from './types'
 import { getDates } from './methods/api'
 import { DateControls } from './components/DateControls'
 
-const initialState: InitialState = { dates: [] }
+const initialState: InitialState = { dates: [], type: 'gregorian' }
 
 const defaultApiControls = {
   start: getCurrentMonthFirstIso(),
@@ -24,6 +29,7 @@ export const Calendar = () => {
   const [apiControls, setApiControls] = useState(defaultApiControls)
   const [reload, setReload] = useState(false)
   const theme = useTheme()
+  const [isParamChange, setIsParamChange] = useState(false)
 
   const parseQueryParams = () => {
     const searchParams = new URLSearchParams(window.location.search)
@@ -46,8 +52,27 @@ export const Calendar = () => {
   }, [reload])
 
   useEffect(() => {
+    if (isParamChange) {
+      return setIsParamChange(false)
+    }
+    const [yy, mm] = apiControls.start.split('-')
+    const diff = 3760
+
+    const updatedYear =
+      apiControls.type === 'gregorian'
+        ? parseFloat(yy) - diff
+        : parseFloat(yy) + diff
+
+    setApiControls({
+      ...apiControls,
+      start: `${updatedYear}-${mm}-01`
+    })
+  }, [apiControls.type])
+
+  useEffect(() => {
     const updateApiControls = () => {
       const params = parseQueryParams()
+      setIsParamChange(true)
       setApiControls(params)
       setReload(true)
     }
@@ -62,7 +87,10 @@ export const Calendar = () => {
   }, [])
 
   const onSubmit = () => {
-    const [start, end] = getMonthRange(apiControls.start)
+    const [start, end] =
+      apiControls.type === 'gregorian'
+        ? getMonthRangeGregorian(apiControls.start)
+        : getMonthRangeHebrew(apiControls.start)
 
     getDates({
       asyncManager,
@@ -78,21 +106,27 @@ export const Calendar = () => {
   const [primaryYear, monthIndex] = apiControls.start.split('-')
   const monthName = months[parseFloat(monthIndex) - 1]
 
+  const heading =
+    store.state.type === 'gregorian'
+      ? `${monthName}, ${primaryYear} AD`
+      : `Month ${parseFloat(monthIndex)}, ${primaryYear} Hebrew`
+
   return (
-    <Box w="100vw" minH="100vh" p={0} m={0}>
+    <Box w="100%" minH="100%" p={0} m={0}>
       <Flex direction="column" align="center" justify="center">
         <Flex
           direction={{ base: 'column', md: 'row' }}
           justify="space-between"
           align="center"
-          p={{ base: 2, md: 4 }}
+          pt={4}
+          pb={{ base: 2, md: 4 }}
           w="full"
           maxW={{ base: '100%', md: theme.sizes.container.xl }}>
           <Heading
             size={{ base: 'md', md: 'lg' }}
             fontWeight="700"
             color="brand.light">
-            {monthName}, {primaryYear} AD
+            {heading}
           </Heading>
           <Box style={{ marginTop: 12 }}>
             <DateControls
@@ -103,7 +137,7 @@ export const Calendar = () => {
           </Box>
         </Flex>
       </Flex>
-      <CalendarGrid dates={store.state.dates} />
+      <CalendarGrid dates={store.state.dates} type={store.state.type} />
     </Box>
   )
 }
