@@ -13,6 +13,8 @@ RUN yarn build
 
 FROM nginx:alpine as final
 
+LABEL org.opencontainers.image.source=https://github.com/anon-r-7/hebrew-calendar
+
 # Install Runtime Deps
 RUN apk add --update nodejs npm
 ENV PATH /usr/src/app/node_modules/.bin:$PATH
