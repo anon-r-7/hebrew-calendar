@@ -82,14 +82,16 @@ export const Calendar = () => {
     <Box w="100vw" minH="100vh" p={0} m={0}>
       <Flex direction="column" align="center" justify="center">
         <Flex
-          direction={{ base: "column", md: "row" }}
+          direction={{ base: 'column', md: 'row' }}
           justify="space-between"
           align="center"
           p={{ base: 2, md: 4 }}
           w="full"
-          maxW={{ base: "100%", md: theme.sizes.container.xl }}
-        >
-          <Heading size={{ base: "md", md: "lg" }} fontWeight="700" color="brand.light">
+          maxW={{ base: '100%', md: theme.sizes.container.xl }}>
+          <Heading
+            size={{ base: 'md', md: 'lg' }}
+            fontWeight="700"
+            color="brand.light">
             {monthName}, {primaryYear} AD
           </Heading>
           <Box style={{ marginTop: 12 }}>

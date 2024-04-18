@@ -24,10 +24,10 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
     }))
   }
 
-  const buttonSize = useBreakpointValue({ base: 'md', md: 'sm' });
-  const inputSize = useBreakpointValue({ base: 'md', md: 'sm' });
-  const marginSide = useBreakpointValue({ base: '2', md: '2' });
-  const marginBottom = useBreakpointValue({ base: '2', md: '0' });
+  const buttonSize = useBreakpointValue({ base: 'md', md: 'sm' })
+  const inputSize = useBreakpointValue({ base: 'md', md: 'sm' })
+  const marginSide = useBreakpointValue({ base: '2', md: '2' })
+  const marginBottom = useBreakpointValue({ base: '2', md: '0' })
 
   return (
     <Flex align="center" w="full" p={2}>
@@ -36,9 +36,12 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
         size={inputSize}
         max={2075}
         min={1}
-        onChange={(valueString) => handleDateChange('start', 'year', valueString)}
+        onChange={(valueString) =>
+          handleDateChange('start', 'year', valueString)
+        }
         value={apiControls.start.split('-')[0]}
-        mr={marginSide} mb={{ base: 2, md: 0 }}>
+        mr={marginSide}
+        mb={{ base: 2, md: 0 }}>
         <NumberInputField />
         <NumberInputStepper>
           <NumberIncrementStepper />
@@ -50,10 +53,13 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
         size={inputSize}
         max={12}
         min={1}
-        onChange={(valueString) => handleDateChange('start', 'month', valueString.padStart(2, '0'))}
+        onChange={(valueString) =>
+          handleDateChange('start', 'month', valueString.padStart(2, '0'))
+        }
         value={parseInt(apiControls.start.split('-')[1], 10)}
         precision={0}
-        mr={marginSide} mb={{ base: 2, md: 0 }}>
+        mr={marginSide}
+        mb={{ base: 2, md: 0 }}>
         <NumberInputField />
         <NumberInputStepper>
           <NumberIncrementStepper />
@@ -76,5 +82,5 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
         Search
       </Button>
     </Flex>
-  );
-};
+  )
+}

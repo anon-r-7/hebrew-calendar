@@ -1,5 +1,16 @@
 import React from 'react'
-import { Box, Flex, Text, useTheme, useBreakpointValue, Popover, PopoverTrigger, PopoverContent, PopoverArrow, PopoverCloseButton, PopoverBody, useDisclosure } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  Text,
+  useTheme,
+  useBreakpointValue,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
+  useDisclosure
+} from '@chakra-ui/react'
 
 import { daysOfWeek } from '@ui/utils/date'
 
@@ -12,8 +23,7 @@ const isPrimaryMonth = (date, primaryDate) => {
 }
 
 const getEventDetails = (event) => {
-  switch(event.short_name) {
-
+  switch (event.short_name) {
     case 'shabbat':
       return {
         hebrew: 'שַׁבָּת',
@@ -100,60 +110,72 @@ const getEventDetails = (event) => {
       }
     default:
       return {}
-  }  
+  }
 }
 
 const Event = ({ event, day, isPrimary }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure()
 
   const eventName = useBreakpointValue({
     base: event.name.slice(0, 10),
-    md: event.name, 
-  });
+    md: event.name
+  })
 
   const eventDetails = getEventDetails(event)
 
   return (
-    <Popover isOpen={isOpen} onClose={onClose} onOpen={onOpen} _focus={{ outline: 'none' }}>
-      <PopoverTrigger >
+    <Popover
+      isOpen={isOpen}
+      onClose={onClose}
+      onOpen={onOpen}
+      _focus={{ outline: 'none' }}>
+      <PopoverTrigger>
         <Box
           w="full"
           mt={1}
           p={1}
           fontWeight="500"
           fontFamily="HubotSans"
-          fontSize={{ base: "10", md: "12" }}
+          fontSize={{ base: '10', md: '12' }}
           bg={isPrimary ? 'blue.700' : 'brand.lightBlue'}
           color="white"
           textAlign="center"
           borderRadius="md"
-          cursor="pointer"
-        >
+          cursor="pointer">
           {eventName}
         </Box>
       </PopoverTrigger>
-      <PopoverContent _focus={{ outline: 'none' }}
+      <PopoverContent
+        _focus={{ outline: 'none' }}
         sx={{
           bg: 'white',
           borderColor: 'white', // Ensure this color is visible
           borderWidth: '0', // Adjusted to be visible
           boxShadow: 's', // Adding a shadow for emphasis
-          outline: 'none',
-        }}
-      >
+          outline: 'none'
+        }}>
         <PopoverBody style={{ fontFamily: 'HubotSans' }}>
-          <Text style={{ fontWeight: "700"}}>{event.name}</Text>
-          <Text style={{ fontSize: 14 }}><b>Hebrew Date:</b> {day.yy}-{day.mm}-{day.dd}</Text>
-          <Text style={{ fontSize: 14 }}><b>Gregorian Date:</b> {day.gregorian}</Text>
-          <Text style={{ fontSize: 14 }}><b>Hebrew:</b> {eventDetails.hebrew}</Text>
-          <Text style={{ fontSize: 14 }}><b>English:</b> {eventDetails.english}</Text>
-          <Text style={{ fontSize: 14 }}><b>Pronunciation:</b> {eventDetails.pronunciation}</Text>
+          <Text style={{ fontWeight: '700' }}>{event.name}</Text>
+          <Text style={{ fontSize: 14 }}>
+            <b>Hebrew Date:</b> {day.yy}-{day.mm}-{day.dd}
+          </Text>
+          <Text style={{ fontSize: 14 }}>
+            <b>Gregorian Date:</b> {day.gregorian}
+          </Text>
+          <Text style={{ fontSize: 14 }}>
+            <b>Hebrew:</b> {eventDetails.hebrew}
+          </Text>
+          <Text style={{ fontSize: 14 }}>
+            <b>English:</b> {eventDetails.english}
+          </Text>
+          <Text style={{ fontSize: 14 }}>
+            <b>Pronunciation:</b> {eventDetails.pronunciation}
+          </Text>
         </PopoverBody>
       </PopoverContent>
     </Popover>
-  );
-};
-
+  )
+}
 
 const Day = ({ day, isPrimary }) => {
   if (!day) {
@@ -172,17 +194,17 @@ const Day = ({ day, isPrimary }) => {
         position="absolute"
         top="0"
         right="0"
-        fontSize={"xs"} 
-      >
+        fontSize={'xs'}>
         {numMonth}/{numDay}
       </Text>
       <Box mt={{ base: 5, md: 4 }}>
-        {events.map((event, k) => <Event event={event} day={day} isPrimary={isPrimary} key={k} />)}
+        {events.map((event, k) => (
+          <Event event={event} day={day} isPrimary={isPrimary} key={k} />
+        ))}
       </Box>
     </Box>
-  );
-};
-
+  )
+}
 
 export const CalendarGrid = ({ dates }) => {
   const theme = useTheme()
@@ -253,7 +275,9 @@ export const CalendarGrid = ({ dates }) => {
   return (
     <Flex direction="column" align="center" justify="center">
       <Flex justify="space-around" w="full" maxW={theme.sizes.container.xl}>
-        {daysOfWeek.map((day, j) => <Week day={day} theme={theme} key={j} />)}
+        {daysOfWeek.map((day, j) => (
+          <Week day={day} theme={theme} key={j} />
+        ))}
       </Flex>
       {grid.map((week, i) => (
         <Flex
@@ -282,8 +306,7 @@ export const CalendarGrid = ({ dates }) => {
               flexDirection="column"
               alignItems="center"
               justifyContent="center"
-              boxShadow={day ? theme.shadows.brand.base : 'none'}
-            >
+              boxShadow={day ? theme.shadows.brand.base : 'none'}>
               <Day
                 day={day}
                 isPrimary={isPrimaryMonth(day.gregorian, primaryDate)}
@@ -293,14 +316,14 @@ export const CalendarGrid = ({ dates }) => {
         </Flex>
       ))}
     </Flex>
-  );
-};
+  )
+}
 
 const Week = ({ day, theme }) => {
   const dayDisplay = useBreakpointValue({
     base: day.slice(0, 3),
-    md: day, 
-  });
+    md: day
+  })
 
   return (
     <Box
