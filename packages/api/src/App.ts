@@ -22,11 +22,26 @@ export default () => {
     })
   )
 
+  // ACME Challenge Route
+  app.get('/.well-known/acme-challenge/:token', (req: Request, res: Response) => {
+    const acmeTokenResponses: {[key: string]: string} = {
+      '3BqoFf6YUWMUA0aoehmdCjweMS3Bkgn4jwl8g0oAUCE': '3BqoFf6YUWMUA0aoehmdCjweMS3Bkgn4jwl8g0oAUCE.aGrO--yVpewzoP8hLcH0GZY4DpWclVgSEOrHfl8BtKI',
+      'CNVT0JKDCYIpy9S1TZpEgK0JLui1E_Xr-jWyVVfholA': 'CNVT0JKDCYIpy9S1TZpEgK0JLui1E_Xr-jWyVVfholA.aGrO--yVpewzoP8hLcH0GZY4DpWclVgSEOrHfl8BtKI'
+    };
+    const tokenResponse = acmeTokenResponses[req.params.token];
+    if (tokenResponse) {
+      res.type('text/plain').send(tokenResponse);
+    } else {
+      res.status(404).send('Token not found');
+    }
+  });
+
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
     logger.error(`Error: ${err.stack}`)
     res.status(500).send('Fatal request error.')
   })
+
 
   Routes.forEach((route) => {
     app.use('/v1/', route.router)

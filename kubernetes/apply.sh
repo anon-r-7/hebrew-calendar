@@ -55,7 +55,6 @@ psql -U postgres -d hebrew_calendar -f /tmp/dump_file.sql
 # Verify sql import
 psql -U postgres -d hebrew_calendar -c "SELECT * FROM hebrew_events LIMIT 5;"
 
-
 # Stop deployments (scale to 0)
 kubectl --kubeconfig=k8s-hebrew-feasts-kubeconfig.yaml scale deployment/ui --replicas=0
 kubectl --kubeconfig=k8s-hebrew-feasts-kubeconfig.yaml scale deployment/api --replicas=0
@@ -71,3 +70,14 @@ kubectl --kubeconfig=k8s-hebrew-feasts-kubeconfig.yaml drain hebrewfeast-pool-jg
 kubectl --kubeconfig=k8s-hebrew-feasts-kubeconfig.yaml drain hebrewfeast-pool-jgeg7 --ignore-daemonsets --delete-local-data --force
 
 
+
+kubectl --kubeconfig=k8s-hebrew-feasts-kubeconfig.yaml get pods -n cert-manager
+kubectl --kubeconfig=k8s-hebrew-feasts-kubeconfig.yaml logs -n cert-manager cert-manager-67c98b89c8-rkkkv     | grep 'challenge'
+kubectl --kubeconfig=k8s-hebrew-feasts-kubeconfig.yaml delete challenge,order --all-namespaces --all
+kubectl --kubeconfig=k8s-hebrew-feasts-kubeconfig.yaml get ingress --all-namespaces -o yaml
+kubectl --kubeconfig=k8s-hebrew-feasts-kubeconfig.yaml scale rs acme-challenge-responder-879d44594 --replicas=0
+
+kubectl --kubeconfig=k8s-hebrew-feasts-kubeconfig.yaml apply -f config/tmp-config-map.yaml
+
+
+kubectl --kubeconfig=k8s-hebrew-feasts-kubeconfig.yaml logs -n default -l app=acme-challenge-responder
