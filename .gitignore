@@ -6,3 +6,4 @@
 k8s-hebrew-feasts-kubeconfig.yaml
 **logs**
 tmp
+kubernetes/create_secret.sh

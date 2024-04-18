@@ -16,7 +16,7 @@ services:
     build:
       context: .
       dockerfile: api.dockerfile
-      target: dev
+      target: prod
     volumes:
       - .:/app
       - /app/node_modules
