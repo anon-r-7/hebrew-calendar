@@ -7,7 +7,7 @@ interface Payload {
   with_events: boolean
 }
 
-const payloadDefault = {
+const payloadDefault: Payload = {
   start: '',
   end: '',
   type: 'gregorian',

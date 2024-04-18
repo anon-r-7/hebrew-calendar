@@ -8,20 +8,22 @@ import { Select } from './select'
 export const theme = extendTheme({
   colors: {
     brand: {
-      primary: '#005b96', // A deep blue
-      secondary: '#dee8f1', // Very light blue for backgrounds
-      accent: '#ffc107', // Bright yellow for accents
-      dark: '#212529', // Almost black for strong contrast
-      light: '#f8f9fa', // Very light gray for card backgrounds
-      grey: '#d7d7dd', // Very light gray for card backgrounds
-      success: '#28a745', // Green, for success states
-      error: '#dc3545', // Red, for errors or warnings
-      warning: '#ffc107' // Yellow, for warnings or mild alerts
+      primary: '#005b96',
+      secondary: '#dee8f1',
+      accent: '#35414c',
+      dark: '#212529',
+      light: '#f8f9fa',
+      lightBlue: '#607999',
+      grey: '#c1c1c6',
+      success: '#28a745',
+      error: '#dc3545',
+      warning: '#ffc107',
+      red: '#993232'
     }
   },
   fonts: {
-    body: 'Lato, sans-serif',
-    heading: 'Lato, serif',
+    body: '"HubotSans-Light", sans-serif',
+    heading: '"HubotSans", serif',
     mono: 'Menlo, monospace'
   },
   components: {
@@ -34,7 +36,7 @@ export const theme = extendTheme({
   styles: {
     global: {
       body: {
-        bg: 'brand.secondary',
+        bg: 'brand.accent',
         color: 'brand.dark'
       }
     }

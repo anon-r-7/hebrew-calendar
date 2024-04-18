@@ -84,14 +84,13 @@ export const Calendar = () => {
         <Flex
           w="full"
           maxW={theme.sizes.container.xl}
-          align="center"
-          justify="space-around"
+          justify="space-between"
           align="center"
           p={4}>
-          <Heading size="lg" fontWeight="700" color="brand.dark">
+          <Heading size="lg" fontWeight="700" color="brand.light">
             {monthName}, {primaryYear} AD
           </Heading>
-          <Box>
+          <Box style={{ marginTop: 12 }}>
             <DateControls
               apiControls={apiControls}
               setApiControls={setApiControls}

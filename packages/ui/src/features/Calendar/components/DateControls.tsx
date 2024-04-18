@@ -1,8 +1,6 @@
 import React from 'react'
 import {
   Flex,
-  Box,
-  Heading,
   Button,
   NumberInput,
   NumberInputField,
@@ -91,8 +89,25 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
           />
         </NumberInputStepper>
       </NumberInput>
-      <Button size="sm" onClick={onSubmit} bg="blue.700" color="white" ml={2}>
-        Calculate
+      <Button
+        size="sm"
+        onClick={onSubmit}
+        bg="brand.red"
+        fontWeight="500"
+        fontFamily="HubotSans"
+        color="white"
+        ml={2}
+        style={{
+          fontVariantCaps: 'all-small-caps',
+          fontSize: '18',
+          boxShadow: '1px 1px 1px #222'
+        }}
+        sx={{
+          ':hover': {
+            bg: '#691818' // Use Chakra's color tokens or any CSS color
+          }
+        }}>
+        Search
       </Button>
     </Flex>
   )

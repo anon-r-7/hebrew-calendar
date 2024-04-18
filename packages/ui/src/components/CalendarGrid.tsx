@@ -1,33 +1,35 @@
 import React from 'react'
-import { Box, Flex, Text, Heading, useTheme } from '@chakra-ui/react'
+import { Box, Flex, Text, useTheme } from '@chakra-ui/react'
 import { daysOfWeek } from '@ui/utils/date'
 
 const isPrimaryMonth = (date, primaryDate) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [dateYear, dateMonth] = date.split('-')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [primaryYear, primaryMonth] = primaryDate.split('-')
   return dateMonth === primaryMonth
 }
 
 const Day = ({ day, isPrimary }) => {
   if (!day) {
-    return null // If there is no day data, render nothing
+    return null
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [numYear, numMonth, numDay] = day.gregorian.split('-')
   const events = day.events.map((event) => event.event.name)
 
   return (
     <Box position="relative" w="full" p="2" height="100%">
-      {/* Position the date in the top right corner of the box */}
       <Text
+        fontFamily={isPrimary ? 'HubotSans' : 'HubotSans-Light'}
+        fontWeight={isPrimary ? '500' : '300'}
         position="absolute"
         top="0"
         right="0"
-        fontSize="xs"
-        fontWeight={isPrimary ? '700' : '300'}>
+        fontSize="xs">
         {numMonth}/{numDay}
       </Text>
-      {/* Render events with a styled background */}
       <Box mt="4">
         {events.map((event, k) => (
           <Box
@@ -35,8 +37,11 @@ const Day = ({ day, isPrimary }) => {
             w="full"
             mt="1"
             p="1"
+            fontVariantCaps="all-small-caps"
+            fontWeight="500"
+            fontFamily="HubotSans"
             fontSize="12"
-            bg="blue.700"
+            bg={isPrimary ? 'blue.700' : 'brand.lightBlue'}
             color="white"
             textAlign="center"
             borderRadius="md">
@@ -121,13 +126,10 @@ export const CalendarGrid = ({ dates }) => {
           <Box
             key={j}
             w="14%"
-            h="50px"
+            h="24px"
             p={2}
             m={1}
-            bg="brand.light"
-            border="1px solid"
-            borderColor="brand.dark"
-            borderRadius="md"
+            color={'brand.light'}
             display="flex"
             flexDirection="column"
             alignItems="center"
