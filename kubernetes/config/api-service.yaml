@@ -6,8 +6,11 @@ metadata:
   name: api
 spec:
   ports:
-    - name: "8080"
-      port: 8080
-      targetPort: 8080
+    - name: http
+      port: 80
+      targetPort: 80
+    - name: https
+      port: 443
+      targetPort: 80  # This can remain 80 if you handle TLS termination at the ingress level
   selector:
     app: api

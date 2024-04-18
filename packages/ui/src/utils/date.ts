@@ -40,7 +40,7 @@ export const months = [
   'December'
 ]
 
-export const getMonthRange = (start) => {
+export const getMonthRangeGregorian = (start) => {
   const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] // Days in each month, assuming Feb has 28 days
 
   let [startYear, startMonth, startDay] = start.split('-').map(Number)
@@ -72,6 +72,63 @@ export const getMonthRange = (start) => {
       startYear -= 1
     }
     startDay += monthDays[startMonth - 1]
+  }
+
+  // Format the dates back to 'YYYY-MM-DD'
+  const newStart = `${startYear.toString().padStart(4, '0')}-${startMonth
+    .toString()
+    .padStart(2, '0')}-${startDay.toString().padStart(2, '0')}`
+  const newEnd = `${endYear.toString().padStart(4, '0')}-${endMonth
+    .toString()
+    .padStart(2, '0')}-${endDay.toString().padStart(2, '0')}`
+
+  return [newStart, newEnd]
+}
+
+export const isHebrewLeapYear = (year) => {
+  // Calculate the position of the year in the current 19-year cycle
+  // Year 1 of the cycle was 5758 in the provided data, so adjust the input year accordingly
+  const cycleYear = ((year - 5758) % 19) + 1
+
+  // Define the leap years in the cycle
+  const leapYears = [3, 6, 8, 11, 14, 17, 19]
+
+  // Check if the cycle year is in the list of leap years
+  return leapYears.includes(cycleYear)
+}
+
+export const getMonthRangeHebrew = (start) => {
+  const monthDays = [30, 29, 30, 29, 30, 29, 30, 30, 30, 29, 30, 30, 29] // Days in each month, assuming Feb has 28 days
+
+  let [startYear, startMonth, startDay] = start.split('-').map(Number)
+  let endYear = startYear
+  let endMonth = startMonth
+  const endDay = 6 // 6th day of the next month
+
+  const leapYear = isHebrewLeapYear(startYear)
+
+  endMonth += 1
+  if (endMonth === 7) {
+    endYear += 1
+  }
+  if (leapYear && endMonth === 14) {
+    endMonth = 1
+  }
+  if (!leapYear && endMonth === 13) {
+    endMonth = 1
+  }
+
+  // Calculate the new start date by subtracting 6 days
+  startDay -= 6
+  if (startDay <= 0) {
+    startMonth -= 1
+    if (startMonth < 1) {
+      startMonth = leapYear ? 13 : 12
+    }
+    if (startMonth === 6) {
+      startYear -= 1
+    }
+    startDay = monthDays[startMonth - 1] - 6
   }
 
   // Format the dates back to 'YYYY-MM-DD'

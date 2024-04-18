@@ -16,24 +16,36 @@ spec:
       labels:
         app: db
     spec:
+      initContainers:
+      - name: clean-db
+        image: busybox
+        command: ['sh', '-c', 'rm -rf /var/lib/postgresql/data/pgdata/lost+found']
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data/pgdata
+          name: db-data-volume
       containers:
         - env:
             - name: POSTGRES_DB
-              value: hebrew_feasts
+              value: hebrew_calendar
             - name: POSTGRES_USER
               value: postgres
             - name: POSTGRES_PASSWORD
-              value: postgres1!
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: POSTGRES_PASSWORD
+            - name: PGDATA
+              value: "/var/lib/postgresql/data/pgdata"
           image: ankane/pgvector
           name: db
           ports:
             - containerPort: 5432
               protocol: TCP
           volumeMounts:
-            - mountPath: /var/lib/postgresql/data
-              name: db-data
+            - mountPath: /var/lib/postgresql/data/pgdata
+              name: db-data-volume
       restartPolicy: Always
       volumes:
-        - name: db-data
+        - name: db-data-volume
           persistentVolumeClaim:
-            claimName: db-data
+            claimName: db-data-volume

@@ -19,3 +19,11 @@
 :focus {
   outline: none !important;
 }
+
+.chakra-select__menu {
+  position: fixed !important; /* Ensure it's not affected by parent positioning */
+  bottom: 0 !important;      /* Align to the bottom of the viewport */
+  width: 100% !important;    /* Full width */
+  max-height: 50vh;          /* Limit the height to half of the viewport */
+  overflow-y: auto;          /* Allow scrolling within the dropdown */
+}

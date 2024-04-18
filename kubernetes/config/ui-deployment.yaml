@@ -16,14 +16,13 @@ spec:
       labels:
         app: ui
     spec:
-      # imagePullSecrets:
-        # - name: ghcr-credentials
+      imagePullSecrets:
+        - name: ghcr-credentials
       containers:
         - env:
             - name: UI_API_URL
-              value: "http://161.35.253.47:8080"
-          # image: docker.io/ryanostrom/ara-dev-ui:latest
-          image: ghcr.io/anon-r-7/hebrew-feasts-ui:latest
+              value: "http://api.hebrewfeasts.com"
+          image: ghcr.io/anon-r-7/hebrew-calendar-ui:latest
           imagePullPolicy: Always
           name: ui
           ports:

@@ -16,34 +16,34 @@ spec:
       labels:
         app: api
     spec:
-      # imagePullSecrets:
-        # - name: ghcr-credentials
+      imagePullSecrets:
+        - name: ghcr-credentials
       containers:
-        - env:
-            - name: DATABASE_URL
-              value: postgresql://postgres:postgres1!@db:5432/hebrew_feasts
+        - name: api
+          image: ghcr.io/anon-r-7/hebrew-calendar-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
             - name: TZ
               value: "UTC"
-            # - name: OPENAPI_KEY
-            #   valueFrom:
-            #     secretKeyRef:
-            #       name: api-secrets
-            #       key: OPENAPI_KEY
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: POSTGRES_PASSWORD
+            - name: DB_ENDPOINT
+              value: "db"
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_DB
+              value: "hebrew_calendar"
             - name: SERVER_PORT
-              value: "8080"
-          # image: docker.io/ryanostrom/ara-dev-api:latest
-          image: ghcr.io/anon-r-7/hebrew-feasts-api:latest
-          imagePullPolicy: Always
-          name: api
-          ports:
-            - containerPort: 8080
-          # resources:
-          #   requests:
-          #     memory: "64Mi"
-          #     cpu: "250m"
-          #   limits:
-          #     memory: "128Mi"
-          #     cpu: "500m"
+              value: "80"
+          command: ["/bin/sh"]
+          args: ["-c", "export DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_ENDPOINT}:${POSTGRES_PORT}/${POSTGRES_DB} && exec node dist/index.js"]
           readinessProbe:
             exec:
               command:
@@ -54,3 +54,5 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
       restartPolicy: Always
+
+# yarn db:migrate && node dist/index.js
