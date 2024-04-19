@@ -114,6 +114,32 @@ const getEventDetails = (event) => {
   }
 }
 
+const isDayOfRest = (day) => {
+  let isRest = false
+
+  day.events.map(({ event }) => {
+    if (
+      [
+        'shabbat',
+        'yom_bikkurim',
+        'shavuot',
+        'yom_teruah',
+        'yom_kippur'
+      ].includes(event.short_name)
+    ) {
+      isRest = true
+    } else if (event.short_name === 'matzot') {
+      if ([15, 21].includes(day.dd)) {
+        isRest = true
+      }
+    } else if (event.short_name === 'sukkot') {
+      if ([15, 22].includes(day.dd)) {
+        isRest = true
+      }
+    }
+  })
+  return isRest
+}
 const Event = ({ event, day, isPrimary }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
@@ -264,7 +290,7 @@ export const CalendarGrid = ({ dates, type }) => {
 
   // Populate the grid starting from the first day of the primary month
   let index = firstDayIndex
-  while (index < datesGrid.length) {
+  while (index < datesGrid.length && currentWeek < 6) {
     const date = datesGrid[index]
     const dayIndex = daysOfWeek.indexOf(date.day_of_week) // Get the day index from the daysOfWeek array
 
@@ -326,9 +352,11 @@ export const CalendarGrid = ({ dates, type }) => {
                 p={0}
                 m={0}
                 bg={
-                  isPrimaryMonth(day ? day[type] : null, primaryDate)
-                    ? 'brand.light'
-                    : 'brand.grey'
+                  !isPrimaryMonth(day ? day[type] : null, primaryDate)
+                    ? 'brand.grey'
+                    : isDayOfRest(day)
+                    ? '#b9cad5'
+                    : 'brand.light'
                 }
                 border="1px solid"
                 borderColor="brand.dark"

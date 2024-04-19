@@ -98,7 +98,7 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
             fontFamily={'HubotSans'}
             color={'black'}
             borderRadius="0"
-            w={'50%'}
+            w={{ base: '50%', md: '140px' }}
             mr={{ base: 2, md: 2 }}
             mb={{ base: '3', md: 0 }}
             onChange={(e) => handleTypeChange(e.target.value)}

@@ -29,7 +29,6 @@ export const Calendar = () => {
   const [apiControls, setApiControls] = useState(defaultApiControls)
   const [reload, setReload] = useState(false)
   const theme = useTheme()
-  const [isParamChange, setIsParamChange] = useState(false)
 
   const parseQueryParams = () => {
     const searchParams = new URLSearchParams(window.location.search)
@@ -52,27 +51,29 @@ export const Calendar = () => {
   }, [reload])
 
   useEffect(() => {
-    if (isParamChange) {
-      return setIsParamChange(false)
-    }
     const [yy, mm] = apiControls.start.split('-')
     const diff = 3760
 
-    const updatedYear =
-      apiControls.type === 'gregorian'
-        ? parseFloat(yy) - diff
-        : parseFloat(yy) + diff
+    const yyN = parseFloat(yy)
 
-    setApiControls({
-      ...apiControls,
-      start: `${updatedYear}-${mm}-01`
-    })
+    if (apiControls.type === 'gregorian' && yyN >= 1 && yyN <= 2075) {
+      // do nothing
+    } else if (apiControls.type === 'hebrew' && yyN >= 3762 && yyN <= 5836) {
+      // do nothing
+    } else {
+      const updatedYear =
+        apiControls.type === 'gregorian' ? yyN - diff : yyN + diff
+
+      setApiControls({
+        ...apiControls,
+        start: `${updatedYear}-${mm}-01`
+      })
+    }
   }, [apiControls.type])
 
   useEffect(() => {
     const updateApiControls = () => {
       const params = parseQueryParams()
-      setIsParamChange(true)
       setApiControls(params)
       setReload(true)
     }
@@ -107,7 +108,7 @@ export const Calendar = () => {
   const monthName = months[parseFloat(monthIndex) - 1]
 
   const heading =
-    store.state.type === 'gregorian'
+    apiControls.type === 'gregorian'
       ? `${monthName}, ${primaryYear} AD`
       : `Month ${parseFloat(monthIndex)}, ${primaryYear} Hebrew`
 
