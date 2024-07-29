@@ -1,115 +1,119 @@
 'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('hebrew_event_dates', {
-      uuid: {
-        allowNull: false,
-        primaryKey: true,
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.literal('uuid_generate_v4()'),
-      },
-      hebrew_event: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: 'hebrew_events', 
-          key: 'uuid',
+    try {
+      await queryInterface.createTable('hebrew_event_dates', {
+        uuid: {
+          allowNull: false,
+          primaryKey: true,
+          type: Sequelize.UUID,
+          defaultValue: Sequelize.literal('uuid_generate_v4()'),
         },
-      },
-      hebrew_date: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: 'hebrew_dates',
-          key: 'uuid',
+        hebrew_event: {
+          type: Sequelize.UUID,
+          allowNull: false,
+          references: {
+            model: 'hebrew_events', 
+            key: 'uuid',
+          },
         },
-      },
-      created_at: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-      },
-      updated_at: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-      },
-    });
+        hebrew_date: {
+          type: Sequelize.UUID,
+          allowNull: false,
+          references: {
+            model: 'hebrew_dates',
+            key: 'uuid',
+          },
+        },
+        created_at: {
+          allowNull: false,
+          type: Sequelize.DATE,
+          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        },
+        updated_at: {
+          allowNull: false,
+          type: Sequelize.DATE,
+          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        },
+      });
 
-    const events = await queryInterface.sequelize.query(
-      `SELECT uuid, name, short_name FROM "hebrew_events";`,
-      { type: Sequelize.QueryTypes.SELECT }
-    );
+      const events = await queryInterface.sequelize.query(
+        `SELECT uuid, name, short_name FROM "hebrew_events";`,
+        { type: Sequelize.QueryTypes.SELECT }
+      );
 
-    const uniqueYears = await queryInterface.sequelize.query(
-      `SELECT DISTINCT "yy" FROM "hebrew_dates" ORDER BY "yy";`,
-      { type: Sequelize.QueryTypes.SELECT }
-    );
+      const uniqueYears = await queryInterface.sequelize.query(
+        `SELECT DISTINCT "yy" FROM "hebrew_dates" ORDER BY "yy";`,
+        { type: Sequelize.QueryTypes.SELECT }
+      );
 
-    for (const { yy } of uniqueYears) {
-      try {
-        console.log('yy', yy)
-        const dates = await queryInterface.sequelize.query(
-          `SELECT * FROM "hebrew_dates" WHERE "yy" = :yy ORDER BY gregorian;`,
-          {
-            type: Sequelize.QueryTypes.SELECT,
-            replacements: { yy }
+      for (const { yy } of uniqueYears) {
+        try {
+          console.log('yy', yy)
+          const dates = await queryInterface.sequelize.query(
+            `SELECT * FROM "hebrew_dates" WHERE "yy" = :yy ORDER BY gregorian;`,
+            {
+              type: Sequelize.QueryTypes.SELECT,
+              replacements: { yy }
+            }
+          )
+
+          const shabbat = getSabbaths(dates)
+          const rosh_chodesh = dates.filter(({ dd }) => dd === 1);
+          const pesach = dates.filter(({ mm, dd }) => mm === 1 && dd === 14)
+          const matzot = dates.filter(( { mm, dd }) => mm === 1 && [15,16,17,18,19,20,21].includes(dd))
+          const yom_bikkurim = [nextDay(dates, matzot[0], 'Sunday')]
+          const shavuot = [incrementDays(dates, yom_bikkurim[0], 50)]
+          const yom_teruah = dates.filter(({ mm, dd }) => mm === 7 && dd === 1)
+          const yom_kippur = dates.filter(({ mm, dd }) => mm === 7 && dd === 10)
+          const sukkot = dates.filter(({ mm, dd }) => mm === 7 && [15, 16, 17, 18, 19, 20, 21, 22].includes(dd))
+
+          const chanukkah = [
+            ...dates.filter(({ mm, dd }) => mm === 9 && [25,26,27,28,29,30].includes(dd)),
+            ...dates.filter(({ mm, dd }) => mm === 10 && [1, 2].includes(dd)),
+          ]
+
+          if (!dates.find(({ mm, dd }) => mm === 9 && dd === 30)) chanukkah.push(
+            dates.find(({ mm, dd }) => mm === 10 && dd == 3)
+          )
+
+          const lastMonth = dates[dates.length - 1].mm
+          const purim = dates.filter(({ mm, dd }) => mm == lastMonth && dd === 14)
+          const tisha_bav = dates.filter(({ mm, dd }) => mm === 5 && dd === 9)
+          const yearEvents = {
+            shabbat,
+            rosh_chodesh,
+            pesach,
+            matzot,
+            yom_bikkurim,
+            shavuot,
+            yom_teruah,
+            yom_kippur,
+            sukkot,
+            chanukkah,
+            purim,
+            tisha_bav
           }
-        )
 
-        const shabbat = getSabbaths(dates)
-        const rosh_chodesh = dates.filter(({ dd }) => dd === 1);
-        const pesach = dates.filter(({ mm, dd }) => mm === 1 && dd === 14)
-        const matzot = dates.filter(( { mm, dd }) => mm === 1 && [15,16,17,18,19,20,21].includes(dd))
-        const yom_bikkurim = [nextDay(dates, matzot[0], 'Sunday')]
-        const shavuot = [incrementDays(dates, yom_bikkurim[0], 50)]
-        const yom_teruah = dates.filter(({ mm, dd }) => mm === 7 && dd === 1)
-        const yom_kippur = dates.filter(({ mm, dd }) => mm === 7 && dd === 10)
-        const sukkot = dates.filter(({ mm, dd }) => mm === 7 && [15, 16, 17, 18, 19, 20, 21, 22].includes(dd))
-
-        const chanukkah = [
-          ...dates.filter(({ mm, dd }) => mm === 9 && [25,26,27,28,29,30].includes(dd)),
-          ...dates.filter(({ mm, dd }) => mm === 10 && [1, 2].includes(dd)),
-        ]
-
-        if (!dates.find(({ mm, dd }) => mm === 9 && dd === 30)) chanukkah.push(
-          dates.find(({ mm, dd }) => mm === 10 && dd == 3)
-        )
-
-        const lastMonth = dates[dates.length - 1].mm
-        const purim = dates.filter(({ mm, dd }) => mm == lastMonth && dd === 14)
-        const tisha_bav = dates.filter(({ mm, dd }) => mm === 5 && dd === 9)
-        const yearEvents = {
-          shabbat,
-          rosh_chodesh,
-          pesach,
-          matzot,
-          yom_bikkurim,
-          shavuot,
-          yom_teruah,
-          yom_kippur,
-          sukkot,
-          chanukkah,
-          purim,
-          tisha_bav
-        }
-
-        const yearInserts = []
-        Object.keys(yearEvents).map((key) => {
-          const hebrew_event = events.find(({ short_name }) => short_name === key).uuid
-          const eventDates = yearEvents[key]
-          eventDates.map((date) => {
-            const hebrew_date = date.uuid
-            yearInserts.push({
-              hebrew_date,
-              hebrew_event,
+          const yearInserts = []
+          Object.keys(yearEvents).map((key) => {
+            const hebrew_event = events.find(({ short_name }) => short_name === key).uuid
+            const eventDates = yearEvents[key]
+            eventDates.map((date) => {
+              const hebrew_date = date.uuid
+              yearInserts.push({
+                hebrew_date,
+                hebrew_event,
+              })
             })
           })
-        })
 
-        await queryInterface.bulkInsert('hebrew_event_dates', yearInserts)
-      } catch (error) {
+          await queryInterface.bulkInsert('hebrew_event_dates', yearInserts)
+        } catch (error) {
+        }
       }
+    } catch (error) {
+      console.error('db migration error 3', error)
     }
 
   },

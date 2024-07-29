@@ -85,48 +85,52 @@ const getHebrew = (gDates) => {
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.sequelize.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";');
+    try {
+      await queryInterface.sequelize.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";');
 
-    await queryInterface.createTable('hebrew_dates', {
-      uuid: {
-        allowNull: false,
-        primaryKey: true,
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.literal('uuid_generate_v4()'),
-      },
-      gregorian: {
-        type: Sequelize.DATEONLY
-      },
-      day_of_week: {
-        type: Sequelize.STRING
-      },
-      day_index: {
-        type: Sequelize.BIGINT
-      },
-      dd: {
-        type: Sequelize.INTEGER
-      },
-      mm: {
-        type: Sequelize.INTEGER
-      },
-      yy: {
-        type: Sequelize.INTEGER
-      },
-      created_at: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-      },
-      updated_at: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-      }
-    });
+      await queryInterface.createTable('hebrew_dates', {
+        uuid: {
+          allowNull: false,
+          primaryKey: true,
+          type: Sequelize.UUID,
+          defaultValue: Sequelize.literal('uuid_generate_v4()'),
+        },
+        gregorian: {
+          type: Sequelize.DATEONLY
+        },
+        day_of_week: {
+          type: Sequelize.STRING
+        },
+        day_index: {
+          type: Sequelize.BIGINT
+        },
+        dd: {
+          type: Sequelize.INTEGER
+        },
+        mm: {
+          type: Sequelize.INTEGER
+        },
+        yy: {
+          type: Sequelize.INTEGER
+        },
+        created_at: {
+          allowNull: false,
+          type: Sequelize.DATE,
+          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        },
+        updated_at: {
+          allowNull: false,
+          type: Sequelize.DATE,
+          defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        }
+      });
 
-    const gDates = getGregorian()
-    const hDates = getHebrew(gDates)
-    await queryInterface.bulkInsert('hebrew_dates', hDates)
+      const gDates = getGregorian()
+      const hDates = getHebrew(gDates)
+      await queryInterface.bulkInsert('hebrew_dates', hDates)
+    } catch (error) {
+      console.error('db migration error 1', error)
+    }
   },
 
   down: async (queryInterface, Sequelize) => {
