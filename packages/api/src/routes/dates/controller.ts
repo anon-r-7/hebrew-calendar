@@ -166,9 +166,19 @@ class DatesController {
         return
       }
 
-      const response = await findAllByIndexRange(start_index, end_index)
+      const response = await findAllByIndexRange(start_index, end_index);
 
-      res.json(response)
+      let transformedResponse = response.map((row) => {
+        const plainRow = row.get({ plain: true }); // Convert to plain object
+        const days_from_day_index = Number(row.day_index) - day_index;
+        return {
+          ...plainRow,
+          days_from_day_index,
+        };
+      });
+
+      res.json(transformedResponse)
+
       logger.info('getDate Success')
     } catch (error: any) {
       logger.error(`getDate Error: ${JSON.stringify(error)}`)

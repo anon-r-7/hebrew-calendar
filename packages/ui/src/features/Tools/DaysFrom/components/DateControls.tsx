@@ -182,7 +182,7 @@ export const DateControls = ({ apiControls, setApiControls }) => {
                 fontFamily={'HubotSans'}
                 color={'black'}
                 borderRadius="0"
-                w={{ base: '100%', md: '140px' }}
+                w={{ base: '100%', md: '180px' }}
                 mr={{ base: 2, md: 2 }}
                 mb={{ base: 3, md: 0 }}
                 onChange={(e) => handleChange('event', e.target.value)}

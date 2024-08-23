@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react'
 import {
   Flex,
   Box,
+  Grid,
   Heading,
+  Text,
   FormControl,
   Button,
   useBreakpointValue,
@@ -68,11 +70,62 @@ export const DaysFrom = () => {
     }
   }, [apiControls.type])
 
-  // TODO {store.state.dates}
-
   const buttonSize = useBreakpointValue({ base: 'lg', md: 'sm' })
   const padding = useBreakpointValue({ base: '4', md: '0' })
   const buttonWidth = useBreakpointValue({ base: '97%', md: '140px' })
+
+  // Move this hook outside of tableRow
+  const isMobile = useBreakpointValue({ base: true, md: false })
+
+  const tableRow = ([one, two, three, four, five], key, header, labels) => {
+    const backgroundColor = key % 2 === 0 ? '#f0f0f0' : 'white'
+
+    return (
+      <Grid
+        templateColumns={{ base: '1fr', md: '100px 125px 125px 125px 40%' }}
+        gap={4}
+        pt={4}
+        pb={4}
+        pl={8}
+        pr={8}
+        background={backgroundColor}
+        key={key}
+        w="100%">
+        <Box>
+          {isMobile && <Text fontWeight="bold">{labels[0]}:</Text>}
+          <Text textAlign={'center'} fontWeight={header ? '700' : '300'} fontFamily={'HubotSans'}>
+            {one}
+          </Text>
+        </Box>
+        <Box>
+          {isMobile && <Text fontWeight="bold">{labels[1]}:</Text>}
+          <Text fontWeight={header ? '700' : '300'} fontFamily={'HubotSans'}>
+            {two}
+          </Text>
+        </Box>
+        <Box>
+          {isMobile && <Text fontWeight="bold">{labels[2]}:</Text>}
+          <Text fontWeight={header ? '700' : '300'} fontFamily={'HubotSans'}>
+            {three}
+          </Text>
+        </Box>
+        <Box>
+          {isMobile && <Text fontWeight="bold">{labels[3]}:</Text>}
+          <Text fontWeight={header ? '700' : '300'} fontFamily={'HubotSans'}>
+            {four}
+          </Text>
+        </Box>
+        {five?.length ? (
+          <Box>
+            {isMobile && <Text fontWeight="bold">{labels[4]}:</Text>}
+            <Text fontWeight={header ? '700' : '300'} fontFamily={'HubotSans'}>
+              {five}
+            </Text>
+          </Box>
+        ) : null}
+      </Grid>
+    )
+  }
 
   return (
     <Flex direction="row" justify="center" background="white">
@@ -126,6 +179,47 @@ export const DaysFrom = () => {
             Search
           </Button>
         </FormControl>
+
+        {store.state.dates.length ? (
+          <Box mt={4}>
+            {!isMobile &&
+              tableRow(
+                ['Days From', 'Gregorian', 'Hebrew', 'Day', 'Events'],
+                'header',
+                true,
+                ['Days From', 'Gregorian', 'Hebrew', 'Day', 'Events']
+              )}
+            {store.state.dates.map(
+              (
+                {
+                  days_from_day_index,
+                  gregorian,
+                  yy,
+                  mm,
+                  dd,
+                  day_of_week,
+                  events
+                },
+                key
+              ) => {
+                const columns = [
+                  days_from_day_index,
+                  gregorian,
+                  `${yy}-${mm}-${dd}`,
+                  day_of_week,
+                  events.map((event) => event.event.name).join(', ')
+                ]
+                return tableRow(columns, key, false, [
+                  'Days From',
+                  'Gregorian',
+                  'Hebrew',
+                  'Day',
+                  'Events'
+                ])
+              }
+            )}
+          </Box>
+        ) : null}
       </Flex>
     </Flex>
   )
