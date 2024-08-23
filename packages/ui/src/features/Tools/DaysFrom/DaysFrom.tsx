@@ -12,7 +12,7 @@ import { useStore } from '@ui/hooks/useStore'
 import { useAsyncManager } from '@ui/hooks/useAsyncManager'
 
 import { InitialState } from 'features/Calendar/types'
-import { getDateDiff } from './methods/api'
+import { getDaysFromDate } from './methods/api'
 import { DateControls } from './components/DateControls'
 import { OptionControls } from './components/OptionControls'
 
@@ -24,8 +24,10 @@ const getDate = () => {
 }
 
 const defaultApiControls = {
-  start: getDate(),
+  category: 'date', // 'date', 'event'
   type: 'gregorian',
+  event: 'pesach',
+  start: getDate(),
   buffer: 3,
   days: 10
 }
@@ -38,7 +40,7 @@ export const DaysFrom = () => {
   const [apiControls, setApiControls] = useState(defaultApiControls)
 
   const onSubmit = () => {
-    getDateDiff({
+    getDaysFromDate({
       asyncManager,
       store,
       payload: apiControls
@@ -66,11 +68,11 @@ export const DaysFrom = () => {
     }
   }, [apiControls.type])
 
-  // TODO
-  // {store.state.dates} type={store.state.type}
+  // TODO {store.state.dates}
 
   const buttonSize = useBreakpointValue({ base: 'lg', md: 'sm' })
   const padding = useBreakpointValue({ base: '4', md: '0' })
+  const buttonWidth = useBreakpointValue({ base: '97%', md: '140px' })
 
   return (
     <Flex direction="row" justify="center" background="white">
@@ -108,8 +110,8 @@ export const DaysFrom = () => {
           <Button
             size={buttonSize}
             onClick={onSubmit}
-            mt={{ base: 0.25, md: 6 }}
-            mr={2}
+            w={buttonWidth}
+            mt={{ base: 6, md: 6 }}
             bg="brand.primary"
             fontWeight="500"
             fontFamily="HubotSans"

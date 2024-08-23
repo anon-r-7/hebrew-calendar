@@ -14,6 +14,12 @@ class Route implements BaseRoute {
   private initializeRoutes() {
     // GET /dates
     this.router.get(`${this.path}`, this.controller.getDates)
+
+    // GET /dates/days-from-date
+    this.router.get(
+      `${this.path}/days-from-date`,
+      this.controller.getDaysFromDate
+    )
   }
 }
 

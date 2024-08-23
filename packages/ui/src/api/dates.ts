@@ -14,21 +14,16 @@ const get = async ({ start, end, type, with_events }) => {
   return response.data
 }
 
-const getDiff = async ({ start, diff, type, buffer }) => {
+const getDaysFromDate = async (params) => {
   const response = await client({
     method: 'GET',
-    url: 'dates/diff',
-    params: {
-      start,
-      diff,
-      type,
-      buffer
-    }
+    url: 'dates/days-from-date',
+    params
   })
   return response.data
 }
 
 export default {
   get,
-  getDiff
+  getDaysFromDate
 }

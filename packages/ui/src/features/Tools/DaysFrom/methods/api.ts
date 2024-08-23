@@ -1,10 +1,12 @@
 import api from '@ui/api/dates'
 
 interface Payload {
-  start: string
-  days: number
+  category: string
   type: type
+  event: string
+  start: string
   buffer: number
+  days: number
 }
 
 interface Data {
@@ -13,10 +15,14 @@ interface Data {
   store: any
 }
 
-export const getDateDiff = async ({ payload, asyncManager, store }: Data) => {
+export const getDaysFromDate = async ({
+  payload,
+  asyncManager,
+  store
+}: Data) => {
   try {
     asyncManager.start()
-    const dates = await api.get(payload)
+    const dates = await api.getDaysFromDate(payload)
     asyncManager.success()
     store.update({ dates, type: payload.type })
     asyncManager.success()

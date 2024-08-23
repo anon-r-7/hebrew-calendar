@@ -21,7 +21,7 @@ export const OptionControls = ({ apiControls, setApiControls }) => {
   }
 
   const inputSize = useBreakpointValue({ base: 'lg', md: 'sm' })
-  const marginSide = useBreakpointValue({ base: '4', md: '4' })
+  const marginSide = useBreakpointValue({ base: '4', md: '6' })
   const orientation = useBreakpointValue({ base: 'vertical', md: 'horizontal' })
 
   return (
@@ -30,7 +30,7 @@ export const OptionControls = ({ apiControls, setApiControls }) => {
         <Flex justifyContent={{ base: 'center', md: '' }}>
           <FormControl id="days" mr={marginSide} mb={{ base: 2, md: 0 }}>
             <FormLabel fontSize="11" pl="2">
-              DAYS DIFF
+              DAYS FROM DATE
             </FormLabel>
             <NumberInput
               bg="white"
@@ -38,6 +38,8 @@ export const OptionControls = ({ apiControls, setApiControls }) => {
               fontFamily={'HubotSans'}
               w={{ base: '100%', md: '140px' }}
               onChange={(valueString) => handleChange('days', valueString)}
+              min={15}
+              max={744585} // maximum records
               value={apiControls.days}>
               <NumberInputField />
               <NumberInputStepper>
@@ -56,6 +58,8 @@ export const OptionControls = ({ apiControls, setApiControls }) => {
               size={inputSize}
               fontFamily={'HubotSans'}
               w={{ base: '100%', md: '140px' }}
+              min={0}
+              max={7}
               onChange={(valueString) => handleChange('buffer', valueString)}
               value={apiControls.buffer}>
               <NumberInputField />
