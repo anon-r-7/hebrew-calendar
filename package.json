@@ -13,14 +13,16 @@
     "packages/*"
   ],
   "scripts": {
-    "clean": "rm -rf node_modules && rm -rf packages/*/node_modules && rm -rf .yarn/cache && rm yarn.lock && rm -rf packages/api/dist && rm packages/ui/build",
+    "deep-clean": "rm -rf node_modules && rm -rf packages/*/node_modules && rm -rf .yarn/cache && rm yarn.lock && rm -rf packages/api/dist && rm packages/ui/build",
+    "clean": "yarn prettier:fix && yarn lint:fix && yarn tsc",
     "prettier": "prettier --check \"packages/**/src/**/*.ts\" && prettier --check \"packages/**/src/**/*.tsx\"",
     "prettier:fix": "prettier --write \"packages/**/src/**/*.ts\" --write \"packages/**/src/**/*.tsx\"",
     "lint": "eslint packages/*/src --ext .ts,.tsx",
     "lint:fix": "eslint --fix packages/*/src --ext .ts,.tsx",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:api": "jest --selectProjects api"
+    "test:api": "jest --selectProjects api",
+    "tsc": "tsc"
   },
   "devDependencies": {
     "@babel/cli": "^7.22.10",

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Flex, Box, Heading, useTheme } from '@chakra-ui/react'
+import { Flex, Box, Heading, Text, useTheme } from '@chakra-ui/react'
 import { useStore } from '@ui/hooks/useStore'
 import { useAsyncManager } from '@ui/hooks/useAsyncManager'
 import {
@@ -139,6 +139,26 @@ export const Calendar = () => {
         </Flex>
       </Flex>
       <CalendarGrid dates={store.state.dates} type={store.state.type} />
+      <Flex direction="column" align="center" justify="center">
+        <Flex
+          direction={{ base: 'row', md: 'row' }}
+          justify="space-around"
+          align="center"
+          m={12}
+          w="full"
+          maxW={{ base: 200 }}>
+          <a href="/calendar">
+            <Text fontSize="md" color="brand.light">
+              Calendar
+            </Text>
+          </a>
+          <a href="/tools">
+            <Text fontSize="md" color="brand.grey">
+              Tools
+            </Text>
+          </a>
+        </Flex>
+      </Flex>
     </Box>
   )
 }

@@ -9,7 +9,7 @@
     "start": "vite",
     "start:docker": "vite --host 0.0.0.0",
     "build": "vite build --emptyOutDir",
-    "serve": "vite preview --port 3004",
+    "serve": "vite preview --port 3005",
     "tsc": "tsc --noEmit"
   },
   "dependencies": {

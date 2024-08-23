@@ -3,6 +3,10 @@ import { Switch, Route, Redirect } from 'react-router-dom'
 
 import { Routes } from '@ui/Routes'
 import { Calendar } from '@ui/features/Calendar/Calendar'
+import { Tools } from '@ui/features/Tools/Tools'
+import { test } from './test'
+
+test()
 
 export const App = () => (
   <>
@@ -13,6 +17,15 @@ export const App = () => (
         render={(props) => (
           <>
             <Calendar {...props} />
+          </>
+        )}
+      />
+      <Route
+        exact
+        path={Routes.Tools}
+        render={(props) => (
+          <>
+            <Tools {...props} />
           </>
         )}
       />
