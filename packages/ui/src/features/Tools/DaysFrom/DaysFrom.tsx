@@ -15,8 +15,10 @@ import { useAsyncManager } from '@ui/hooks/useAsyncManager'
 
 import { InitialState } from 'features/Calendar/types'
 import { getDaysFromDate } from './methods/api'
+
 import { DateControls } from './components/DateControls'
 import { OptionControls } from './components/OptionControls'
+import { AdvancedOptionsControls } from './components/AdvancedOptionsControls'
 
 const initialState: InitialState = { dates: [], type: 'gregorian' }
 
@@ -31,7 +33,10 @@ const defaultApiControls = {
   event: 'pesach',
   start: getDate(),
   buffer: 3,
-  days: 10
+  days: 10,
+  include_first_day: false,
+  include_last_day: true,
+  direction: 'future'
 }
 
 export const DaysFrom = () => {
@@ -92,32 +97,55 @@ export const DaysFrom = () => {
         key={key}
         w="100%">
         <Box>
-          {isMobile && <Text fontWeight="bold">{labels[0]}:</Text>}
-          <Text textAlign={'center'} fontWeight={header ? '700' : '300'} fontFamily={'HubotSans'}>
+          {isMobile && (
+            <Text fontWeight="700" fontFamily={'HubotSans'}>
+              {labels[0]}:
+            </Text>
+          )}
+          <Text
+            textAlign={isMobile ? 'left' : 'center'}
+            fontWeight={header ? '700' : '300'}
+            fontFamily={'HubotSans'}>
             {one}
           </Text>
         </Box>
         <Box>
-          {isMobile && <Text fontWeight="bold">{labels[1]}:</Text>}
+          {isMobile && (
+            <Text fontWeight="700" fontFamily={'HubotSans'}>
+              {labels[1]}:
+            </Text>
+          )}
           <Text fontWeight={header ? '700' : '300'} fontFamily={'HubotSans'}>
             {two}
           </Text>
         </Box>
         <Box>
-          {isMobile && <Text fontWeight="bold">{labels[2]}:</Text>}
+          {isMobile && (
+            <Text fontWeight="700" fontFamily={'HubotSans'}>
+              {labels[2]}:
+            </Text>
+          )}
           <Text fontWeight={header ? '700' : '300'} fontFamily={'HubotSans'}>
             {three}
           </Text>
         </Box>
         <Box>
-          {isMobile && <Text fontWeight="bold">{labels[3]}:</Text>}
+          {isMobile && (
+            <Text fontWeight="700" fontFamily={'HubotSans'}>
+              {labels[3]}:
+            </Text>
+          )}
           <Text fontWeight={header ? '700' : '300'} fontFamily={'HubotSans'}>
             {four}
           </Text>
         </Box>
         {five?.length ? (
           <Box>
-            {isMobile && <Text fontWeight="bold">{labels[4]}:</Text>}
+            {isMobile && (
+              <Text fontWeight="700" fontFamily={'HubotSans'}>
+                {labels[4]}:
+              </Text>
+            )}
             <Text fontWeight={header ? '700' : '300'} fontFamily={'HubotSans'}>
               {five}
             </Text>
@@ -154,6 +182,13 @@ export const DaysFrom = () => {
 
         <Box mt={4}>
           <OptionControls
+            apiControls={apiControls}
+            setApiControls={setApiControls}
+          />
+        </Box>
+
+        <Box mt={4}>
+          <AdvancedOptionsControls
             apiControls={apiControls}
             setApiControls={setApiControls}
           />
@@ -205,7 +240,9 @@ export const DaysFrom = () => {
                 const columns = [
                   days_from_day_index,
                   gregorian,
-                  `${yy}-${mm}-${dd}`,
+                  `${yy.toString().padStart(2, '0')}-${mm
+                    .toString()
+                    .padStart(2, '0')}-${dd.toString().padStart(2, '0')}`,
                   day_of_week,
                   events.map((event) => event.event.name).join(', ')
                 ]

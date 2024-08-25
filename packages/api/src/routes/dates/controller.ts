@@ -91,6 +91,12 @@ class DatesController {
         typeof req.query.buffer === 'string' ? Number(req.query.buffer) : 0
       const days =
         typeof req.query.days === 'string' ? Number(req.query.days) : 0
+      const direction =
+        typeof req.query.direction === 'string'
+          ? req.query.direction
+          : 'forward'
+      const include_first_day =
+        req.query.include_first_day && req.query.include_first_day === 'true'
 
       let start_date
 
@@ -155,9 +161,15 @@ class DatesController {
         return
       }
 
-      const day_index = Number(start_date.day_index)
+      let day_index = Number(start_date.day_index)
+      if (include_first_day)
+        day_index = direction === 'future' ? day_index - 1 : day_index + 1
 
-      const match_index = Number(day_index + days)
+      const match_index =
+        direction === 'future'
+          ? Number(day_index + days)
+          : Number(day_index - days)
+
       const start_index = Number(match_index - buffer)
       const end_index = Number(match_index + buffer)
 
@@ -166,16 +178,25 @@ class DatesController {
         return
       }
 
-      const response = await findAllByIndexRange(start_index, end_index);
+      const response = await findAllByIndexRange(start_index, end_index)
 
-      let transformedResponse = response.map((row) => {
-        const plainRow = row.get({ plain: true }); // Convert to plain object
-        const days_from_day_index = Number(row.day_index) - day_index;
+      const transformedResponse = response.map((row) => {
+        const plainRow = row.get({ plain: true }) // Convert to plain object
+
+        // Math.abs accounts for direction 'forward' or 'past'
+        const days_from_day_index = Math.abs(Number(row.day_index) - day_index)
+
         return {
           ...plainRow,
-          days_from_day_index,
-        };
-      });
+          days_from_day_index
+        }
+      })
+
+      transformedResponse.sort((a, b) => {
+        if (a.days_from_day_index > b.days_from_day_index) return 1
+        if (a.days_from_day_index < b.days_from_day_index) return -1
+        return 0
+      })
 
       res.json(transformedResponse)
 

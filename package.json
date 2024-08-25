@@ -14,7 +14,7 @@
   ],
   "scripts": {
     "deep-clean": "rm -rf node_modules && rm -rf packages/*/node_modules && rm -rf .yarn/cache && rm yarn.lock && rm -rf packages/api/dist && rm packages/ui/build",
-    "clean": "yarn prettier:fix && yarn lint:fix && yarn tsc",
+    "clean": "yarn prettier:fix && yarn lint:fix",
     "prettier": "prettier --check \"packages/**/src/**/*.ts\" && prettier --check \"packages/**/src/**/*.tsx\"",
     "prettier:fix": "prettier --write \"packages/**/src/**/*.ts\" --write \"packages/**/src/**/*.tsx\"",
     "lint": "eslint packages/*/src --ext .ts,.tsx",

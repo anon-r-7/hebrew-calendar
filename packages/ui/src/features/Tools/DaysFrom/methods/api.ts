@@ -7,6 +7,8 @@ interface Payload {
   start: string
   buffer: number
   days: number
+  include_first_day: boolean
+  direction: 'future' | 'past'
 }
 
 interface Data {
