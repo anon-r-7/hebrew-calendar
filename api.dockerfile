@@ -15,4 +15,4 @@ FROM base AS prod
 LABEL org.opencontainers.image.source=https://github.com/anon-r-7/hebrew-calendar
 WORKDIR /app/packages/api
 RUN yarn build
-ENTRYPOINT [ "sh", "entrypoint.sh", "serve"]
+ENTRYPOINT [ "sh", "entrypoint.sh", "start"]
