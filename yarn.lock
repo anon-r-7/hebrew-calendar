@@ -7594,6 +7594,8 @@ __metadata:
     express-async-handler: ^1.2.0
     isomorphic-unfetch: ^4.0.2
     js-yaml: ^4.1.0
+    meeusjs: ^1.0.4
+    meeussunmoon: ^3.0.3
     morgan: ^1.10.0
     nodemon: ^3.0.1
     pg: ^8.11.1
@@ -9297,6 +9299,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"luxon@npm:^1.25.0":
+  version: 1.28.1
+  resolution: "luxon@npm:1.28.1"
+  checksum: 2c62999adea79645fd1e931d685f61aeb33eda7f39fbf79b84261a233b62f9590f48336654ee9efd405848bd9e13dc7fe087c701b7126187201a88998dc68b04
+  languageName: node
+  linkType: hard
+
 "lz-string@npm:^1.5.0":
   version: 1.5.0
   resolution: "lz-string@npm:1.5.0"
@@ -9516,6 +9525,22 @@ __metadata:
   version: 0.3.0
   resolution: "media-typer@npm:0.3.0"
   checksum: af1b38516c28ec95d6b0826f6c8f276c58aec391f76be42aa07646b4e39d317723e869700933ca6995b056db4b09a78c92d5440dc23657e6764be5d28874bba1
+  languageName: node
+  linkType: hard
+
+"meeusjs@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "meeusjs@npm:1.0.4"
+  checksum: 3097e0789c7385a65d0989b83b3c39ca56907be6902b0151f54e5209859bb5ca8a635baaac44f5ae098025768d274223f2aa7801a37636603380a6e0aa98a140
+  languageName: node
+  linkType: hard
+
+"meeussunmoon@npm:^3.0.3":
+  version: 3.0.3
+  resolution: "meeussunmoon@npm:3.0.3"
+  dependencies:
+    luxon: ^1.25.0
+  checksum: 4c4f0d6c10c783838202b3ec70cb743ce6f2829a657ca42be5b2129ad81887dda3d4b9be3bde31ba36d6e41d29295ba1234c1a030696b64ee92ac1b46252c274
   languageName: node
   linkType: hard
 
