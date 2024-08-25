@@ -59,24 +59,8 @@ Create PR from feature branch to main
 - git pull origin main
 - direnv allow .
 
-#### API
+#### API and UI
 
-- cd /packages/api
-- yarn build
-- ps aux | grep serve
+- ps aux | grep docker-compose
 - kill <pid>
-- nohup yarn start &
-
-#### UI
-
-- cd ../ui
-- yarn build
-- sudo vim build/index.html
-```html
-    <script id="env-vars">
-      var GLOBAL_UI_API_URL="http://api.hebrewfeasts.com";
-    </script>
-```
-- ps aux | grep 
-- kill <pid>
-- nohup yarn serve &
+- docker-compose up --build

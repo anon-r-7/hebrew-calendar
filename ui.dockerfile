@@ -34,7 +34,7 @@ RUN rm /etc/nginx/conf.d/default.conf
 COPY --from=builder /usr/src/app/packages/ui/nginx.conf /etc/nginx/conf.d
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 
-EXPOSE 80
+EXPOSE 3005
 WORKDIR /scripts
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
