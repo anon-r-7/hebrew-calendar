@@ -1,5 +1,19 @@
 const axios = require('axios');
 
+function padDate(dateString) {
+  let parts = dateString.split('-');
+
+  if (parts.length !== 3) {
+    throw new Error('Invalid date format. Expected yyyy-mm-dd.');
+  }
+
+  let year = parts[0].padStart(4, '0'); // Ensure year is 4 digits
+  let month = parts[1].padStart(2, '0'); // Ensure month is 2 digits
+  let day = parts[2].padStart(2, '0'); // Ensure day is 2 digits
+
+  return `${year}-${month}-${day}`;
+}
+
 // Start and end limited to one month
 async function getAstronomyEvents(startDate, endDate) {
   const accessKey = '8fUbbY0pTy';
@@ -7,9 +21,15 @@ async function getAstronomyEvents(startDate, endDate) {
   const placeId = 'israel/jerusalem';
   const version = '3';
   const object = 'sun,moon'
-  const types = 'all';
+  const types = 'all'; 
 
-  const url = `https://api.xmltime.com/astronomy?accesskey=${accessKey}&secretkey=${secretKey}&version=${version}&prettyprint=1&out=js&object=${object}&placeid=${placeId}&startdt=${startDate}&enddt=${endDate}&types=${types}`;
+  // TODO: currently types is breaking due to `all` or `setrise` prior to AD 1550.
+  // Valid types include phase,twilight,meridian
+
+  const start = padDate(startDate)
+  const end = padDate(endDate)
+
+  const url = `https://api.xmltime.com/astronomy?accesskey=${accessKey}&secretkey=${secretKey}&version=${version}&prettyprint=1&out=js&object=${object}&placeid=${placeId}&startdt=${start}&enddt=${end}&types=${types}`;
 
   try {
     const response = await fetch(url);

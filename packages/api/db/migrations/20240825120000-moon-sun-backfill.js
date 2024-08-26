@@ -11,7 +11,7 @@ module.exports = {
       const [rows] = await queryInterface.sequelize.query(`
         SELECT gregorian, day_index
         FROM hebrew_dates
-        WHERE gregorian BETWEEN cast('0001-01-01' as date) AND cast('2075-09-09' as date)
+        WHERE gregorian BETWEEN cast('0001-01-01' as date) AND cast('2075-12-31' as date)
         ORDER BY gregorian;
       `);
 
@@ -74,7 +74,7 @@ module.exports = {
         let remainingMinutes = Math.floor(remainingTime / 60); // Convert remaining time to minutes
         let remainingSeconds = Math.floor(remainingTime % 60); // Remaining seconds
 
-        console.log(`${progress.toFixed(4)}% | ETA ${remainingMinutes} minutes, ${remainingSeconds} seconds`);
+        console.log(`${progress.toFixed(4)}% | ETA ${remainingMinutes} min ${remainingSeconds} sec. (start: ${period.start} | end: ${period.end})`);
         counter++;
         progress = (counter / denominator) * 100;
       }
