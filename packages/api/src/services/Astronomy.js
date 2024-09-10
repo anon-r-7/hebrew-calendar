@@ -23,9 +23,6 @@ async function getAstronomyEvents(startDate, endDate) {
   const object = 'sun,moon'
   const types = 'all'; 
 
-  // TODO: currently types is breaking due to `all` or `setrise` prior to AD 1550.
-  // Valid types include phase,twilight,meridian
-
   const start = padDate(startDate)
   const end = padDate(endDate)
 
