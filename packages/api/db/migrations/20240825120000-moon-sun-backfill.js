@@ -1,7 +1,5 @@
 'use strict';
 
-const fs = require('fs');
-const path = require('path');
 const { getAstronomyEvents } = require(`${__dirname}/../../src/services/Astronomy`);
 
 module.exports = {
@@ -9,29 +7,26 @@ module.exports = {
     try {
       // Fetch the date range of interest from the database
       const [rows] = await queryInterface.sequelize.query(`
-        SELECT gregorian, day_index
-        FROM hebrew_dates
-        WHERE gregorian BETWEEN cast('0001-01-01' as date) AND cast('2075-12-31' as date)
-        ORDER BY gregorian;
+        SELECT
+          hd.gregorian,
+          hd.day_index
+        FROM
+          hebrew_dates hd
+        LEFT JOIN
+          sun s ON hd.gregorian = s.gregorian
+        LEFT JOIN
+          moon m ON hd.gregorian = m.gregorian
+        WHERE
+          hd.gregorian BETWEEN cast('0001-01-01' as date) AND cast('2075-12-31' as date)
+          AND s.gregorian IS NULL
+          AND m.gregorian IS NULL
+        ORDER BY
+          hd.gregorian;
       `);
 
-      // Create a local JSON file to store events
-      const sun_output = path.join(__dirname, 'sun_events.json');
-      fs.writeFileSync(sun_output, JSON.stringify([]));
-
-      const moon_output = path.join(__dirname, 'moon_events.json');
-      fs.writeFileSync(moon_output, JSON.stringify([]));
-
-      const readFile = (output) => JSON.parse(fs.readFileSync(output))
-
-      const appendToFile = ({ sun_events, moon_events }) => {
-        const current_sun_data = readFile(sun_output)
-        current_sun_data.push(...sun_events);
-        fs.writeFileSync(sun_output, JSON.stringify(current_sun_data, null, 2));
-
-        const current_moon_data = readFile(moon_output)
-        current_moon_data.push(...moon_events);
-        fs.writeFileSync(moon_output, JSON.stringify(current_moon_data, null, 2));
+      const insertToDb = async ({ sun_events, moon_events }) => {
+        await queryInterface.bulkInsert('sun', sun_events);
+        await queryInterface.bulkInsert('moon', moon_events);
       };
 
       // Create an array of objects with start and end dates for each month
@@ -57,40 +52,25 @@ module.exports = {
         }
       });
 
-      let counter = 1;
-      const denominator = 24900;
-      let progress = (1 / denominator) * 100;
-      let startTime = Date.now(); // Start time for the entire loop
-
+      console.log('Begin api calls', {
+        start_time: new Date(),
+        number_months: periods.length,
+        month_start: periods[0].start,
+        month_end: periods[periods.length - 1].start,
+      })
+ 
       for (const period of periods) {
+        console.log(`API Call | start: ${period.start} | end: ${period.end}`);
         const events = await getAstronomyEvents(period.start, period.end);
-        appendToFile(events);
 
-        // Calculate elapsed time and estimate remaining time
-        let elapsedTime = (Date.now() - startTime) / 1000; // Elapsed time in seconds
-        let avgTimePerCount = elapsedTime / counter; // Average time per iteration
-        let remainingTime = avgTimePerCount * (denominator - counter); // Estimated remaining time in seconds
+        const has_sun_events = !!events?.sun_events?.length
+        const has_moon_events = !!events?.moon_events?.length
 
-        let remainingMinutes = Math.floor(remainingTime / 60); // Convert remaining time to minutes
-        let remainingSeconds = Math.floor(remainingTime % 60); // Remaining seconds
-
-        console.log(`${progress.toFixed(4)}% | ETA ${remainingMinutes} min ${remainingSeconds} sec. (start: ${period.start} | end: ${period.end})`);
-        counter++;
-        progress = (counter / denominator) * 100;
+        if (!has_sun_events || !has_moon_events) {
+          throw new Error('API Limitation Error')
+        }
+        insertToDb(events);
       }
-
-      await queryInterface.sequelize.query(`
-        TRUNCATE sun;
-        TRUNCATE moon;
-      `);
-
-      console.log("Astronomical events successfully fetched and saved locally.");
-
-      const sun_insert = readFile(sun_output)
-      const moon_insert = readFile(moon_output)
-
-      await queryInterface.bulkInsert('sun', sun_insert);
-      await queryInterface.bulkInsert('moon', moon_insert);
 
       console.log("Astronomical events successfully persisted to database.");
     } catch (error) {

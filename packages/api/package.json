@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc && babel src --out-dir dist --extensions '.ts,.js' --source-maps",
     "start": "nodemon -r tsconfig-paths/register --exec ts-node --ext ts,js src/index.ts",
-    "serve": "node build/index.js",
+    "serve": "node dist/index.js",
     "db:migrate": "npx sequelize-cli db:migrate",
     "db:migrate:undo": "npx sequelize-cli db:migrate:undo:all",
     "db:migrate:undo:last": "npx sequelize-cli db:migrate:undo",
