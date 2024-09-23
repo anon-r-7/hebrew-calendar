@@ -8,6 +8,8 @@ check_status() {
   fi
 }
 
+git pull origin main
+
 # Ensure script is running from the root of the project
 ROOT_DIR="/var/www/hebrew-calendar"
 cd "$ROOT_DIR" || { echo "Error: Could not change to project root directory. Exiting..."; exit 1; }
