@@ -141,6 +141,7 @@ const isDayOfRest = (day) => {
   })
   return isRest
 }
+
 const Event = ({ event, day, isPrimary }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
@@ -206,7 +207,127 @@ const Event = ({ event, day, isPrimary }) => {
   )
 }
 
-const Day = ({ day, type, isPrimary }) => {
+const Details = ({
+  primaryDate,
+  secondaryDate,
+  isPrimary,
+  type,
+  astronomy,
+  theme
+}) => {
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
+  const Astronomy = ({ parent, type, isHeader, hour, min, sec }) => {
+    return (
+      <Flex flexDirection="row">
+        <Text
+          style={{
+            flex: 2,
+            fontSize: 12,
+            fontWeight: isHeader ? 700 : 300,
+            color: isHeader ? theme.colors.brand.lightBlue : 'black'
+          }}>
+          {parent === 'Type' ? 'Type' : parent === 'sun' ? 'Solar' : 'Lunar'}
+        </Text>
+        <Text
+          style={{
+            flex: 3,
+            fontSize: 12,
+            fontWeight: isHeader ? 700 : 300,
+            color: isHeader ? theme.colors.brand.lightBlue : 'black'
+          }}>
+          {type}
+        </Text>
+        <Text
+          style={{
+            flex: 2,
+            fontSize: 12,
+            fontWeight: isHeader ? 700 : 300,
+            color: isHeader ? theme.colors.brand.lightBlue : 'black'
+          }}>
+          {isHeader
+            ? 'Time'
+            : `${String(hour).padStart(2, '0')}:${String(min).padStart(
+                2,
+                '0'
+              )}:${String(sec).padStart(2, '0')}`}
+        </Text>
+      </Flex>
+    )
+  }
+
+  return (
+    <Popover
+      isOpen={isOpen}
+      onClose={onClose}
+      onOpen={onOpen}
+      _focus={{ outline: 'none' }}>
+      <PopoverTrigger>
+        <Text
+          fontFamily={isPrimary ? 'HubotSans' : 'HubotSans-Light'}
+          fontWeight={isPrimary ? '500' : '300'}
+          position="absolute"
+          top="0"
+          right="1"
+          borderBottomWidth={1}
+          borderBottomColor={'#ccc'}
+          fontSize={'xs'}>
+          {primaryDate}
+        </Text>
+      </PopoverTrigger>
+      <PopoverContent
+        _focus={{ outline: 'none' }}
+        sx={{
+          display: isOpen ? 'flex' : 'none',
+          bg: 'white',
+          borderColor: 'white', // Ensure this color is visible
+          borderWidth: '0', // Adjusted to be visible
+          boxShadow: 's', // Adding a shadow for emphasis
+          outline: 'none'
+        }}>
+        <PopoverBody style={{ fontFamily: 'HubotSans' }}>
+          <Flex flexDirection="row" justifyContent={'space-between'}>
+            <Text style={{ fontSize: 12, fontWeight: '300' }}>
+              {type === 'gregorian' ? 'Hebrew' : 'Gregorian'} {secondaryDate}
+            </Text>
+            <Text style={{ fontSize: 12, fontWeight: '700' }}>
+              {type === 'gregorian' ? 'Gregorian' : 'Hebrew'} {primaryDate}
+            </Text>
+          </Flex>
+          <Flex marginTop={2} flexDirection="column">
+            {(astronomy?.sun?.length || astronomy?.moon?.length) && (
+              <Astronomy isHeader={true} parent={'Type'} type={'Event'} />
+            )}
+            {astronomy?.sun &&
+              astronomy.sun.map((row, index) => (
+                <Astronomy
+                  key={index}
+                  parent={'sun'}
+                  type={row.type}
+                  hour={row.hour}
+                  min={row.min}
+                  sec={row.sec}
+                />
+              ))}
+            {astronomy?.moon &&
+              astronomy.moon.map((row, index) => (
+                <Astronomy
+                  key={index}
+                  parent={'moon'}
+                  type={row.type}
+                  hour={row.hour}
+                  min={row.min}
+                  sec={row.sec}
+                />
+              ))}
+          </Flex>
+        </PopoverBody>
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+const Day = ({ day, type, isPrimary, theme }) => {
   if (!day) {
     return null
   }
@@ -239,16 +360,14 @@ const Day = ({ day, type, isPrimary }) => {
           }}
         />
       )}
-
-      <Text
-        fontFamily={isPrimary ? 'HubotSans' : 'HubotSans-Light'}
-        fontWeight={isPrimary ? '500' : '300'}
-        position="absolute"
-        top="0"
-        right="1"
-        fontSize={'xs'}>
-        {primaryDate}
-      </Text>
+      <Details
+        primaryDate={primaryDate}
+        secondaryDate={secondaryDate}
+        astronomy={day.astronomy}
+        isPrimary={isPrimary}
+        type={type}
+        theme={theme}
+      />
       <Text
         color={'#777'}
         fontFamily={isPrimary ? 'HubotSans' : 'HubotSans-Light'}
@@ -384,6 +503,7 @@ export const CalendarGrid = ({ dates, type }) => {
                 boxShadow={day ? theme.shadows.brand.base : 'none'}>
                 <Day
                   day={day}
+                  theme={theme}
                   type={type}
                   isPrimary={isPrimaryMonth(
                     day ? day[type] : null,

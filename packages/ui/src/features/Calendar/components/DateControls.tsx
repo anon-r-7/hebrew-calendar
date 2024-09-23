@@ -35,6 +35,13 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
     }))
   }
 
+  const handleAstronomyChange = (value) => {
+    setApiControls((prev) => ({
+      ...prev,
+      with_astronomy: value
+    }))
+  }
+
   const buttonSize = useBreakpointValue({ base: 'lg', md: 'sm' })
   const inputSize = useBreakpointValue({ base: 'lg', md: 'sm' })
   const marginSide = useBreakpointValue({ base: '2', md: '2' })
@@ -44,14 +51,14 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
   return (
     <Stack direction={orientation} align="center" w="full" p={2} spacing={4}>
       <Flex flexDirection={{ base: 'column', md: 'row' }}>
-        <Flex justifyContent={{ base: 'center', md: '' }}>
+        <Flex justifyContent={{ base: 'flex-end', md: '' }}>
           <NumberInput
             bg="white"
             size={inputSize}
             fontFamily={'HubotSans'}
             max={apiControls.type === 'gregorian' ? 2075 : 5836}
             min={apiControls.type === 'gregorian' ? 1 : 3762}
-            w={'50%'}
+            w={'30%'}
             onChange={(valueString) =>
               handleDateChange('start', 'year', valueString)
             }
@@ -75,7 +82,7 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
                 : 12
             }
             min={1}
-            w={'50%'}
+            w={'18%'}
             onChange={(valueString) =>
               handleDateChange('start', 'month', valueString.padStart(2, '0'))
             }
@@ -89,6 +96,21 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
               <NumberDecrementStepper />
             </NumberInputStepper>
           </NumberInput>
+
+          <Select
+            bg="white"
+            size={inputSize}
+            fontFamily={'HubotSans'}
+            color={'black'}
+            borderRadius="0"
+            w={{ base: '50%', md: '140px' }}
+            mr={{ base: 2, md: 2 }}
+            mb={{ base: '3', md: 0 }}
+            onChange={(e) => handleAstronomyChange(e.target.value)}
+            value={apiControls.with_astronomy}>
+            <option value="false">Basic</option>
+            <option value="true">Advanced</option>
+          </Select>
         </Flex>
 
         <Flex>

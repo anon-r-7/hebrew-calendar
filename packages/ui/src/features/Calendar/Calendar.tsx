@@ -21,7 +21,8 @@ const initialState: InitialState = { dates: [], type: 'gregorian' }
 const defaultApiControls = {
   start: getCurrentMonthFirstIso(),
   type: 'gregorian',
-  with_events: true
+  with_events: true,
+  with_astronomy: 'false'
 }
 
 export const Calendar = () => {
@@ -43,7 +44,11 @@ export const Calendar = () => {
       with_events:
         searchParams.get('with_events') === 'false'
           ? false
-          : defaultApiControls.with_events
+          : defaultApiControls.with_events,
+      with_astronomy:
+        searchParams.get('with_events') === 'true'
+          ? 'true'
+          : defaultApiControls.with_astronomy
     }
   }
 
@@ -141,7 +146,9 @@ export const Calendar = () => {
             </Box>
           </Flex>
         </Flex>
+
         <CalendarGrid dates={store.state.dates} type={store.state.type} />
+
         <Flex direction="column" align="center" justify="center">
           <Flex
             direction={{ base: 'row', md: 'row' }}
