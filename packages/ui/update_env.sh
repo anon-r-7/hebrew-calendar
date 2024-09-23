@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # File path
-FILE_PATH="./build/index.html"
+FILE_PATH="/var/www/hebrew-calendar/packages/ui/build/index.html"
 
 # The content to replace and the new content with newline escape sequences
 SEARCH_STRING='<script id="env-vars"></script>'
