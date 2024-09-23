@@ -4,6 +4,8 @@ import { logger } from '@api/utils/logger'
 import HebrewDatesModel from './HebrewDates'
 import HebrewEventsModel from './HebrewEvents'
 import HebrewEventDatesModel from './HebrewEventDates'
+import MoonModel from './Moon'
+import SunModel from './Sun'
 
 const host = process.env.DB_ENDPOINT
 const database = process.env.POSTGRES_DB
@@ -31,6 +33,8 @@ sequelize
 const HebrewDates = HebrewDatesModel(sequelize)
 const HebrewEvents = HebrewEventsModel(sequelize)
 const HebrewEventDates = HebrewEventDatesModel(sequelize)
+const Moon = MoonModel(sequelize)
+const Sun = SunModel(sequelize)
 
 HebrewEventDates.belongsTo(HebrewDates, {
   foreignKey: 'hebrew_date',
@@ -55,5 +59,7 @@ export default {
   sequelize,
   HebrewDates,
   HebrewEvents,
-  HebrewEventDates
+  HebrewEventDates,
+  Sun,
+  Moon
 }

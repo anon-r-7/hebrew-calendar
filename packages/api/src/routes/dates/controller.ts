@@ -18,8 +18,16 @@ import {
   findByHebrew,
   findByHebrewEventAndYear,
   findByGregorianEventAndYear,
-  findAllByIndexRange
+  findAllByIndexRange,
 } from '@api/models/HebrewDates/methods'
+
+import {
+  findAllByGregorian as findMoon
+} from '@api/models/Moon/methods'
+
+import {
+  findAllByGregorian as findSun
+} from '@api/models/Sun/methods'
 
 import { feasts } from '@api/constants/feasts'
 
@@ -33,6 +41,11 @@ class DatesController {
         typeof req.query.with_events === 'string'
           ? req.query.with_events
           : false
+      const with_astronomy =
+        typeof req.query.with_astronomy === 'string'
+          ? req.query.with_astronomy
+          : false
+
       let response
 
       if (type !== 'hebrew') {
@@ -66,6 +79,28 @@ class DatesController {
       if (!response || !response.length) {
         next(new HttpException(404, 'Dates not found'))
         return
+      }
+
+      if (with_astronomy) {
+        const startGregorian = response[0].gregorian
+        const endGregorian = response[response.length - 1].gregorian
+
+        const sun_events = await findSun(startGregorian, endGregorian)
+        const moon_events = await findMoon(startGregorian, endGregorian)
+
+        response = response.map((sequelize_row) => {
+          let row = sequelize_row.toJSON()
+
+          const row_sun_events = sun_events.filter((event) => event.gregorian === row.gregorian)
+          const row_moon_events = moon_events.filter((event) => event.gregorian === row.gregorian)
+
+          row.astronomy = {
+            sun: row_sun_events,
+            moon: row_moon_events,
+          }
+
+          return row
+        })
       }
 
       res.json(response)

@@ -1,6 +1,6 @@
 import { client } from './client'
 
-const get = async ({ start, end, type, with_events }) => {
+const get = async ({ start, end, type, with_events, with_astronomy }) => {
   const response = await client({
     method: 'GET',
     url: 'dates',
@@ -8,7 +8,8 @@ const get = async ({ start, end, type, with_events }) => {
       start,
       end,
       type,
-      with_events
+      with_events,
+      with_astronomy,
     }
   })
   return response.data
