@@ -222,8 +222,25 @@ const Day = ({ day, type, isPrimary }) => {
 
   const events = day.events.map((event) => event.event)
 
+  const moon_phase = day.astronomy.moon.find((event) =>
+    [
+      'firstquarter',
+      'newmoon',
+      'thirdquarter',
+      'fullmoon',
+    ].includes(event.type)
+  )
+
   return (
     <Box position="relative" w="full" p={{ base: 0.5, md: 1 }} height="100%">
+      {moon_phase && <img src={`/${moon_phase.type}.png`} style={{
+        position: 'absolute',
+        width: '16px',
+        height: '16px',
+        bottom: '4px',
+        right: 'calc(50% - 8px)',
+      }} />}
+
       <Text
         fontFamily={isPrimary ? 'HubotSans' : 'HubotSans-Light'}
         fontWeight={isPrimary ? '500' : '300'}
