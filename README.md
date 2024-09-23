@@ -74,7 +74,7 @@ Create PR from feature branch to main
 - sudo vim build/index.html
 ```html
     <script id="env-vars">
-      var GLOBAL_UI_API_URL="http://api.hebrewfeasts.com";
+      var GLOBAL_UI_API_URL="https://api.hebrewfeasts.com";
     </script>
 ```
 - ps aux | grep 

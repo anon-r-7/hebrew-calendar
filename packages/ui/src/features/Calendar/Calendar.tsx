@@ -10,6 +10,7 @@ import {
 } from '@ui/utils/date'
 
 import { CalendarGrid } from '@ui/components/CalendarGrid'
+import { Loading } from '@ui/components/Loading'
 
 import { InitialState } from './types'
 import { getDates } from './methods/api'
@@ -113,52 +114,55 @@ export const Calendar = () => {
       : `Month ${parseFloat(monthIndex)}, ${primaryYear} Hebrew`
 
   return (
-    <Box w="100%" minH="100%" p={0} m={0}>
-      <Flex direction="column" align="center" justify="center">
-        <Flex
-          direction={{ base: 'column', md: 'row' }}
-          justify="space-between"
-          align="center"
-          pt={4}
-          pb={{ base: 2, md: 4 }}
-          w="full"
-          maxW={{ base: '100%', md: theme.sizes.container.xl }}>
-          <Heading
-            size={{ base: 'md', md: 'lg' }}
-            fontWeight="700"
-            color="brand.light">
-            {heading}
-          </Heading>
-          <Box style={{ marginTop: 12 }}>
-            <DateControls
-              apiControls={apiControls}
-              setApiControls={setApiControls}
-              onSubmit={onSubmit}
-            />
-          </Box>
+    <>
+      <Loading loading={asyncManager.loading} />
+      <Box w="100%" minH="100%" p={0} m={0}>
+        <Flex direction="column" align="center" justify="center">
+          <Flex
+            direction={{ base: 'column', md: 'row' }}
+            justify="space-between"
+            align="center"
+            pt={4}
+            pb={{ base: 2, md: 4 }}
+            w="full"
+            maxW={{ base: '100%', md: theme.sizes.container.xl }}>
+            <Heading
+              size={{ base: 'md', md: 'lg' }}
+              fontWeight="700"
+              color="brand.light">
+              {heading}
+            </Heading>
+            <Box style={{ marginTop: 12 }}>
+              <DateControls
+                apiControls={apiControls}
+                setApiControls={setApiControls}
+                onSubmit={onSubmit}
+              />
+            </Box>
+          </Flex>
         </Flex>
-      </Flex>
-      <CalendarGrid dates={store.state.dates} type={store.state.type} />
-      <Flex direction="column" align="center" justify="center">
-        <Flex
-          direction={{ base: 'row', md: 'row' }}
-          justify="space-around"
-          align="center"
-          m={12}
-          w="full"
-          maxW={{ base: 200 }}>
-          <a href="/calendar">
-            <Text fontSize="md" color="brand.light">
-              Calendar
-            </Text>
-          </a>
-          <a href="/tools">
-            <Text fontSize="md" color="brand.grey">
-              Tools
-            </Text>
-          </a>
+        <CalendarGrid dates={store.state.dates} type={store.state.type} />
+        <Flex direction="column" align="center" justify="center">
+          <Flex
+            direction={{ base: 'row', md: 'row' }}
+            justify="space-around"
+            align="center"
+            m={12}
+            w="full"
+            maxW={{ base: 200 }}>
+            <a href="/calendar">
+              <Text fontSize="md" color="brand.light">
+                Calendar
+              </Text>
+            </a>
+            <a href="/tools">
+              <Text fontSize="md" color="brand.grey">
+                Tools
+              </Text>
+            </a>
+          </Flex>
         </Flex>
-      </Flex>
-    </Box>
+      </Box>
+    </>
   )
 }

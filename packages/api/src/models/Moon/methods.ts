@@ -20,6 +20,28 @@ export const findAllByGregorian = async (
       gregorian: {
         [Op.gte]: start,
         [Op.lte]: end
+      },
+      type: {
+        [Op.notIn]: ['firstquarter', 'newmoon', 'thirdquarter', 'fullmoon']
+      }
+    },
+    order: ['gregorian']
+  })
+  return response
+}
+
+export const findPhasesByGregorian = async (
+  start: Date,
+  end: Date
+): Promise<MoonModel[]> => {
+  const response = await Models.Moon.findAll({
+    where: {
+      gregorian: {
+        [Op.gte]: start,
+        [Op.lte]: end
+      },
+      type: {
+        [Op.in]: ['firstquarter', 'newmoon', 'thirdquarter', 'fullmoon']
       }
     },
     order: ['gregorian']

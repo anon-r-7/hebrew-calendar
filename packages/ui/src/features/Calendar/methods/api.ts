@@ -12,7 +12,7 @@ const payloadDefault: Payload = {
   end: '',
   type: 'gregorian',
   with_events: true,
-  with_astronomy: true,
+  with_astronomy: false
 }
 
 export const getDates = async ({ payload, asyncManager, store }) => {

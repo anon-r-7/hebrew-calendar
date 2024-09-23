@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react'
 
 import { daysOfWeek } from '@ui/utils/date'
+import { EmptyCalendar } from './EmptyCalendar'
 
 const isPrimaryMonth = (date, primaryDate) => {
   if (!date) return false
@@ -222,24 +223,22 @@ const Day = ({ day, type, isPrimary }) => {
 
   const events = day.events.map((event) => event.event)
 
-  const moon_phase = day.astronomy.moon.find((event) =>
-    [
-      'firstquarter',
-      'newmoon',
-      'thirdquarter',
-      'fullmoon',
-    ].includes(event.type)
-  )
+  const moon_phase = day?.moon_phase
 
   return (
     <Box position="relative" w="full" p={{ base: 0.5, md: 1 }} height="100%">
-      {moon_phase && <img src={`/${moon_phase.type}.png`} style={{
-        position: 'absolute',
-        width: '16px',
-        height: '16px',
-        bottom: '4px',
-        right: 'calc(50% - 8px)',
-      }} />}
+      {moon_phase && (
+        <img
+          src={`/${moon_phase}.png`}
+          style={{
+            position: 'absolute',
+            width: '16px',
+            height: '16px',
+            bottom: '4px',
+            right: 'calc(50% - 8px)'
+          }}
+        />
+      )}
 
       <Text
         fontFamily={isPrimary ? 'HubotSans' : 'HubotSans-Light'}
@@ -273,7 +272,7 @@ const Day = ({ day, type, isPrimary }) => {
 export const CalendarGrid = ({ dates, type }) => {
   const theme = useTheme()
 
-  if (!dates || !dates.length) return <div>No dates available</div>
+  if (!dates || !dates.length) return <EmptyCalendar />
 
   const datesGrid = dates.map((date) => ({
     ...date,

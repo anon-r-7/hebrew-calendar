@@ -9,7 +9,7 @@ const get = async ({ start, end, type, with_events, with_astronomy }) => {
       end,
       type,
       with_events,
-      with_astronomy,
+      with_astronomy
     }
   })
   return response.data

@@ -18,16 +18,15 @@ import {
   findByHebrew,
   findByHebrewEventAndYear,
   findByGregorianEventAndYear,
-  findAllByIndexRange,
+  findAllByIndexRange
 } from '@api/models/HebrewDates/methods'
 
 import {
-  findAllByGregorian as findMoon
+  findAllByGregorian as findMoon,
+  findPhasesByGregorian as findPhases
 } from '@api/models/Moon/methods'
 
-import {
-  findAllByGregorian as findSun
-} from '@api/models/Sun/methods'
+import { findAllByGregorian as findSun } from '@api/models/Sun/methods'
 
 import { feasts } from '@api/constants/feasts'
 
@@ -81,22 +80,37 @@ class DatesController {
         return
       }
 
-      if (with_astronomy) {
-        const startGregorian = response[0].gregorian
-        const endGregorian = response[response.length - 1].gregorian
+      const startGregorian = response[0].gregorian
+      const endGregorian = response[response.length - 1].gregorian
 
+      response = response.map((row) => row.toJSON())
+
+      const moon_phases = await findPhases(startGregorian, endGregorian)
+      if (moon_phases && moon_phases.length) {
+        response.map((row) => {
+          const moon_phase = moon_phases.find(
+            (phase) => phase.gregorian === row.gregorian
+          )
+          if (moon_phase?.type) row.moon_phase = moon_phase.type
+          return row
+        })
+      }
+
+      if (with_astronomy) {
         const sun_events = await findSun(startGregorian, endGregorian)
         const moon_events = await findMoon(startGregorian, endGregorian)
 
-        response = response.map((sequelize_row) => {
-          let row = sequelize_row.toJSON()
-
-          const row_sun_events = sun_events.filter((event) => event.gregorian === row.gregorian)
-          const row_moon_events = moon_events.filter((event) => event.gregorian === row.gregorian)
+        response = response.map((row) => {
+          const row_sun_events = sun_events.filter(
+            (event) => event.gregorian === row.gregorian
+          )
+          const row_moon_events = moon_events.filter(
+            (event) => event.gregorian === row.gregorian
+          )
 
           row.astronomy = {
             sun: row_sun_events,
-            moon: row_moon_events,
+            moon: row_moon_events
           }
 
           return row
