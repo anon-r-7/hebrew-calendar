@@ -78,7 +78,7 @@ async function getAstronomyEvents(startDate, endDate) {
     return { sun_events, moon_events };
   } catch (error) {
     console.error('Error fetching astronomical events:', error);
-    return [];
+    return {};
   }
 }
 

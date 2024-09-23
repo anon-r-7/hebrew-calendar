@@ -67,7 +67,8 @@ module.exports = {
         const has_moon_events = !!events?.moon_events?.length
 
         if (!has_sun_events || !has_moon_events) {
-          throw new Error('API Limitation Error')
+          continue
+          // throw new Error('API Limitation Error')
         }
         insertToDb(events);
       }
