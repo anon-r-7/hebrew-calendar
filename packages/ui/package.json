@@ -10,6 +10,8 @@
     "start:docker": "vite --host 0.0.0.0",
     "build": "vite build --emptyOutDir",
     "serve": "vite preview --port 3005",
+    "start:prod": "yarn build && yarn setenv && yarn serve",
+    "setenv": "bash update_env.sh",
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
