@@ -56,27 +56,4 @@ Create PR from feature branch to main
 
 - cd /var/www/hebrew-calendar
 - sudo su
-- git pull origin main
-- direnv allow .
-
-#### API
-
-- cd /packages/api
-- yarn build
-- ps aux | grep start
-- kill <pid>
-- nohup yarn start &
-
-#### UI
-
-- cd ../ui
-- yarn build
-- sudo vim build/index.html
-```html
-    <script id="env-vars">
-      var GLOBAL_UI_API_URL="https://api.hebrewfeasts.com";
-    </script>
-```
-- ps aux | grep 
-- kill <pid>
-- nohup yarn serve &
+- bash deploy.sh
