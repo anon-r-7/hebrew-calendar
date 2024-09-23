@@ -38,12 +38,10 @@ class DatesController {
       const end = typeof req.query.end === 'string' ? req.query.end : ''
       const with_events =
         typeof req.query.with_events === 'string'
-          ? req.query.with_events
-          : false
+          ? req.query.with_events === 'true' ? true : false : false
       const with_astronomy =
         typeof req.query.with_astronomy === 'string'
-          ? req.query.with_astronomy
-          : false
+          ? req.query.with_astronomy === 'true' ? true : false : false
 
       let response
 
