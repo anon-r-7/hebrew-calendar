@@ -1,6 +1,7 @@
 export const Routes = {
   Calendar: '/calendar',
-  Tools: '/tools'
+  DaysFrom: '/days-from',
+  DaysBetween: '/days-between'
 }
 
 export const createRoute = ({ route, id }) => route.replace(':id', id)

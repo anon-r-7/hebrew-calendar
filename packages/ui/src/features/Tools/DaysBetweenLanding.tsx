@@ -8,9 +8,9 @@ import {
   useTheme
 } from '@chakra-ui/react'
 
-import { DaysFrom } from './DaysFrom/DaysFrom'
+import { DaysBetween } from './DaysBetween/DaysBetween'
 
-export const Tools = () => {
+export const DaysBetweenLanding = () => {
   const theme = useTheme()
 
   const padding = useBreakpointValue({ base: '4', md: '0' })
@@ -40,7 +40,7 @@ export const Tools = () => {
         </Flex>
       </Flex>
 
-      <DaysFrom />
+      <DaysBetween />
 
       <Flex direction="column" align="center" justify="center">
         <Flex
@@ -49,15 +49,20 @@ export const Tools = () => {
           align="center"
           m={12}
           w="full"
-          maxW={{ base: 200 }}>
+          maxW={{ base: 325 }}>
           <a href="/calendar">
             <Text fontSize="md" color="brand.grey">
               Calendar
             </Text>
           </a>
-          <a href="/tools">
+          <a href="/days-from">
+            <Text fontSize="md" color="brand.grey">
+              Days From
+            </Text>
+          </a>
+          <a href="/days-between">
             <Text fontSize="md" color="brand.light">
-              Tools
+              Days Between
             </Text>
           </a>
         </Flex>

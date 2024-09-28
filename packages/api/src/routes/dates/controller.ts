@@ -259,6 +259,69 @@ class DatesController {
       next(error)
     }
   }
+
+  public getDaysBetweenDates = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const type = typeof req.query.type === 'string' ? req.query.type : ''
+      const start = typeof req.query.start === 'string' ? req.query.start : ''
+      const end = typeof req.query.end === 'string' ? req.query.end : ''
+      const include_first_day =
+        req.query.include_first_day && req.query.include_first_day === 'true'
+
+      let start_date, end_date
+
+      if (!start) {
+        next(new HttpException(400, 'Invalid start date'))
+        return
+      }
+
+      if (type !== 'hebrew') {
+        const dtStart = createSafeJsDate(start)
+        const dtEnd = createSafeJsDate(end)
+
+        if (isNaN(dtStart.getTime()) || isNaN(dtEnd.getTime())) {
+          next(new HttpException(400, 'Invalid gregorian start or end date'))
+          return
+        }
+
+        start_date = await findByGregorian(dtStart)
+        end_date = await findByGregorian(dtEnd)
+      } else {
+        if (!isValidHebrewDateFormat(start) || !isValidHebrewDateFormat(end)) {
+          next(new HttpException(400, 'Invalid hebrew start or end date'))
+          return
+        }
+
+        const dtStart = parseHebrewDate(start)
+        const dtEnd = parseHebrewDate(end)
+
+        start_date = await findByHebrew(dtStart)
+        end_date = await findByHebrew(dtEnd)
+      }
+
+      if (!start_date || !end_date) {
+        next(new HttpException(404, 'Start or end date not found'))
+        return
+      }
+
+      const start_index = Number(start_date.day_index)
+      const end_index = Number(end_date.day_index)
+
+      let diff = Math.abs(end_index - start_index)
+      if (include_first_day) diff = diff - 1
+
+      res.json(diff)
+
+      logger.info('getDate Success')
+    } catch (error: any) {
+      logger.error(`getDate Error: ${JSON.stringify(error)}`)
+      next(error)
+    }
+  }
 }
 
 export default DatesController

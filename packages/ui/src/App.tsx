@@ -3,7 +3,8 @@ import { Switch, Route, Redirect } from 'react-router-dom'
 
 import { Routes } from '@ui/Routes'
 import { Calendar } from '@ui/features/Calendar/Calendar'
-import { Tools } from '@ui/features/Tools/Tools'
+import { DaysFromLanding } from '@ui/features/Tools/DaysFromLanding'
+import { DaysBetweenLanding } from '@ui/features/Tools/DaysBetweenLanding'
 
 export const App = () => (
   <>
@@ -19,10 +20,19 @@ export const App = () => (
       />
       <Route
         exact
-        path={Routes.Tools}
+        path={Routes.DaysFrom}
         render={(props) => (
           <>
-            <Tools {...props} />
+            <DaysFromLanding {...props} />
+          </>
+        )}
+      />
+      <Route
+        exact
+        path={Routes.DaysBetween}
+        render={(props) => (
+          <>
+            <DaysBetweenLanding {...props} />
           </>
         )}
       />

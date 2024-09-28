@@ -156,15 +156,20 @@ export const Calendar = () => {
             align="center"
             m={12}
             w="full"
-            maxW={{ base: 200 }}>
+            maxW={{ base: 325 }}>
             <a href="/calendar">
               <Text fontSize="md" color="brand.light">
                 Calendar
               </Text>
             </a>
-            <a href="/tools">
+            <a href="/days-from">
               <Text fontSize="md" color="brand.grey">
-                Tools
+                Days From
+              </Text>
+            </a>
+            <a href="/days-between">
+              <Text fontSize="md" color="brand.grey">
+                Days Between
               </Text>
             </a>
           </Flex>

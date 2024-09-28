@@ -34,8 +34,7 @@ const defaultApiControls = {
   start: getDate(),
   buffer: 3,
   days: 10,
-  include_first_day: false,
-  include_last_day: true,
+  include_first_day: true,
   direction: 'future'
 }
 

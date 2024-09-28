@@ -20,6 +20,12 @@ class Route implements BaseRoute {
       `${this.path}/days-from-date`,
       this.controller.getDaysFromDate
     )
+
+    // GET /dates/days-from-date
+    this.router.get(
+      `${this.path}/days-between-dates`,
+      this.controller.getDaysBetweenDates
+    )
   }
 }
 

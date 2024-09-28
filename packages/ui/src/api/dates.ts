@@ -24,7 +24,17 @@ const getDaysFromDate = async (params) => {
   return response.data
 }
 
+const getDaysBetweenDates = async (params) => {
+  const response = await client({
+    method: 'GET',
+    url: 'dates/days-between-dates',
+    params
+  })
+  return response.data
+}
+
 export default {
   get,
-  getDaysFromDate
+  getDaysFromDate,
+  getDaysBetweenDates
 }
