@@ -170,9 +170,9 @@ export const DateControls = ({ apiControls, setApiControls }) => {
               min={apiControls.type === 'gregorian' ? 1 : 3762}
               w={{ base: '100%', md: '140px' }}
               onChange={(valueString) =>
-                handleDateChange('start', 'year', valueString)
+                handleDateChange('end', 'year', valueString)
               }
-              value={apiControls.start.split('-')[0]}>
+              value={apiControls.end.split('-')[0]}>
               <NumberInputField />
               <NumberInputStepper>
                 <NumberIncrementStepper />
@@ -192,15 +192,15 @@ export const DateControls = ({ apiControls, setApiControls }) => {
               w={{ base: '100%', md: '140px' }}
               max={
                 apiControls.type === 'hebrew' &&
-                isHebrewLeapYear(apiControls.start.split('-')[0])
+                isHebrewLeapYear(apiControls.end.split('-')[0])
                   ? 13
                   : 12
               }
               min={1}
               onChange={(valueString) =>
-                handleDateChange('start', 'month', valueString.padStart(2, '0'))
+                handleDateChange('end', 'month', valueString.padStart(2, '0'))
               }
-              value={parseInt(apiControls.start.split('-')[1], 10)}
+              value={parseInt(apiControls.end.split('-')[1], 10)}
               precision={0}>
               <NumberInputField />
               <NumberInputStepper>
@@ -222,9 +222,9 @@ export const DateControls = ({ apiControls, setApiControls }) => {
               min={1}
               w={{ base: '100%', md: '140px' }}
               onChange={(valueString) =>
-                handleDateChange('start', 'day', valueString)
+                handleDateChange('end', 'day', valueString)
               }
-              value={apiControls.start.split('-')[2]}>
+              value={apiControls.end.split('-')[2]}>
               <NumberInputField />
               <NumberInputStepper>
                 <NumberIncrementStepper />
