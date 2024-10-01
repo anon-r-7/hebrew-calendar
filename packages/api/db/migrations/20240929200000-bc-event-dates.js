@@ -14,7 +14,6 @@ module.exports = {
 
       for (const { yy } of uniqueYears) {
         try {
-          console.log('yy', yy)
           const dates = await queryInterface.sequelize.query(
             `SELECT * FROM "hebrew_dates" WHERE "yy" = :yy ORDER BY gregorian;`,
             {
@@ -64,6 +63,7 @@ module.exports = {
           Object.keys(yearEvents).map((key) => {
             const hebrew_event = events.find(({ short_name }) => short_name === key).uuid
             const eventDates = yearEvents[key]
+
             eventDates.map((date) => {
               const hebrew_date = date.uuid
               yearInserts.push({
@@ -73,8 +73,10 @@ module.exports = {
             })
           })
 
+          console.log({ yy, events: yearInserts.length })
           await queryInterface.bulkInsert('hebrew_event_dates', yearInserts)
         } catch (error) {
+          console.log('db migration error 2', error)
         }
       }
     } catch (error) {
@@ -87,12 +89,17 @@ module.exports = {
   },
 };
 
-const incrementDays = (dates, date, incrementDays) => dates.find((x) => parseFloat(x.day_index) === (parseFloat(date.day_index) + incrementDays))
+const incrementDays = (dates, date, incrementDays) => dates.find((x) => Number(x.day_index) === (Number(date.day_index) + incrementDays))
 
-const nextDay = (dates, date, day_of_week) => dates.find((_date) => _date.day_index > date.day_index && _date.day_of_week === day_of_week)
+const nextDay = (dates, date, day_of_week) => {
+  return dates.find((_date) => {
+    return (Number(_date.day_index) > Number(date.day_index)) && (_date.day_of_week === day_of_week)
+  })
+}
 
 const getSabbaths = (dates) => {
   const sabbaths = [nextDay(dates, dates[0], 'Saturday')]
+
   let i = 1
   while(i !== null) {
     const nextSabbath = nextDay(dates, sabbaths[i - 1], 'Saturday')
