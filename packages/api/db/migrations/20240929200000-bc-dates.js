@@ -85,18 +85,13 @@ const getHebrew = (gDates) => {
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     try {
-      await queryInterface.addColumn('hebrew_dates', 'shadow_date', {
-        type: Sequelize.TEXT,
-        allowNull: true,
-      });
+      const gDates = getGregorian()
+      const hDates = getHebrew(gDates)
 
-      // const gDates = getGregorian()
-      // const hDates = getHebrew(gDates)
+      const filePath = path.join(__dirname, 'hebrew_dates.json');
+      fs.writeFileSync(filePath, JSON.stringify(hDates, null, 2));
 
-      // const filePath = path.join(__dirname, 'hebrew_dates.json');
-      // fs.writeFileSync(filePath, JSON.stringify(hDates, null, 2));
-
-      // await queryInterface.bulkInsert('hebrew_dates', hDates)
+      await queryInterface.bulkInsert('hebrew_dates', hDates)
     } catch (error) {
       console.error('db migration error 1', error)
     }

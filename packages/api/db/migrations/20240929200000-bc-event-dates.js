@@ -2,8 +2,6 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     try {
-      return 
-
       const events = await queryInterface.sequelize.query(
         `SELECT uuid, name, short_name FROM "hebrew_events";`,
         { type: Sequelize.QueryTypes.SELECT }
