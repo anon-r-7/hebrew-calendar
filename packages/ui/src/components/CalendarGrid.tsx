@@ -338,15 +338,17 @@ const Day = ({ day, type, isPrimary, theme }) => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [GnumYear, GnumMonth, GnumDay] = day.gregorian.split('-')
-  console.log(day.gregorian)
+
   const isBC = day.gregorian.includes('BC')
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [HnumYear, HnumMonth, HnumDay] = day.hebrew.split('-')
 
+  const Gday = GnumDay.replace(' BC', '')
+
   const primaryDate =
-    type === 'gregorian' ? `${GnumMonth}/${GnumDay}` : `${HnumMonth}/${HnumDay}`
+    type === 'gregorian' ? `${GnumMonth}/${Gday}` : `${HnumMonth}/${HnumDay}`
   const secondaryDate =
-    type === 'gregorian' ? `${HnumMonth}/${HnumDay}` : `${GnumMonth}/${GnumDay}`
+    type === 'gregorian' ? `${HnumMonth}/${HnumDay}` : `${GnumMonth}/${Gday}`
 
   const gregorian_year_bc = isBC ? `BC ${GnumYear}` : GnumYear
   const primaryYear = type === 'gregorian' ? gregorian_year_bc : HnumYear
@@ -416,12 +418,8 @@ export const CalendarGrid = ({ dates, type }) => {
 
   // Find the first "day 1" of the primary month
   const firstDayIndex = datesGrid.findIndex((date) => {
-    return date[type].endsWith('-01')
+    return date[type].replace(' BC', '').endsWith('-01')
   })
-
-  console.log('dates', dates)
-  console.log('datesGrid', datesGrid)
-  console.log('firstDayIndex', firstDayIndex)
 
   if (firstDayIndex === -1) return <div>Invalid date range provided.</div>
 
@@ -431,7 +429,7 @@ export const CalendarGrid = ({ dates, type }) => {
   // Determine the index of the last day of the primary month
   const nextMonthStartIndex = datesGrid
     .slice(firstDayIndex)
-    .findIndex((date, i) => i > 0 && date[type].endsWith('-01'))
+    .findIndex((date, i) => i > 0 && date[type].replace(' BC', '').endsWith('-01'))
   const lastDayIndex =
     nextMonthStartIndex !== -1
       ? firstDayIndex + nextMonthStartIndex - 1
