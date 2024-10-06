@@ -13,11 +13,12 @@ export const createSafeJsDate = (dateString) => {
   throw new Error('Invalid date format')
 }
 
-export const createSafeSqlDate = (date) => {
+export const createSafeSqlDate = (date, era) => {
   const year = date.getFullYear().toString().padStart(4, '0') // Ensure the year has four digits
   const month = (date.getMonth() + 1).toString().padStart(2, '0') // Month is 0-indexed, add 1
   const day = date.getDate().toString().padStart(2, '0')
-  return `${year}-${month}-${day}`
+  const parts = `${year}-${month}-${day}`
+  return era && era === 'bc' ? `${parts} BC` : parts
 }
 
 export interface HebrewParts {

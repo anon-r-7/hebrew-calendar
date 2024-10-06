@@ -36,6 +36,7 @@ class DatesController {
       const type = typeof req.query.type === 'string' ? req.query.type : ''
       const start = typeof req.query.start === 'string' ? req.query.start : ''
       const end = typeof req.query.end === 'string' ? req.query.end : ''
+      const era = typeof req.query.era === 'string' ? req.query.era : ''
       const with_events =
         typeof req.query.with_events === 'string'
           ? req.query.with_events === 'true'
@@ -61,8 +62,8 @@ class DatesController {
         }
 
         response = with_events
-          ? await findAllByGregorianWithEvents(dtStart, dtEnd)
-          : await findAllByGregorian(dtStart, dtEnd)
+          ? await findAllByGregorianWithEvents(dtStart, dtEnd, era)
+          : await findAllByGregorian(dtStart, dtEnd, era)
       } else {
         if (!isValidHebrewDateFormat(start) || !isValidHebrewDateFormat(end)) {
           next(
@@ -86,8 +87,6 @@ class DatesController {
 
       const startGregorian = response[0].gregorian
       const endGregorian = response[response.length - 1].gregorian
-
-      response = response.map((row) => row.toJSON())
 
       const moon_phases = await findPhases(startGregorian, endGregorian)
       if (moon_phases && moon_phases.length) {
@@ -140,6 +139,7 @@ class DatesController {
       const type = typeof req.query.type === 'string' ? req.query.type : ''
       const event = typeof req.query.event === 'string' ? req.query.event : ''
       const start = typeof req.query.start === 'string' ? req.query.start : ''
+      const era = typeof req.query.era === 'string' ? req.query.era : ''
       const buffer =
         typeof req.query.buffer === 'string' ? Number(req.query.buffer) : 0
       const days =
@@ -167,7 +167,7 @@ class DatesController {
             return
           }
 
-          start_date = await findByGregorian(dtStart)
+          start_date = await findByGregorian(dtStart, era)
         } else {
           if (!isValidHebrewDateFormat(start)) {
             next(new HttpException(400, 'Invalid hebrew start date'))
@@ -185,8 +185,9 @@ class DatesController {
 
         const invalid = !(
           year &&
-          ((type !== 'hebrew' && (year >= 1 || year <= 2075)) ||
-            (type === 'hebrew' && (year >= 3762 || year <= 5836)))
+          ((type !== 'hebrew' &&
+            (year >= 1 || (era === 'ad' ? year <= 2075 : year <= 4004))) ||
+            (type === 'hebrew' && (year >= 1 || year <= 5836)))
         )
 
         if (invalid) {
@@ -203,7 +204,7 @@ class DatesController {
         }
 
         if (type !== 'hebrew') {
-          start_date = await findByGregorianEventAndYear(year, event)
+          start_date = await findByGregorianEventAndYear(year, event, era)
         } else {
           start_date = await findByHebrewEventAndYear(year, event)
         }
@@ -269,6 +270,10 @@ class DatesController {
       const type = typeof req.query.type === 'string' ? req.query.type : ''
       const start = typeof req.query.start === 'string' ? req.query.start : ''
       const end = typeof req.query.end === 'string' ? req.query.end : ''
+      const era_start =
+        typeof req.query.era_start === 'string' ? req.query.era_start : ''
+      const era_end =
+        typeof req.query.era_end === 'string' ? req.query.era_end : ''
       const include_first_day =
         req.query.include_first_day && req.query.include_first_day === 'true'
 
@@ -288,8 +293,8 @@ class DatesController {
           return
         }
 
-        start_date = await findByGregorian(dtStart)
-        end_date = await findByGregorian(dtEnd)
+        start_date = await findByGregorian(dtStart, era_start)
+        end_date = await findByGregorian(dtEnd, era_end)
       } else {
         if (!isValidHebrewDateFormat(start) || !isValidHebrewDateFormat(end)) {
           next(new HttpException(400, 'Invalid hebrew start or end date'))

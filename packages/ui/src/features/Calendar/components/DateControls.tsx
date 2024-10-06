@@ -35,6 +35,13 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
     }))
   }
 
+  const handleEraChange = (value) => {
+    setApiControls((prev) => ({
+      ...prev,
+      era: value
+    }))
+  }
+
   const handleAstronomyChange = (value) => {
     setApiControls((prev) => ({
       ...prev,
@@ -56,9 +63,18 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
             bg="white"
             size={inputSize}
             fontFamily={'HubotSans'}
-            max={apiControls.type === 'gregorian' ? 2075 : 5836}
-            min={apiControls.type === 'gregorian' ? 1 : 3762}
-            w={'30%'}
+            max={
+              apiControls.type === 'gregorian'
+                ? apiControls.era === 'ad'
+                  ? 2075
+                  : 4004
+                : 5836
+            }
+            min={apiControls.type === 'gregorian' ? 1 : 1}
+            w={{
+              base: apiControls.type === 'gregorian' ? '33%' : '50%',
+              md: '90px'
+            }}
             onChange={(valueString) =>
               handleDateChange('start', 'year', valueString)
             }
@@ -82,7 +98,10 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
                 : 12
             }
             min={1}
-            w={'18%'}
+            w={{
+              base: apiControls.type === 'gregorian' ? '33%' : '50%',
+              md: '80px'
+            }}
             onChange={(valueString) =>
               handleDateChange('start', 'month', valueString.padStart(2, '0'))
             }
@@ -97,20 +116,22 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
             </NumberInputStepper>
           </NumberInput>
 
-          <Select
-            bg="white"
-            size={inputSize}
-            fontFamily={'HubotSans'}
-            color={'black'}
-            borderRadius="0"
-            w={{ base: '50%', md: '140px' }}
-            mr={{ base: 2, md: 2 }}
-            mb={{ base: '3', md: 0 }}
-            onChange={(e) => handleAstronomyChange(e.target.value)}
-            value={apiControls.with_astronomy}>
-            <option value="false">Basic</option>
-            <option value="true">Advanced</option>
-          </Select>
+          {apiControls.type === 'gregorian' && (
+            <Select
+              bg="white"
+              size={inputSize}
+              fontFamily={'HubotSans'}
+              color={'black'}
+              borderRadius="0"
+              w={{ base: '33%', md: '80px' }}
+              mr={{ base: 2, md: 2 }}
+              mb={{ base: '3', md: 0 }}
+              onChange={(e) => handleEraChange(e.target.value)}
+              value={apiControls.era}>
+              <option value="ad">AD</option>
+              <option value="bc">BC</option>
+            </Select>
+          )}
         </Flex>
 
         <Flex>
@@ -120,7 +141,7 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
             fontFamily={'HubotSans'}
             color={'black'}
             borderRadius="0"
-            w={{ base: '50%', md: '140px' }}
+            w={{ base: '33%', md: '140px' }}
             mr={{ base: 2, md: 2 }}
             mb={{ base: '3', md: 0 }}
             onChange={(e) => handleTypeChange(e.target.value)}
@@ -128,10 +149,24 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
             <option value="gregorian">Gregorian</option>
             <option value="hebrew">Hebrew</option>
           </Select>
+          <Select
+            bg="white"
+            size={inputSize}
+            fontFamily={'HubotSans'}
+            color={'black'}
+            borderRadius="0"
+            w={{ base: '33%', md: '90px' }}
+            mr={{ base: 2, md: 2 }}
+            mb={{ base: '3', md: 0 }}
+            onChange={(e) => handleAstronomyChange(e.target.value)}
+            value={apiControls.with_astronomy}>
+            <option value="false">Basic</option>
+            <option value="true">Advanced</option>
+          </Select>
           <Button
             size={buttonSize}
             onClick={onSubmit}
-            w={'50%'}
+            w={{ base: '33%', md: '140px' }}
             height={{ base: '47px', md: 'initial ' }}
             mt={{ base: 0.25, md: 0 }}
             mr={2}

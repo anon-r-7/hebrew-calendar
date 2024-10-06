@@ -46,195 +46,263 @@ export const DateControls = ({ apiControls, setApiControls }) => {
 
   return (
     <>
-    <Stack direction={orientation} align="center" w="full">
-      <Flex flexDirection={{ base: 'column', md: 'row' }}>
-        <Flex>
-          <FormControl id="day" mr={marginSide} mb={{ base: 2, md: 0 }}>
-            <FormLabel fontSize="11" pl="2">
-              CALENDAR
-            </FormLabel>
-            <Select
-              bg="white"
-              size={inputSize}
-              fontFamily={'HubotSans'}
-              color={'black'}
-              borderRadius="0"
-              w={{ base: '100%', md: '140px' }}
-              mr={{ base: 2, md: 2 }}
-              mb={{ base: 3, md: 0 }}
-              onChange={(e) => handleChange('type', e.target.value)}
-              value={apiControls.type}>
-              <option value="gregorian">Gregorian</option>
-              <option value="hebrew">Hebrew</option>
-            </Select>
-          </FormControl>
+      <Stack direction={orientation} align="center" w="full">
+        <Flex flexDirection={{ base: 'column', md: 'row' }}>
+          <Flex>
+            <FormControl id="day" mr={marginSide} mb={{ base: 2, md: 0 }}>
+              <FormLabel fontSize="11" pl="2">
+                CALENDAR
+              </FormLabel>
+              <Select
+                bg="white"
+                size={inputSize}
+                fontFamily={'HubotSans'}
+                color={'black'}
+                borderRadius="0"
+                w={{ base: '100%', md: '140px' }}
+                mr={{ base: 2, md: 2 }}
+                mb={{ base: 3, md: 0 }}
+                onChange={(e) => handleChange('type', e.target.value)}
+                value={apiControls.type}>
+                <option value="gregorian">Gregorian</option>
+                <option value="hebrew">Hebrew</option>
+              </Select>
+            </FormControl>
+          </Flex>
         </Flex>
-      </Flex>
-    </Stack>
+      </Stack>
 
-    <Stack direction={orientation} align="center" w="full" mt={4}>
-      <Text fontSize={12} mt={6} w={10}>START</Text>
-      <Flex flexDirection={{ base: 'column', md: 'row' }}>
-        <Flex>
-          <FormControl id="year" mr={marginSide} mb={{ base: 2, md: 0 }}>
-            <FormLabel fontSize="11" pl="2">
-              YEAR
-            </FormLabel>
-            <NumberInput
-              bg="white"
-              size={inputSize}
-              fontFamily={'HubotSans'}
-              max={apiControls.type === 'gregorian' ? 2075 : 5836}
-              min={apiControls.type === 'gregorian' ? 1 : 3762}
-              w={{ base: '100%', md: '140px' }}
-              onChange={(valueString) =>
-                handleDateChange('start', 'year', valueString)
-              }
-              value={apiControls.start.split('-')[0]}>
-              <NumberInputField />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
-          </FormControl>
+      <Stack direction={orientation} align="center" w="full" mt={4}>
+        <Text fontSize={12} mt={6} w={10}>
+          START
+        </Text>
+        <Flex flexDirection={{ base: 'column', md: 'row' }}>
+          <Flex>
+            {apiControls.type === 'gregorian' && (
+              <FormControl id="year" mr={marginSide} mb={{ base: 2, md: 0 }}>
+                <FormLabel fontSize="11" pl="2">
+                  Era
+                </FormLabel>
+                <Select
+                  bg="white"
+                  size={inputSize}
+                  fontFamily={'HubotSans'}
+                  color={'black'}
+                  borderRadius="0"
+                  w={{ base: '100%', md: '70px' }}
+                  mr={{ base: 2, md: 2 }}
+                  mb={{ base: '3', md: 0 }}
+                  onChange={(e) => handleChange('era_start', e.target.value)}
+                  value={apiControls.era_start}>
+                  <option value="ad">AD</option>
+                  <option value="bc">BC</option>
+                </Select>
+              </FormControl>
+            )}
 
-          <FormControl id="month" mr={marginSide} mb={{ base: 2, md: 0 }}>
-            <FormLabel fontSize="11" pl="2">
-              MONTH
-            </FormLabel>
-            <NumberInput
-              bg="white"
-              size={inputSize}
-              fontFamily={'HubotSans'}
-              w={{ base: '100%', md: '140px' }}
-              max={
-                apiControls.type === 'hebrew' &&
-                isHebrewLeapYear(apiControls.start.split('-')[0])
-                  ? 13
-                  : 12
-              }
-              min={1}
-              onChange={(valueString) =>
-                handleDateChange('start', 'month', valueString.padStart(2, '0'))
-              }
-              value={parseInt(apiControls.start.split('-')[1], 10)}
-              precision={0}>
-              <NumberInputField />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
-          </FormControl>
+            <FormControl id="year" mr={marginSide} mb={{ base: 2, md: 0 }}>
+              <FormLabel fontSize="11" pl="2">
+                YEAR
+              </FormLabel>
+              <NumberInput
+                bg="white"
+                size={inputSize}
+                fontFamily={'HubotSans'}
+                max={
+                  apiControls.type === 'gregorian'
+                    ? apiControls.era_start === 'ad'
+                      ? 2075
+                      : 4004
+                    : 5836
+                }
+                min={apiControls.type === 'gregorian' ? 1 : 1}
+                w={{ base: '100%', md: '140px' }}
+                onChange={(valueString) =>
+                  handleDateChange('start', 'year', valueString)
+                }
+                value={apiControls.start.split('-')[0]}>
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+            </FormControl>
 
-          <FormControl id="day" mr={marginSide} mb={{ base: 2, md: 0 }}>
-            <FormLabel fontSize="11" pl="2">
-              DAY
-            </FormLabel>
-            <NumberInput
-              bg="white"
-              size={inputSize}
-              fontFamily={'HubotSans'}
-              max={31}
-              min={1}
-              w={{ base: '100%', md: '140px' }}
-              onChange={(valueString) =>
-                handleDateChange('start', 'day', valueString)
-              }
-              value={apiControls.start.split('-')[2]}>
-              <NumberInputField />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
-          </FormControl>
+            <FormControl id="month" mr={marginSide} mb={{ base: 2, md: 0 }}>
+              <FormLabel fontSize="11" pl="2">
+                MONTH
+              </FormLabel>
+              <NumberInput
+                bg="white"
+                size={inputSize}
+                fontFamily={'HubotSans'}
+                w={{ base: '100%', md: '140px' }}
+                max={
+                  apiControls.type === 'hebrew' &&
+                  isHebrewLeapYear(apiControls.start.split('-')[0])
+                    ? 13
+                    : 12
+                }
+                min={1}
+                onChange={(valueString) =>
+                  handleDateChange(
+                    'start',
+                    'month',
+                    valueString.padStart(2, '0')
+                  )
+                }
+                value={parseInt(apiControls.start.split('-')[1], 10)}
+                precision={0}>
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+            </FormControl>
+
+            <FormControl id="day" mr={marginSide} mb={{ base: 2, md: 0 }}>
+              <FormLabel fontSize="11" pl="2">
+                DAY
+              </FormLabel>
+              <NumberInput
+                bg="white"
+                size={inputSize}
+                fontFamily={'HubotSans'}
+                max={31}
+                min={1}
+                w={{ base: '100%', md: '140px' }}
+                onChange={(valueString) =>
+                  handleDateChange('start', 'day', valueString)
+                }
+                value={apiControls.start.split('-')[2]}>
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+            </FormControl>
+          </Flex>
         </Flex>
-      </Flex>
-    </Stack>
+      </Stack>
 
-    <Stack direction={orientation} align="center" w="full" mt={4}>
-      <Text fontSize={12} mt={6} w={10}>END</Text>
-      <Flex flexDirection={{ base: 'column', md: 'row' }}>
-        <Flex>
-          <FormControl id="year" mr={marginSide} mb={{ base: 2, md: 0 }}>
-            <FormLabel fontSize="11" pl="2">
-              YEAR
-            </FormLabel>
-            <NumberInput
-              bg="white"
-              size={inputSize}
-              fontFamily={'HubotSans'}
-              max={apiControls.type === 'gregorian' ? 2075 : 5836}
-              min={apiControls.type === 'gregorian' ? 1 : 3762}
-              w={{ base: '100%', md: '140px' }}
-              onChange={(valueString) =>
-                handleDateChange('end', 'year', valueString)
-              }
-              value={apiControls.end.split('-')[0]}>
-              <NumberInputField />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
-          </FormControl>
+      <Stack direction={orientation} align="center" w="full" mt={4}>
+        <Text fontSize={12} mt={6} w={10}>
+          END
+        </Text>
+        <Flex flexDirection={{ base: 'column', md: 'row' }}>
+          <Flex>
+            {apiControls.type === 'gregorian' && (
+              <FormControl
+                id="year"
+                ml={{ base: 3, md: 0 }}
+                mr={marginSide}
+                mb={{ base: 2, md: 0 }}>
+                <FormLabel fontSize="11" pl="2">
+                  Era
+                </FormLabel>
+                <Select
+                  bg="white"
+                  size={inputSize}
+                  fontFamily={'HubotSans'}
+                  color={'black'}
+                  borderRadius="0"
+                  w={{ base: '100%', md: '70px' }}
+                  mr={{ base: 2, md: 2 }}
+                  mb={{ base: '3', md: 0 }}
+                  onChange={(e) => handleChange('era_end', e.target.value)}
+                  value={apiControls.era_end}>
+                  <option value="ad">AD</option>
+                  <option value="bc">BC</option>
+                </Select>
+              </FormControl>
+            )}
 
-          <FormControl id="month" mr={marginSide} mb={{ base: 2, md: 0 }}>
-            <FormLabel fontSize="11" pl="2">
-              MONTH
-            </FormLabel>
-            <NumberInput
-              bg="white"
-              size={inputSize}
-              fontFamily={'HubotSans'}
-              w={{ base: '100%', md: '140px' }}
-              max={
-                apiControls.type === 'hebrew' &&
-                isHebrewLeapYear(apiControls.end.split('-')[0])
-                  ? 13
-                  : 12
-              }
-              min={1}
-              onChange={(valueString) =>
-                handleDateChange('end', 'month', valueString.padStart(2, '0'))
-              }
-              value={parseInt(apiControls.end.split('-')[1], 10)}
-              precision={0}>
-              <NumberInputField />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
-          </FormControl>
+            <FormControl id="year" mr={marginSide} mb={{ base: 2, md: 0 }}>
+              <FormLabel fontSize="11" pl="2">
+                YEAR
+              </FormLabel>
+              <NumberInput
+                bg="white"
+                size={inputSize}
+                fontFamily={'HubotSans'}
+                max={
+                  apiControls.type === 'gregorian'
+                    ? apiControls.era_end === 'ad'
+                      ? 2075
+                      : 4004
+                    : 5836
+                }
+                min={apiControls.type === 'gregorian' ? 1 : 1}
+                w={{ base: '100%', md: '140px' }}
+                onChange={(valueString) =>
+                  handleDateChange('end', 'year', valueString)
+                }
+                value={apiControls.end.split('-')[0]}>
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+            </FormControl>
 
-          <FormControl id="day" mr={marginSide} mb={{ base: 2, md: 0 }}>
-            <FormLabel fontSize="11" pl="2">
-              DAY
-            </FormLabel>
-            <NumberInput
-              bg="white"
-              size={inputSize}
-              fontFamily={'HubotSans'}
-              max={31}
-              min={1}
-              w={{ base: '100%', md: '140px' }}
-              onChange={(valueString) =>
-                handleDateChange('end', 'day', valueString)
-              }
-              value={apiControls.end.split('-')[2]}>
-              <NumberInputField />
-              <NumberInputStepper>
-                <NumberIncrementStepper />
-                <NumberDecrementStepper />
-              </NumberInputStepper>
-            </NumberInput>
-          </FormControl>
+            <FormControl id="month" mr={marginSide} mb={{ base: 2, md: 0 }}>
+              <FormLabel fontSize="11" pl="2">
+                MONTH
+              </FormLabel>
+              <NumberInput
+                bg="white"
+                size={inputSize}
+                fontFamily={'HubotSans'}
+                w={{ base: '100%', md: '140px' }}
+                max={
+                  apiControls.type === 'hebrew' &&
+                  isHebrewLeapYear(apiControls.end.split('-')[0])
+                    ? 13
+                    : 12
+                }
+                min={1}
+                onChange={(valueString) =>
+                  handleDateChange('end', 'month', valueString.padStart(2, '0'))
+                }
+                value={parseInt(apiControls.end.split('-')[1], 10)}
+                precision={0}>
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+            </FormControl>
+
+            <FormControl id="day" mr={marginSide} mb={{ base: 2, md: 0 }}>
+              <FormLabel fontSize="11" pl="2">
+                DAY
+              </FormLabel>
+              <NumberInput
+                bg="white"
+                size={inputSize}
+                fontFamily={'HubotSans'}
+                max={31}
+                min={1}
+                w={{ base: '100%', md: '140px' }}
+                onChange={(valueString) =>
+                  handleDateChange('end', 'day', valueString)
+                }
+                value={apiControls.end.split('-')[2]}>
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper />
+                  <NumberDecrementStepper />
+                </NumberInputStepper>
+              </NumberInput>
+            </FormControl>
+          </Flex>
         </Flex>
-      </Flex>
-    </Stack>
+      </Stack>
     </>
   )
 }

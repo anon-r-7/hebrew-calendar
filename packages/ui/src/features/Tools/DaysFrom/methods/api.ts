@@ -3,6 +3,7 @@ import api from '@ui/api/dates'
 interface Payload {
   category: string
   type: type
+  era: string
   event: string
   start: string
   buffer: number

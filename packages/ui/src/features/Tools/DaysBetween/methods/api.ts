@@ -4,6 +4,8 @@ interface Payload {
   type: type
   start: string
   end: string
+  era_start: string
+  era_end: string
   include_first_day: boolean
 }
 

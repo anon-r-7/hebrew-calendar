@@ -40,6 +40,7 @@ export const months = [
   'December'
 ]
 
+// TODO: start and end needs to account for overlapping between ad/bc and return adjusted era start and era end for each
 export const getMonthRangeGregorian = (start) => {
   const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] // Days in each month, assuming Feb has 28 days
 

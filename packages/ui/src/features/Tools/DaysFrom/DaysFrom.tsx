@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import {
   Flex,
   Box,
@@ -32,6 +32,7 @@ const defaultApiControls = {
   type: 'gregorian',
   event: 'pesach',
   start: getDate(),
+  era: 'ad',
   buffer: 3,
   days: 10,
   include_first_day: true,
@@ -52,27 +53,6 @@ export const DaysFrom = () => {
       payload: apiControls
     })
   }
-
-  useEffect(() => {
-    const [yy, mm, dd] = apiControls.start.split('-')
-    const diff = 3760
-
-    const yyN = parseFloat(yy)
-
-    if (apiControls.type === 'gregorian' && yyN >= 1 && yyN <= 2075) {
-      // do nothing
-    } else if (apiControls.type === 'hebrew' && yyN >= 3762 && yyN <= 5836) {
-      // do nothing
-    } else {
-      const updatedYear =
-        apiControls.type === 'gregorian' ? yyN - diff : yyN + diff
-
-      setApiControls({
-        ...apiControls,
-        start: `${updatedYear}-${mm}-${dd}`
-      })
-    }
-  }, [apiControls.type])
 
   const buttonSize = useBreakpointValue({ base: 'lg', md: 'sm' })
   const padding = useBreakpointValue({ base: '4', md: '0' })

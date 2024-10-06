@@ -16,7 +16,7 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
   host,
   dialect: 'postgres',
   timezone: '-5:00',
-  logging: process.env.SHOULD_LOG_DATABASE === 'true'
+  logging: true
 })
 
 sequelize

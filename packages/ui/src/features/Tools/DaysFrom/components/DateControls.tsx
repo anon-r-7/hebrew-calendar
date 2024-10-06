@@ -90,6 +90,28 @@ export const DateControls = ({ apiControls, setApiControls }) => {
         </Flex>
 
         <Flex>
+          {apiControls.type === 'gregorian' && (
+            <FormControl id="year" mr={marginSide} mb={{ base: 2, md: 0 }}>
+              <FormLabel fontSize="11" pl="2">
+                Era
+              </FormLabel>
+              <Select
+                bg="white"
+                size={inputSize}
+                fontFamily={'HubotSans'}
+                color={'black'}
+                borderRadius="0"
+                w={{ base: '100%', md: '70px' }}
+                mr={{ base: 2, md: 2 }}
+                mb={{ base: '3', md: 0 }}
+                onChange={(e) => handleChange('era', e.target.value)}
+                value={apiControls.era}>
+                <option value="ad">AD</option>
+                <option value="bc">BC</option>
+              </Select>
+            </FormControl>
+          )}
+
           <FormControl id="year" mr={marginSide} mb={{ base: 2, md: 0 }}>
             <FormLabel fontSize="11" pl="2">
               YEAR
@@ -98,8 +120,14 @@ export const DateControls = ({ apiControls, setApiControls }) => {
               bg="white"
               size={inputSize}
               fontFamily={'HubotSans'}
-              max={apiControls.type === 'gregorian' ? 2075 : 5836}
-              min={apiControls.type === 'gregorian' ? 1 : 3762}
+              max={
+                apiControls.type === 'gregorian'
+                  ? apiControls.era === 'ad'
+                    ? 2075
+                    : 4004
+                  : 5836
+              }
+              min={apiControls.type === 'gregorian' ? 1 : 1}
               w={{ base: '100%', md: '140px' }}
               onChange={(valueString) =>
                 handleDateChange('start', 'year', valueString)

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import {
   Flex,
   Box,
@@ -29,6 +29,8 @@ const defaultApiControls = {
   type: 'gregorian',
   start: getDate(),
   end: getDate(),
+  era_start: 'ad',
+  era_end: 'ad',
   include_first_day: false
 }
 
@@ -46,27 +48,6 @@ export const DaysBetween = () => {
       payload: apiControls
     })
   }
-
-  useEffect(() => {
-    const [yy, mm, dd] = apiControls.start.split('-')
-    const diff = 3760
-
-    const yyN = parseFloat(yy)
-
-    if (apiControls.type === 'gregorian' && yyN >= 1 && yyN <= 2075) {
-      // do nothing
-    } else if (apiControls.type === 'hebrew' && yyN >= 3762 && yyN <= 5836) {
-      // do nothing
-    } else {
-      const updatedYear =
-        apiControls.type === 'gregorian' ? yyN - diff : yyN + diff
-
-      setApiControls({
-        ...apiControls,
-        start: `${updatedYear}-${mm}-${dd}`
-      })
-    }
-  }, [apiControls.type])
 
   const buttonSize = useBreakpointValue({ base: 'lg', md: 'sm' })
   const padding = useBreakpointValue({ base: '4', md: '0' })

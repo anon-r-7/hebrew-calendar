@@ -210,6 +210,8 @@ const Event = ({ event, day, isPrimary }) => {
 const Details = ({
   primaryDate,
   secondaryDate,
+  primaryYear,
+  secondaryYear,
   isPrimary,
   type,
   astronomy,
@@ -288,10 +290,12 @@ const Details = ({
         <PopoverBody style={{ fontFamily: 'HubotSans' }}>
           <Flex flexDirection="row" justifyContent={'space-between'}>
             <Text style={{ fontSize: 12, fontWeight: '300' }}>
-              {type === 'gregorian' ? 'Hebrew' : 'Gregorian'} {secondaryDate}
+              {type === 'gregorian' ? 'Hebrew' : 'Gregorian'} {secondaryYear}/
+              {secondaryDate}
             </Text>
             <Text style={{ fontSize: 12, fontWeight: '700' }}>
-              {type === 'gregorian' ? 'Gregorian' : 'Hebrew'} {primaryDate}
+              {type === 'gregorian' ? 'Gregorian' : 'Hebrew'} {primaryYear}/
+              {primaryDate}
             </Text>
           </Flex>
           <Flex marginTop={2} flexDirection="column">
@@ -334,6 +338,8 @@ const Day = ({ day, type, isPrimary, theme }) => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [GnumYear, GnumMonth, GnumDay] = day.gregorian.split('-')
+  console.log(day.gregorian)
+  const isBC = day.gregorian.includes('BC')
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [HnumYear, HnumMonth, HnumDay] = day.hebrew.split('-')
 
@@ -341,6 +347,10 @@ const Day = ({ day, type, isPrimary, theme }) => {
     type === 'gregorian' ? `${GnumMonth}/${GnumDay}` : `${HnumMonth}/${HnumDay}`
   const secondaryDate =
     type === 'gregorian' ? `${HnumMonth}/${HnumDay}` : `${GnumMonth}/${GnumDay}`
+
+  const gregorian_year_bc = isBC ? `BC ${GnumYear}` : GnumYear
+  const primaryYear = type === 'gregorian' ? gregorian_year_bc : HnumYear
+  const secondaryYear = type === 'gregorian' ? HnumYear : gregorian_year_bc
 
   const events = day.events.map((event) => event.event)
 
@@ -363,6 +373,8 @@ const Day = ({ day, type, isPrimary, theme }) => {
       <Details
         primaryDate={primaryDate}
         secondaryDate={secondaryDate}
+        primaryYear={primaryYear}
+        secondaryYear={secondaryYear}
         astronomy={day.astronomy}
         isPrimary={isPrimary}
         type={type}
@@ -400,10 +412,16 @@ export const CalendarGrid = ({ dates, type }) => {
     ).padStart(2, '0')}`
   }))
 
+  // TODO: trim bc then find "-01"
+
   // Find the first "day 1" of the primary month
   const firstDayIndex = datesGrid.findIndex((date) => {
     return date[type].endsWith('-01')
   })
+
+  console.log('dates', dates)
+  console.log('datesGrid', datesGrid)
+  console.log('firstDayIndex', firstDayIndex)
 
   if (firstDayIndex === -1) return <div>Invalid date range provided.</div>
 

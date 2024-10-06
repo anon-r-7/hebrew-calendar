@@ -3,6 +3,7 @@ import api from '@ui/api/dates'
 interface Payload {
   start: string
   end: string
+  era: string
   type: string
   with_events: boolean
 }
@@ -10,6 +11,7 @@ interface Payload {
 const payloadDefault: Payload = {
   start: '',
   end: '',
+  era: '',
   type: 'gregorian',
   with_events: true,
   with_astronomy: false

@@ -21,6 +21,7 @@ const initialState: InitialState = { dates: [], type: 'gregorian' }
 const defaultApiControls = {
   start: getCurrentMonthFirstIso(),
   type: 'gregorian',
+  era: 'ad',
   with_events: true,
   with_astronomy: 'false'
 }
@@ -40,6 +41,7 @@ export const Calendar = () => {
 
     return {
       start: `${year}-${month}-01`,
+      era: 'ad',
       type: searchParams.get('type') || defaultApiControls.type,
       with_events:
         searchParams.get('with_events') === 'false'
@@ -55,27 +57,6 @@ export const Calendar = () => {
   useEffect(() => {
     if (reload) onSubmit()
   }, [reload])
-
-  useEffect(() => {
-    const [yy, mm] = apiControls.start.split('-')
-    const diff = 3760
-
-    const yyN = parseFloat(yy)
-
-    if (apiControls.type === 'gregorian' && yyN >= 1 && yyN <= 2075) {
-      // do nothing
-    } else if (apiControls.type === 'hebrew' && yyN >= 3762 && yyN <= 5836) {
-      // do nothing
-    } else {
-      const updatedYear =
-        apiControls.type === 'gregorian' ? yyN - diff : yyN + diff
-
-      setApiControls({
-        ...apiControls,
-        start: `${updatedYear}-${mm}-01`
-      })
-    }
-  }, [apiControls.type])
 
   useEffect(() => {
     const updateApiControls = () => {
@@ -115,7 +96,7 @@ export const Calendar = () => {
 
   const heading =
     apiControls.type === 'gregorian'
-      ? `${monthName}, ${primaryYear} AD`
+      ? `${monthName}, ${primaryYear} ${apiControls.era.toUpperCase()}`
       : `Month ${parseFloat(monthIndex)}, ${primaryYear} Hebrew`
 
   return (
@@ -133,6 +114,7 @@ export const Calendar = () => {
             maxW={{ base: '100%', md: theme.sizes.container.xl }}>
             <Heading
               size={{ base: 'md', md: 'lg' }}
+              width={{ base: 'initial', md: '800' }}
               fontWeight="700"
               color="brand.light">
               {heading}
