@@ -235,13 +235,11 @@ class DatesController {
       const response = await findAllByIndexRange(start_index, end_index)
 
       const transformedResponse = response.map((row) => {
-        const plainRow = row.get({ plain: true }) // Convert to plain object
-
         // Math.abs accounts for direction 'forward' or 'past'
         const days_from_day_index = Math.abs(Number(row.day_index) - day_index)
 
         return {
-          ...plainRow,
+          ...row,
           days_from_day_index
         }
       })

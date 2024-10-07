@@ -6,16 +6,28 @@ import { createSafeSqlDate, HebrewParts } from '@api/utils/dates'
 export const findByGregorian = async (
   date: Date,
   era: string
-): Promise<HebrewDatesModel> => {
-  const response = await Models.HebrewDates.findOne({
-    where: {
-      gregorian: Sequelize.literal(
-        `CAST('${createSafeSqlDate(date, era)}' AS DATE)`
-      )
+): Promise<HebrewDatesModel | null> => {
+  // Create the safe SQL date with the correct era (BC or AD)
+  const gregorianDate = createSafeSqlDate(date, era)
+
+  // Raw SQL query to find the Hebrew date by Gregorian date
+  const query = `
+    SELECT * 
+    FROM hebrew_dates
+    WHERE gregorian = CAST(:gregorianDate AS DATE)
+    LIMIT 1;
+  `
+
+  // Execute the raw SQL query
+  const results: HebrewDatesModel[] = await Models.sequelize.query(query, {
+    replacements: {
+      gregorianDate
     },
-    raw: true
+    type: QueryTypes.SELECT // Specifies the query type (SELECT)
   })
-  return response
+
+  // Return the first result or null if no results
+  return results.length > 0 ? (results[0] as HebrewDatesModel) : null
 }
 
 export const findAllByGregorian = async (

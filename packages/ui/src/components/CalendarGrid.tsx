@@ -429,7 +429,9 @@ export const CalendarGrid = ({ dates, type }) => {
   // Determine the index of the last day of the primary month
   const nextMonthStartIndex = datesGrid
     .slice(firstDayIndex)
-    .findIndex((date, i) => i > 0 && date[type].replace(' BC', '').endsWith('-01'))
+    .findIndex(
+      (date, i) => i > 0 && date[type].replace(' BC', '').endsWith('-01')
+    )
   const lastDayIndex =
     nextMonthStartIndex !== -1
       ? firstDayIndex + nextMonthStartIndex - 1
