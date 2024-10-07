@@ -140,7 +140,8 @@ export const DateControls = ({ apiControls, setApiControls }) => {
               </NumberInputStepper>
             </NumberInput>
           </FormControl>
-
+        </Flex>
+        <Flex>
           {apiControls.category === 'date' ? (
             <>
               <FormControl id="month" mr={marginSide} mb={{ base: 2, md: 0 }}>

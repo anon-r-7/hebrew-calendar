@@ -19,7 +19,7 @@ export const AdvancedOptionsControls = ({ apiControls, setApiControls }) => {
   const orientation = useBreakpointValue({ base: 'vertical', md: 'horizontal' })
 
   return (
-    <Stack direction={orientation} align="center" w="full">
+    <Stack mt={{ base: 6, md: 4 }} direction={orientation} align="center" w="full">
       <Flex flexDirection={{ base: 'column', md: 'row' }} w="full">
         <Flex justifyContent={{ base: 'flex-start', md: '' }} w="full">
           <FormControl
