@@ -62,7 +62,7 @@ export const OptionControls = ({ apiControls, setApiControls }) => {
               w={{ base: '100%', md: '140px' }}
               onChange={(valueString) => handleChange('days', valueString)}
               min={15}
-              max={744585} // maximum records
+              max={3000000} // maximum records
               value={apiControls.days}>
               <NumberInputField />
               <NumberInputStepper>
