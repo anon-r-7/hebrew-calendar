@@ -294,7 +294,6 @@ export const findHebrewEventsByYear = async (
     JOIN hebrew_event_dates hed ON hed.hebrew_date = hd.uuid
     JOIN hebrew_events he ON he.uuid = hed.hebrew_event
     WHERE hd.yy = :year
-      AND hd.yy <= :endDayIndex
       AND he.short_name NOT IN ('shabbat', 'rosh_chodesh', 'tisha_bav', 'purim', 'chanukkah')
     GROUP BY hd.uuid
     ORDER BY hd.gregorian;
