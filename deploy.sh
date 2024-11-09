@@ -41,7 +41,7 @@ yarn build
 check_status "Building UI"
 
 echo "Updating UI environment variables in index.html..."
-./update_env_vars.sh
+./update_env.sh
 check_status "Updating UI environment variables"
 
 echo "Starting UI..."
