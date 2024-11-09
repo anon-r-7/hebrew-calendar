@@ -131,10 +131,10 @@ export const List = ({ store }) => {
           <Box mt={4}>
             {!isMobile &&
               tableRow(
-                ['Events', 'Gregorian', 'Hebrew', 'Day', 'Is Holiday'],
+                ['Events', 'Gregorian', 'Hebrew', 'Day', 'Rest Day'],
                 'header',
                 true,
-                ['Events', 'Gregorian', 'Hebrew', 'Day', 'Is Holiday']
+                ['Events', 'Gregorian', 'Hebrew', 'Day', 'Rest Day']
               )}
             {store.state.dates.map(
               (

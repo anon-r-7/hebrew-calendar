@@ -70,7 +70,7 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
             w={{ base: '33%', md: '140px' }}
             mr={{ base: 2, md: 2 }}
             mb={{ base: '3', md: 0 }}
-            onChange={(e) => handleTypeChange(e.target.value)}
+            onChange={(e) => handleChange(e.target.value)}
             value={apiControls.type}>
             <option value="gregorian">Gregorian</option>
             <option value="hebrew">Hebrew</option>
