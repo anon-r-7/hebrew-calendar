@@ -1,5 +1,6 @@
 export const Routes = {
   Calendar: '/calendar',
+  Holidays: '/holidays',
   DaysFrom: '/days-from',
   DaysBetween: '/days-between'
 }

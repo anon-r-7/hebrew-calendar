@@ -18,7 +18,9 @@ import {
   findByHebrew,
   findByHebrewEventAndYear,
   findByGregorianEventAndYear,
-  findAllByIndexRange
+  findAllByIndexRange,
+  findGregorianEventsByYear,
+  findHebrewEventsByYear,
 } from '@api/models/HebrewDates/methods'
 
 import {
@@ -118,6 +120,34 @@ class DatesController {
 
           return row
         })
+      }
+
+      res.json(response)
+      logger.info('getDate Success')
+    } catch (error: any) {
+      logger.error(`getDate Error: ${JSON.stringify(error)}`)
+      next(error)
+    }
+  }
+
+  public getHolidays = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const type = typeof req.query.type === 'string' ? req.query.type : ''
+      const year = typeof req.query.year === 'string' ? req.query.year : ''
+
+      let response
+
+      if (type !== 'hebrew') {
+        // TODO: findAllByGregorianWithEvents -> findGregorianEventsByYear
+        response = await findGregorianEventsByYear(year)
+      } else {
+        // TODO: findAllByGregorianWithEvents -> findHebrewEventsByYear
+        response = await findHebrewEventsByYear(year)
+      }
+
+      if (!response || !response.length) {
+        next(new HttpException(404, 'Holidays not found'))
+        return
       }
 
       res.json(response)

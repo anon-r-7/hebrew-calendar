@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Flex,
   Box,
@@ -8,10 +8,40 @@ import {
   useTheme
 } from '@chakra-ui/react'
 
-import { DaysFrom } from './DaysFrom/DaysFrom'
+import { useStore } from '@ui/hooks/useStore'
+import { useAsyncManager } from '@ui/hooks/useAsyncManager'
 
-export const DaysFromLanding = () => {
+import { InitialState } from 'features/Calendar/types'
+
+const initialState: InitialState = { dates: [] }
+
+const defaultApiControls = {
+  year: 2024,
+  type: 'gregorian',
+}
+
+import { DateControls } from './components/DateControls'
+import { List } from './components/List'
+import { getHolidays } from './methods/api'
+
+export const Holidays = () => {
   const theme = useTheme()
+  const store = useStore(initialState)
+  const asyncManager = useAsyncManager()
+
+  const [apiControls, setApiControls] = useState(defaultApiControls)
+
+  const onSubmit = () => {
+    getHolidays({
+      asyncManager,
+      store,
+      payload: apiControls
+    })
+  }
+
+  useEffect(() => {
+    onSubmit()
+  }, [])
 
   const padding = useBreakpointValue({ base: '4', md: '0' })
 
@@ -35,12 +65,13 @@ export const DaysFromLanding = () => {
             size={{ base: 'md', md: 'lg' }}
             fontWeight="700"
             color="brand.light">
-            Tools
+            Holidays
           </Heading>
         </Flex>
       </Flex>
 
-      <DaysFrom />
+      <DateControls apiControls={apiControls} setApiControls={setApiControls} onSubmit={onSubmit} />
+      <List store={store} />
 
       <Flex direction="column" align="center" justify="center">
         <Flex
@@ -56,17 +87,17 @@ export const DaysFromLanding = () => {
             </Text>
           </a>
             <a href="/holidays">
-              <Text fontSize="md" color="brand.grey">
+              <Text fontSize="md" color="brand.light">
                 Holidays
               </Text>
             </a>
           <a href="/days-from">
-            <Text fontSize="md" color="brand.light">
+            <Text fontSize="md" color="brand.grey">
               Days From
             </Text>
           </a>
           <a href="/days-between">
-            <Text fontSize="md" color="brand.grey">
+            <Text fontSize="md" color="brand.light">
               Days Between
             </Text>
           </a>

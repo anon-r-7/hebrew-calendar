@@ -119,6 +119,7 @@ export const Calendar = () => {
               color="brand.light">
               {heading}
             </Heading>
+
             <Box style={{ marginTop: 12 }}>
               <DateControls
                 apiControls={apiControls}
@@ -138,10 +139,15 @@ export const Calendar = () => {
             align="center"
             m={12}
             w="full"
-            maxW={{ base: 325 }}>
+            maxW={{ base: 400 }}>
             <a href="/calendar">
               <Text fontSize="md" color="brand.light">
                 Calendar
+              </Text>
+            </a>
+            <a href="/holidays">
+              <Text fontSize="md" color="brand.grey">
+                Holidays
               </Text>
             </a>
             <a href="/days-from">

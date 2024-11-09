@@ -16,6 +16,18 @@ const get = async ({ start, end, era, type, with_events, with_astronomy }) => {
   return response.data
 }
 
+const getHolidays = async ({ year, type }) => {
+  const response = await client({
+    method: 'GET',
+    url: 'dates/holidays',
+    params: {
+      year,
+      type,
+    }
+  })
+  return response.data
+}
+
 const getDaysFromDate = async (params) => {
   const response = await client({
     method: 'GET',
@@ -37,5 +49,6 @@ const getDaysBetweenDates = async (params) => {
 export default {
   get,
   getDaysFromDate,
-  getDaysBetweenDates
+  getDaysBetweenDates,
+  getHolidays
 }

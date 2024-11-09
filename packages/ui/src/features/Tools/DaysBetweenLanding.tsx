@@ -49,12 +49,17 @@ export const DaysBetweenLanding = () => {
           align="center"
           m={12}
           w="full"
-          maxW={{ base: 325 }}>
+          maxW={{ base: 400 }}>
           <a href="/calendar">
             <Text fontSize="md" color="brand.grey">
               Calendar
             </Text>
           </a>
+            <a href="/holidays">
+              <Text fontSize="md" color="brand.grey">
+                Holidays
+              </Text>
+            </a>
           <a href="/days-from">
             <Text fontSize="md" color="brand.grey">
               Days From

@@ -15,6 +15,9 @@ class Route implements BaseRoute {
     // GET /dates
     this.router.get(`${this.path}`, this.controller.getDates)
 
+    // GET /dates
+    this.router.get(`${this.path}/holidays`, this.controller.getHolidays)
+
     // GET /dates/days-from-date
     this.router.get(
       `${this.path}/days-from-date`,

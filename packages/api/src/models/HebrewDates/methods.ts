@@ -101,6 +101,54 @@ export const findAllByGregorianWithEvents = async (
   return results
 }
 
+export const findGregorianEventsByYear = async (
+  year: string
+): Promise<any[]> => {
+  const startDate = `${year}-01-01`
+  const endDate = `${year}-12-31`
+
+  const query = `
+    SELECT hd.uuid AS "date_uuid"
+      , hd.gregorian
+      , hd.day_of_week
+      , hd.day_index
+      , hd.dd
+      , hd.mm
+      , hd.yy,
+      COALESCE(
+        json_agg(
+          CASE 
+            WHEN hed.uuid IS NOT NULL THEN json_build_object(
+              'uuid', hed.uuid,
+              'event', json_build_object(
+                'uuid', he.uuid,
+                'name', he.name,
+                'short_name', he.short_name
+              )
+            )
+          END
+        ) FILTER (WHERE hed.uuid IS NOT NULL),
+        '[]'  -- Return empty array when no events
+      ) AS events
+    FROM hebrew_dates hd
+    JOIN hebrew_event_dates hed ON hed.hebrew_date = hd.uuid
+    JOIN hebrew_events he ON he.uuid = hed.hebrew_event
+    WHERE hd.gregorian >= CAST(:startDate AS DATE)
+      AND hd.gregorian <= CAST(:endDate AS DATE)
+      AND he.short_name NOT IN ('shabbat', 'rosh_chodesh', 'tisha_bav', 'purim', 'chanukkah')
+    GROUP BY hd.uuid
+    ORDER BY hd.gregorian;
+  `
+
+  // Execute the raw SQL query
+  const results: HebrewDatesModel[] = await Models.sequelize.query(query, {
+    replacements: { startDate, endDate },
+    type: QueryTypes.SELECT
+  })
+
+  return results
+}
+
 export const findByHebrew = async ({
   yy,
   mm,
@@ -209,6 +257,52 @@ export const findAllByHebrewWithEvents = async (
     replacements: {
       startDayIndex: start_row.day_index,
       endDayIndex: end_row.day_index
+    },
+    type: QueryTypes.SELECT
+  })
+
+  return results
+}
+
+export const findHebrewEventsByYear = async (
+  year: string
+): Promise<any[]> => {
+  const query = `
+    SELECT hd.uuid AS "date_uuid"
+      , hd.gregorian
+      , hd.day_of_week
+      , hd.day_index
+      , hd.dd
+      , hd.mm
+      , hd.yy,
+      COALESCE(
+        json_agg(
+          CASE 
+            WHEN hed.uuid IS NOT NULL THEN json_build_object(
+              'uuid', hed.uuid,
+              'event', json_build_object(
+                'uuid', he.uuid,
+                'name', he.name,
+                'short_name', he.short_name
+              )
+            )
+          END
+        ) FILTER (WHERE hed.uuid IS NOT NULL),
+        '[]'  -- Return empty array when no events
+      ) AS events
+    FROM hebrew_dates hd
+    JOIN hebrew_event_dates hed ON hed.hebrew_date = hd.uuid
+    JOIN hebrew_events he ON he.uuid = hed.hebrew_event
+    WHERE hd.yy = :year
+      AND hd.yy <= :endDayIndex
+      AND he.short_name NOT IN ('shabbat', 'rosh_chodesh', 'tisha_bav', 'purim', 'chanukkah')
+    GROUP BY hd.uuid
+    ORDER BY hd.gregorian;
+  `
+
+  const results: HebrewDatesModel[] = await Models.sequelize.query(query, {
+    replacements: {
+      year,
     },
     type: QueryTypes.SELECT
   })
