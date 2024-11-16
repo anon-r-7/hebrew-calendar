@@ -17,7 +17,7 @@ const initialState: InitialState = { dates: [] }
 
 const defaultApiControls = {
   year: 2024,
-  type: 'gregorian',
+  type: 'gregorian'
 }
 
 import { DateControls } from './components/DateControls'
@@ -70,7 +70,11 @@ export const Holidays = () => {
         </Flex>
       </Flex>
 
-      <DateControls apiControls={apiControls} setApiControls={setApiControls} onSubmit={onSubmit} />
+      <DateControls
+        apiControls={apiControls}
+        setApiControls={setApiControls}
+        onSubmit={onSubmit}
+      />
       <List store={store} />
 
       <Flex direction="column" align="center" justify="center">
@@ -86,11 +90,11 @@ export const Holidays = () => {
               Calendar
             </Text>
           </a>
-            <a href="/holidays">
-              <Text fontSize="md" color="brand.light">
-                Holidays
-              </Text>
-            </a>
+          <a href="/holidays">
+            <Text fontSize="md" color="brand.light">
+              Holidays
+            </Text>
+          </a>
           <a href="/days-from">
             <Text fontSize="md" color="brand.grey">
               Days From

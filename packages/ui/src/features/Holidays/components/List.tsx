@@ -65,9 +65,7 @@ export const List = ({ store }) => {
               {labels[0]}:
             </Text>
           )}
-          <Text
-            fontWeight={header ? '700' : '300'}
-            fontFamily={'HubotSans'}>
+          <Text fontWeight={header ? '700' : '300'} fontFamily={'HubotSans'}>
             {one}
           </Text>
         </Box>
@@ -112,7 +110,6 @@ export const List = ({ store }) => {
           </Text>
         </Box>
       </Grid>
-
     )
   }
 
@@ -126,7 +123,6 @@ export const List = ({ store }) => {
         pr={padding}
         w="full"
         maxW={{ base: '100%', md: theme.sizes.container.xl }}>
-
         {store.state.dates.length ? (
           <Box mt={4}>
             {!isMobile &&
@@ -158,7 +154,7 @@ export const List = ({ store }) => {
                     .toString()
                     .padStart(2, '0')}-${dd.toString().padStart(2, '0')}`,
                   day_of_week,
-                  restDay ? 'Yes' : '',
+                  restDay ? 'Yes' : ''
                 ]
 
                 return tableRow(columns, key, false, [
@@ -166,7 +162,7 @@ export const List = ({ store }) => {
                   'Gregorian',
                   'Hebrew',
                   'Day',
-                  'Rest',
+                  'Rest'
                 ])
               }
             )}

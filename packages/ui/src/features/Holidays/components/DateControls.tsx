@@ -19,7 +19,7 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
   const handleChange = (key, value) => {
     setApiControls((prev) => ({
       ...prev,
-      [key]: value,
+      [key]: value
     }))
   }
 
@@ -49,9 +49,7 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
               base: apiControls.type === 'gregorian' ? '33%' : '50%',
               md: '90px'
             }}
-            onChange={(value) =>
-              handleChange('year', value)
-            }
+            onChange={(value) => handleChange('year', value)}
             value={apiControls.year}
             mr={marginSide}
             mb={{ base: 2, md: 0 }}>

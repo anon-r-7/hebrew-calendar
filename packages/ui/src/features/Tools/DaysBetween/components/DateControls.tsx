@@ -189,7 +189,11 @@ export const DateControls = ({ apiControls, setApiControls }) => {
         </Flex>
       </Stack>
 
-      <Stack direction={orientation} align="center" w="full" mt={{ base: 10, md: 4 }}>
+      <Stack
+        direction={orientation}
+        align="center"
+        w="full"
+        mt={{ base: 10, md: 4 }}>
         <Text fontSize={12} mt={6} w={10}>
           END
         </Text>
@@ -251,7 +255,11 @@ export const DateControls = ({ apiControls, setApiControls }) => {
             </FormControl>
           </Flex>
           <Flex>
-            <FormControl id="month" mr={marginSide} ml={{ base: 3, md: 0 }} mb={{ base: 2, md: 0 }}>
+            <FormControl
+              id="month"
+              mr={marginSide}
+              ml={{ base: 3, md: 0 }}
+              mb={{ base: 2, md: 0 }}>
               <FormLabel fontSize="11" pl="2">
                 MONTH
               </FormLabel>

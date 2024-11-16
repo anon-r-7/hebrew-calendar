@@ -142,7 +142,7 @@ const isDayOfRest = (day) => {
   return isRest
 }
 
-const Event = ({ event, day, isPrimary }) => {
+const Event = ({ event, datesGrid, day, isPrimary }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const eventName = useBreakpointValue({
@@ -151,6 +151,28 @@ const Event = ({ event, day, isPrimary }) => {
   })
 
   const eventDetails = getEventDetails(event)
+
+  const prevDay = datesGrid.find(
+    ({ day_index }) => Number(day_index) === Number(day.day_index) - 1
+  )
+  const nextDay = datesGrid.find(
+    ({ day_index }) => Number(day_index) === Number(day.day_index) + 1
+  )
+
+  const hasEvent = (searchDay) => {
+    if (!searchDay) return false
+    if (!searchDay?.events) return false
+    if (!searchDay?.events.length) return false
+
+    return (
+      searchDay.events.filter((row) => {
+        return row.event.short_name === event.short_name
+      }).length > 0
+    )
+  }
+
+  const continueLeft = hasEvent(prevDay)
+  const continueRight = hasEvent(nextDay)
 
   return (
     <Popover
@@ -169,7 +191,13 @@ const Event = ({ event, day, isPrimary }) => {
           bg={isPrimary ? 'blue.700' : 'brand.lightBlue'}
           color="white"
           textAlign="center"
-          borderRadius="md"
+          borderTopLeftRadius={continueLeft ? 0 : 12}
+          borderBottomLeftRadius={continueLeft ? 0 : 12}
+          borderTopRightRadius={continueRight ? 0 : 12}
+          borderBottomRightRadius={continueRight ? 0 : 12}
+          marginLeft={continueLeft ? '-6px' : 0}
+          marginRight={continueRight ? '-6px' : 0}
+          width={continueLeft || continueRight ? 'var(--chakra-blur)' : ''}
           cursor="pointer">
           {eventName}
         </Box>
@@ -331,7 +359,7 @@ const Details = ({
   )
 }
 
-const Day = ({ day, type, isPrimary, theme }) => {
+const Day = ({ day, datesGrid, type, isPrimary, theme }) => {
   if (!day) {
     return null
   }
@@ -355,6 +383,17 @@ const Day = ({ day, type, isPrimary, theme }) => {
   const secondaryYear = type === 'gregorian' ? HnumYear : gregorian_year_bc
 
   const events = day.events.map((event) => event.event)
+
+  events.sort((a, b) => {
+    const priority = ['shabbat', 'rosh_chodesh']
+
+    const isAInPriority = priority.includes(a.short_name)
+    const isBInPriority = priority.includes(b.short_name)
+
+    if (isAInPriority && !isBInPriority) return 1 // `a` goes after `b`
+    if (!isAInPriority && isBInPriority) return -1 // `a` goes before `b`
+    return 0 // no change in order
+  })
 
   const moon_phase = day?.moon_phase
 
@@ -395,7 +434,13 @@ const Day = ({ day, type, isPrimary, theme }) => {
       </Text>
       <Box mt={5}>
         {events.map((event, k) => (
-          <Event event={event} day={day} isPrimary={isPrimary} key={k} />
+          <Event
+            event={event}
+            day={day}
+            datesGrid={datesGrid}
+            isPrimary={isPrimary}
+            key={k}
+          />
         ))}
       </Box>
     </Box>
@@ -413,8 +458,6 @@ export const CalendarGrid = ({ dates, type }) => {
       date.dd
     ).padStart(2, '0')}`
   }))
-
-  // TODO: trim bc then find "-01"
 
   // Find the first "day 1" of the primary month
   const firstDayIndex = datesGrid.findIndex((date) => {
@@ -482,6 +525,8 @@ export const CalendarGrid = ({ dates, type }) => {
 
   const primaryDate = datesGrid[firstDayIndex][type]
 
+  const today = new Date().toISOString().split('T')[0]
+
   return (
     <Flex direction="column" align="center" justify="center">
       <Flex justify="space-around" w="full" maxW={theme.sizes.container.xl}>
@@ -497,6 +542,8 @@ export const CalendarGrid = ({ dates, type }) => {
           maxW={theme.sizes.container.xl}
           mb={0}>
           {week.map((day, j) => {
+            const isToday = today === day.gregorian
+
             return (
               <Box
                 key={j}
@@ -505,7 +552,9 @@ export const CalendarGrid = ({ dates, type }) => {
                 p={0}
                 m={0}
                 bg={
-                  !isPrimaryMonth(day ? day[type] : null, primaryDate)
+                  isToday
+                    ? '#ffefc0'
+                    : !isPrimaryMonth(day ? day[type] : null, primaryDate)
                     ? 'brand.grey'
                     : isDayOfRest(day)
                     ? '#b9cad5'
@@ -521,6 +570,7 @@ export const CalendarGrid = ({ dates, type }) => {
                 boxShadow={day ? theme.shadows.brand.base : 'none'}>
                 <Day
                   day={day}
+                  datesGrid={datesGrid}
                   theme={theme}
                   type={type}
                   isPrimary={isPrimaryMonth(

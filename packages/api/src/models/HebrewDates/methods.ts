@@ -264,9 +264,7 @@ export const findAllByHebrewWithEvents = async (
   return results
 }
 
-export const findHebrewEventsByYear = async (
-  year: string
-): Promise<any[]> => {
+export const findHebrewEventsByYear = async (year: string): Promise<any[]> => {
   const query = `
     SELECT hd.uuid AS "date_uuid"
       , hd.gregorian
@@ -301,7 +299,7 @@ export const findHebrewEventsByYear = async (
 
   const results: HebrewDatesModel[] = await Models.sequelize.query(query, {
     replacements: {
-      year,
+      year
     },
     type: QueryTypes.SELECT
   })

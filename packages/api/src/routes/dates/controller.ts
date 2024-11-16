@@ -20,7 +20,7 @@ import {
   findByGregorianEventAndYear,
   findAllByIndexRange,
   findGregorianEventsByYear,
-  findHebrewEventsByYear,
+  findHebrewEventsByYear
 } from '@api/models/HebrewDates/methods'
 
 import {
@@ -130,7 +130,11 @@ class DatesController {
     }
   }
 
-  public getHolidays = async (req: Request, res: Response, next: NextFunction) => {
+  public getHolidays = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const type = typeof req.query.type === 'string' ? req.query.type : ''
       const year = typeof req.query.year === 'string' ? req.query.year : ''
@@ -345,7 +349,7 @@ class DatesController {
       const end_index = Number(end_date.day_index)
 
       let diff = Math.abs(end_index - start_index)
-      if (include_first_day) diff = diff - 1
+      if (include_first_day) diff = diff + 1
 
       res.json(diff)
 

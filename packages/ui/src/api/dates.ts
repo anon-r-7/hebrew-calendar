@@ -22,7 +22,7 @@ const getHolidays = async ({ year, type }) => {
     url: 'dates/holidays',
     params: {
       year,
-      type,
+      type
     }
   })
   return response.data

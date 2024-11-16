@@ -11,11 +11,7 @@ interface Data {
   store: any
 }
 
-export const getHolidays = async ({
-  payload,
-  asyncManager,
-  store
-}: Data) => {
+export const getHolidays = async ({ payload, asyncManager, store }: Data) => {
   try {
     asyncManager.start()
     const dates = await api.getHolidays(payload)

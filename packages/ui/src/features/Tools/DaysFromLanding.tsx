@@ -55,11 +55,11 @@ export const DaysFromLanding = () => {
               Calendar
             </Text>
           </a>
-            <a href="/holidays">
-              <Text fontSize="md" color="brand.grey">
-                Holidays
-              </Text>
-            </a>
+          <a href="/holidays">
+            <Text fontSize="md" color="brand.grey">
+              Holidays
+            </Text>
+          </a>
           <a href="/days-from">
             <Text fontSize="md" color="brand.light">
               Days From
