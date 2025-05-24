@@ -70,7 +70,7 @@ export const getMonthRangeGregorian = (start, era) => {
     startMonth -= 1
     if (startMonth < 1) {
       startMonth = 12
-      startYear -= 1
+      startYear = era === 'ad' ? startYear - 1 : startYear + 1
     }
     startDay += monthDays[startMonth - 1]
   }
