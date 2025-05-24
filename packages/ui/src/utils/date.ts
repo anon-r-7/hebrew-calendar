@@ -3,9 +3,10 @@ export const getCurrentMonthFirstIso = () =>
   ((d) => new Date(d.setDate(1)).toISOString().substring(0, 10))(new Date())
 
 // Function to calculate the first day of the next month
-const getNextMonthFirstIso = (year, month) => {
+const getNextMonthFirstIso = (year, month, era) => {
   if (month === 12) {
-    year += 1
+    year = era === 'ad' ? year + 1 : year - 1
+    if (year === 0) year = 1
     month = 1
   } else {
     month += 1
@@ -40,8 +41,7 @@ export const months = [
   'December'
 ]
 
-// TODO: start and end needs to account for overlapping between ad/bc and return adjusted era start and era end for each
-export const getMonthRangeGregorian = (start) => {
+export const getMonthRangeGregorian = (start, era) => {
   const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31] // Days in each month, assuming Feb has 28 days
 
   let [startYear, startMonth, startDay] = start.split('-').map(Number)
@@ -50,7 +50,7 @@ export const getMonthRangeGregorian = (start) => {
   let endDay = monthDays[startMonth - 1] // Last day of the start month
 
   // Calculate the end date at the first of the next month
-  const endDate = getNextMonthFirstIso(endYear, endMonth)
+  const endDate = getNextMonthFirstIso(endYear, endMonth, era)
   ;[endYear, endMonth, endDay] = endDate.split('-').map(Number)
   endDay += 5 // Add 5 days past the start of the next month
 

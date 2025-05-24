@@ -77,7 +77,7 @@ export const Calendar = () => {
   const onSubmit = () => {
     const [start, end] =
       apiControls.type === 'gregorian'
-        ? getMonthRangeGregorian(apiControls.start)
+        ? getMonthRangeGregorian(apiControls.start, apiControls.era)
         : getMonthRangeHebrew(apiControls.start)
 
     getDates({

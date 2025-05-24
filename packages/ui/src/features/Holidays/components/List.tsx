@@ -11,9 +11,7 @@ import {
 export const List = ({ store }) => {
   const theme = useTheme()
 
-  const buttonSize = useBreakpointValue({ base: 'lg', md: 'sm' })
   const padding = useBreakpointValue({ base: '4', md: '0' })
-  const buttonWidth = useBreakpointValue({ base: '97%', md: '140px' })
 
   // Move this hook outside of tableRow
   const isMobile = useBreakpointValue({ base: true, md: false })
@@ -133,18 +131,7 @@ export const List = ({ store }) => {
                 ['Events', 'Gregorian', 'Hebrew', 'Day', 'Rest Day']
               )}
             {store.state.dates.map(
-              (
-                {
-                  days_from_day_index,
-                  gregorian,
-                  yy,
-                  mm,
-                  dd,
-                  day_of_week,
-                  events
-                },
-                key
-              ) => {
+              ({ gregorian, yy, mm, dd, day_of_week, events }, key) => {
                 const restDay = isDayOfRest({ dd, events })
 
                 const columns = [

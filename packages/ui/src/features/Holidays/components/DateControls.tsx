@@ -9,13 +9,10 @@ import {
   NumberDecrementStepper,
   Select,
   Stack,
-  useBreakpointValue,
-  useTheme
+  useBreakpointValue
 } from '@chakra-ui/react'
 
 export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
-  const theme = useTheme()
-
   const handleChange = (key, value) => {
     setApiControls((prev) => ({
       ...prev,
