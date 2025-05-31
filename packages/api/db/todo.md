@@ -1,25 +1,3 @@
-# Data Structures
-
-- Simplify `step_1` structure
-	- `event_entry` (combine step_1 and step_2)
-	- replace all references to step_1 and step_2 in triggers and views
-	- allow for null hebrew_date and day_index
-	- add "disabled" boolean
-
-- consider aligning all names to `event_`
-
-- Add "day of" for each of foub, sukkot, chanukah
-
-- Add migration for "day before" each of the feasts (but just one day for each of foub, sukkot chanukah) [add events.system_meta = 'before']
-
-- Add migration for "day after" each of the feasts (but just one day for each of foub, sukkot chanukah) [add events.system_meta = 'before']
-
-- Add "day of the week" the materialized view for each date
-
-- Add migration for event_pairs.favorite [boolean]
-
-- Data migration for creating users (ryan and brandon) with passwords encrypted
-
 # API
 
 POST Auth

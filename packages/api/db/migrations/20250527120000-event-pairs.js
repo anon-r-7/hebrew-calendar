@@ -1,6 +1,12 @@
-
-
 'use strict';
+
+const safe = async (label, fn) => {
+  try {
+    await fn();
+  } catch (err) {
+    console.warn(`[skip] ${label}: ${err.message}`);
+  }
+};
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -14,33 +20,43 @@ module.exports = {
         allowNull: false,
         defaultValue: Sequelize.literal('uuid_generate_v4()')
       },
-      first_name:  {
+      first_name: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      last_name:   {
+      last_name: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      email:       {
+      email: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      password:    {
+      password: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      created_at:  {
+      created_at: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
-      updated_at:  {
+      updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
     });
+
+    /* ──────────────────────────────────────────────────────────────
+       Seed two users
+       ─────────────────────────────────────────────────────────── */
+    await queryInterface.sequelize.query(`
+      INSERT INTO users (first_name, last_name, email, password)
+      VALUES
+        ('Brandon', 'McGee', 'brandon@mbmcgee.com', '$2b$10$T10PZSGCEYR6gI2iopopfeV8xFOYW3fsP6X1.dnEmhDcFaZAtPILa'),
+        ('Ryan', 'Ostrom', 'rpostrom@gmail.com','$2b$10$f.v8V9xSzWVJ4.teD2KT1.OOgDnXDXG5iV8fC/x6mAMH0QDmVSAg.');
+    `);
 
     /* ──────────────────────────────────────────────────────────────
        2. Events Entry
@@ -72,7 +88,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false
       },
-      hebrew_date:       {
+      hebrew_date: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
@@ -80,16 +96,16 @@ module.exports = {
           key: 'uuid'
         }
       },
-      day_index:  {
+      day_index: {
         type: Sequelize.BIGINT,
         allowNull: false
       }, 
-      processed:   {
+      processed: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: false
       },
-      created_by:  {
+      created_by: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
@@ -97,19 +113,24 @@ module.exports = {
           key: 'uuid'
         }
       },
-      created_at:  {
+      created_at: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
-      updated_at:  {
+      updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
     });
 
-    await queryInterface.addIndex('events_entry', ['day_index']);
+    await queryInterface.removeIndex('events_entry', 'events_entry_day_index')
+      .catch(() => {});                        // ignore “doesn’t exist”
+
+    await queryInterface.addIndex('events_entry', ['day_index'], {
+      name: 'events_entry_day_index',
+    });
 
     /* ──────────────────────────────────────────────────────────────
        3. Canonical events
@@ -144,12 +165,19 @@ module.exports = {
       },
     });
 
-    await queryInterface.addIndex('events', ['day_index']);
+    await safe('unique constraint', () =>
+      queryInterface.sequelize.query(`
+        ALTER TABLE events
+          ADD CONSTRAINT events_source_row_meta_unique
+          UNIQUE (source, source_row, system_meta);
+      `)
+    );
 
-    await queryInterface.addConstraint('events', {
-      fields: ['source', 'source_row'],
-      type:   'unique',
-      name:   'events_source_row_unique',
+    await queryInterface.removeIndex('events', 'events_day_index')
+      .catch(() => {});           // ignore “doesn’t exist”
+
+    await queryInterface.addIndex('events', ['day_index'], {
+      name: 'events_day_index',
     });
 
     /* ──────────────────────────────────────────────────────────────
@@ -182,7 +210,15 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
+      favorite: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      },
     });
+
+    await queryInterface.removeIndex('events_pairs', 'events_pairs_no_dupes')
+      .catch(() => {});           // ignore “doesn’t exist”
 
     /* Expression index to prevent (A,B) / (B,A) duplicates */
     await queryInterface.sequelize.query(`
@@ -190,6 +226,12 @@ module.exports = {
       ON events_pairs
       (LEAST(a,b), GREATEST(a,b));
     `);
+
+    await queryInterface.removeIndex('events_pairs', 'events_pairs_a')
+      .catch(() => {});           // ignore “doesn’t exist”
+    await queryInterface.removeIndex('events_pairs', 'events_pairs_b')
+      .catch(() => {});           // ignore “doesn’t exist”
+
 
     /* Helper index for look-ups by either side */
     await queryInterface.addIndex('events_pairs', ['a']);
@@ -226,7 +268,7 @@ module.exports = {
        ─────────────────────────────────────────────────────────── */
     await queryInterface.sequelize.query(`
       DROP MATERIALIZED VIEW IF EXISTS events_pair_view;
-      CREATE MATERIALIZED VIEW events_pair_view AS
+      CREATE MATERIALIZED VIEW events_pair_view as
       WITH details as (
         SELECT
           e.uuid,
@@ -265,7 +307,10 @@ module.exports = {
             hd2.yy::text || '-' ||
             lpad(hd2.mm::text, 2, '0') || '-' ||
             lpad(hd2.dd::text, 2, '0')
-          ) as hdate
+          ) as hdate,
+
+          /* ------------ Day of week------------------------------- */          
+          COALESCE(hd1.day_of_week, hd2.day_of_week) as day_of_week
 
         FROM events e
 
@@ -319,45 +364,140 @@ module.exports = {
       CREATE UNIQUE INDEX events_pair_view_uuid_idx ON events_pair_view(uuid);
     `);
 
+    /* ──────────────────────────────────────────────────────────────
+       6. Add "event_day" for sukkot, matzot, and chanukkah
+       ─────────────────────────────────────────────────────────── */
+    await queryInterface.removeColumn('hebrew_event_dates', 'event_day') .catch(() => {});
+
+    await queryInterface.addColumn('hebrew_event_dates', 'event_day', {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+    });
+
     await queryInterface.sequelize.query(`
-      INSERT INTO events (day_index, source, source_row)
-      SELECT
-        hd.day_index,
-        'system',
-        hed.uuid
-      FROM hebrew_event_dates hed
-      JOIN hebrew_dates hd ON hed.hebrew_date = hd.uuid
-      JOIN hebrew_events he ON hed.hebrew_event = he.uuid
-      WHERE he.short_name IN (
-        'tisha_bav',
-        'matzot',
-        'pesach',
-        'yom_kippur',
-        'yom_teruah',
-        'sukkot',
-        'shavuot',
-        'yom_bikkurim',
-        'rosh_chodesh',
-        'chanukkah'
+      WITH ranked AS (
+        SELECT
+          hed.uuid,
+          he.short_name,
+          hd.yy,                        -- Hebrew year (partition key)
+          ROW_NUMBER() OVER (
+            PARTITION BY he.short_name, hd.yy
+            ORDER BY hd.day_index       -- <── absolute ordering
+          ) AS rn
+        FROM hebrew_event_dates hed
+        JOIN hebrew_events he ON he.uuid = hed.hebrew_event
+        JOIN hebrew_dates  hd ON hd.uuid = hed.hebrew_date
+        WHERE he.short_name IN ('sukkot', 'matzot', 'chanukkah')
       )
+      UPDATE hebrew_event_dates hed
+      SET    event_day = r.rn
+      FROM   ranked r
+      WHERE  hed.uuid = r.uuid
+        AND (
+          (r.short_name IN ('sukkot','chanukkah') AND r.rn <= 8) OR
+          (r.short_name =  'matzot'               AND r.rn <= 7)
+        );
+    `);
+
+    await queryInterface.sequelize.query(`
+      /* -----------------------------------------------------------------
+         1. Pick the feast rows we care about
+         ----------------------------------------------------------------- */
+      WITH selected_hebrew_event_dates AS (
+        SELECT
+          hed.uuid as hed_id,
+          hd.day_index as target_day_index,
+          he.short_name,
+          hed.event_day
+        FROM hebrew_event_dates hed
+        JOIN hebrew_dates  hd ON hd.uuid  = hed.hebrew_date
+        JOIN hebrew_events he ON he.uuid  = hed.hebrew_event
+        WHERE he.short_name IN (
+          'tisha_bav',
+          'matzot',
+          'pesach',
+          'yom_kippur',
+          'yom_teruah',
+          'sukkot',
+          'shavuot',
+          'yom_bikkurim',
+          'rosh_chodesh',
+          'chanukkah'
+        )
+      )
+
+      /* -----------------------------------------------------------------
+         2. insert BEFORE / TARGET / AFTER rows with the new rules
+         ----------------------------------------------------------------- */
+      INSERT INTO events (day_index, source, system_meta, source_row)
+
+      /* ---- BEFORE (only first day of multi-day feasts) ---------------- */
+      SELECT
+        target_day_index - 1,
+        'system'::enum_events_source,          -- ← cast here
+        'before'::enum_events_system_meta,     -- ← and here
+        hed_id
+      FROM selected_hebrew_event_dates
+      WHERE
+        event_day IS NULL                -- single-day feasts
+        OR event_day = 1                 -- first day of matzot/sukkot/chanukkah
+
+      UNION ALL
+
+      /* ---- TARGET (always) -------------------------------------------- */
+      SELECT
+        target_day_index,
+        'system'::enum_events_source,
+        NULL,
+        hed_id
+      FROM selected_hebrew_event_dates
+
+      UNION ALL
+
+      /* ---- AFTER (only last day of multi-day feasts) ------------------ */
+      SELECT
+        target_day_index + 1,
+        'system'::enum_events_source,
+        'after'::enum_events_system_meta,
+        hed_id
+      FROM selected_hebrew_event_dates
+      WHERE
+        event_day IS NULL                                -- single-day feasts
+        OR (
+           (short_name = 'matzot'    AND event_day = 7)  OR
+           (short_name IN ('sukkot','chanukkah') AND event_day = 8)
+         )
+
+      ON CONFLICT ON CONSTRAINT events_source_row_meta_unique DO NOTHING;
     `);
   },
 
   down: async (queryInterface) => {
-    /* Drop in reverse dependency order */
-    await queryInterface.sequelize.query(`
-      DROP MATERIALIZED VIEW IF EXISTS events_pair_view;
-      DROP TRIGGER IF EXISTS trg_events_fanout ON events;
-      DROP FUNCTION  IF EXISTS fan_out_events_pairs();
-    `);
+    /* 1. objects that are independent of tables */
+    await safe('materialized view',  () =>
+      queryInterface.sequelize.query(`DROP MATERIALIZED VIEW IF EXISTS events_pair_view`)
+    );
+    await safe('trigger', () =>
+      queryInterface.sequelize.query(`DROP TRIGGER IF EXISTS trg_events_fanout ON events`)
+    );
+    await safe('trigger function', () =>
+      queryInterface.sequelize.query(`DROP FUNCTION IF EXISTS fan_out_events_pairs`)
+    );
 
-    await queryInterface.dropTable('events_pairs');
-    await queryInterface.dropTable('events');
-    await queryInterface.dropTable('events_entry');
-    await queryInterface.dropTable('users');
+    /* 2. tables (reverse dependency order) */
+    for (const tbl of ['events_pairs', 'events', 'events_entry', 'users']) {
+      await safe(`table ${tbl}`, () => queryInterface.dropTable(tbl));
+    }
 
-    await queryInterface.sequelize.query(`
-      DROP TYPE IF EXISTS events_source_enum;
-    `);
-  },
+    /* 3. enum types created earlier */
+    for (const typ of [
+      'events_source_enum',
+      'events_system_meta_enum',
+      'events_entry_type_enum'
+    ]) {
+      await safe(`enum ${typ}`, () =>
+        queryInterface.sequelize.query(`DROP TYPE IF EXISTS ${typ}`)
+      );
+    }
+  }
 };
