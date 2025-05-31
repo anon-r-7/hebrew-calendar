@@ -57,3 +57,8 @@ Create PR from feature branch to main
 - cd /var/www/hebrew-calendar
 - sudo su
 - bash deploy.sh
+
+# JWT Token
+
+Create
+```openssl rand -base64 32```

@@ -5,14 +5,19 @@ POST Auth
 [guard the below endpoints with auth]
 
 POST event_entry
-	- Finds hebrew date
-	- Inserts event_entry with hebrew_date and day_index
+	- Receives body { type: gregorian | hebrew, date: 'yyyy-mm-dd' [for both hebrew and gregorian ]}
+	- Finds hebrew date based on gregorian (hebrew_dates.gregorian) or hebrew (hebrew_dates.yy .mm .dd)
+	- Inserts event_entry with hebrew_date and day_index of hebrew_date
 
-PATCH event_entry
-	- Update name and description
+PATCH event_entry/:uuid
+	- Update name and description based on event_entry.uuid
 
-DELETE event_entry
-	- delete from event_entry; events; event_pairs; refresh materialized view
+GET event_entry
+  - Gets list of event_entry; filterable by created_by; ordered by date
+  - should return hebrew_date as an object (rather than hebrew_date.uuid) with everything else
+
+DELETE event_entry/:uuid
+	- delete from event_entry based on uuid; events; event_pairs; refresh materialized view
 
 POST event_entry/sync
 	- does not await response for the below (spins up child process)
@@ -27,7 +32,7 @@ POST event_entry/sync
 GET event_entry/sync 
 	- get status of global var "is syncing" (boolean)
 
-POST event_pair
+PATCH event_pair/:uuid
 	- event_pair.favorite [boolean]
 
 GET event_pair
