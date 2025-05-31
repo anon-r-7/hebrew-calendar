@@ -232,18 +232,6 @@ module.exports = {
     await queryInterface.sequelize.query(`
       CREATE UNIQUE INDEX event_comparisons_mv_uuid_idx ON event_comparisons_mv(uuid);
     `);
-
-    // await queryInterface.sequelize.query(`
-    //   INSERT INTO events (day_index, source, source_row)
-    //   SELECT
-    //     hd.day_index,
-    //     'system',          -- or 'hebrew' if that is your canonical label
-    //     hed.uuid
-    //   FROM hebrew_event_dates hed
-    //   JOIN hebrew_dates hd ON hed.hebrew_date = hd.uuid
-    //   -- WHERE hed.type IN ('feast', 'fast')      -- optional filter
-    //   --   OR hed.short_name IS NOT NULL;
-    // `);
   },
 
   down: async (queryInterface) => {
