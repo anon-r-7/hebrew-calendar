@@ -85,18 +85,28 @@ const getHebrew = (gDates) => {
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     try {
-      const gDates = getGregorian()
-      const hDates = getHebrew(gDates)
-
       const filePath = path.join(__dirname, 'hebrew_dates.json');
-      fs.writeFileSync(filePath, JSON.stringify(hDates, null, 2));
-
-      await queryInterface.bulkInsert('hebrew_dates', hDates)
-    } catch (error) {
+    
+      let hDates;
+      if (fs.existsSync(filePath)) {
+        hDates = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      } else {
+        const gDates = getGregorian();
+        hDates = getHebrew(gDates);
+        fs.writeFileSync(filePath, JSON.stringify(hDates, null, 2));
+      }
+    
+      const BATCH = 5000;
+      for (let i = 0; i < hDates.length; i += BATCH) {
+        await queryInterface.bulkInsert(
+          'hebrew_dates',
+          hDates.slice(i, i + BATCH)
+        );
+      }
+    } catch (error) { 
       console.error('db migration error 1', error)
     }
   },
-
   down: async (queryInterface, Sequelize) => {
     //
   },
