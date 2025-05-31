@@ -10,9 +10,9 @@
 
 - Add "day of" for each of foub, sukkot, chanukah
 
-- Add migration for "day before" each of the feasts (but just one day for each of foub, sukkot chanukah) [name should be 'day before']
+- Add migration for "day before" each of the feasts (but just one day for each of foub, sukkot chanukah) [add events.system_meta = 'before']
 
-- Add migration for "day after" each of the feasts (but just one day for each of foub, sukkot chanukah) [name should be 'day after']
+- Add migration for "day after" each of the feasts (but just one day for each of foub, sukkot chanukah) [add events.system_meta = 'before']
 
 - Add "day of the week" the materialized view for each date
 
@@ -72,6 +72,7 @@ FILTERS
 - Is Exact weeks
 - Is Exact enochian years
 - Is Exact revelation years
+- Day of the week
 
 # UI
 
