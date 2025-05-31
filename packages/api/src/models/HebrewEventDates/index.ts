@@ -4,6 +4,7 @@ export interface HebrewEventDates {
   uuid: string
   hebrew_event: string
   hebrew_date: string
+  event_day?: number
   created_at?: Date
   updated_at?: Date
 }
@@ -18,6 +19,7 @@ export class HebrewEventDatesModel
   public uuid!: string
   public hebrew_event!: string
   public hebrew_date!: string
+  public event_day?: number
 }
 
 export default (sequelize: Sequelize) => {
@@ -43,6 +45,10 @@ export default (sequelize: Sequelize) => {
           model: 'hebrew_dates',
           key: 'uuid'
         }
+      },
+      event_day: {
+        allowNull: true,
+        type: DataTypes.INTEGER
       },
       created_at: {
         allowNull: false,
