@@ -269,99 +269,139 @@ module.exports = {
     await queryInterface.sequelize.query(`
       DROP MATERIALIZED VIEW IF EXISTS events_pair_view;
       CREATE MATERIALIZED VIEW events_pair_view as
-      WITH details as (
+
+      WITH details AS (
         SELECT
-          e.uuid,
-          e.day_index,
+            e.uuid                       AS event_uuid,
+            e.day_index,
+            e.source,                    -- 'user' | 'system'
+            /* ---------- user fields ---------- */
+            ee.uuid        AS events_entry_uuid,
 
-          /* ------------ Name ------------------------------------- */
-          CASE
-            WHEN e.source = 'user' THEN ee.name
-            ELSE he.name
-          END as name,
 
-          /* ------------ Description ------------------------------ */
-          CASE
-            WHEN e.source = 'user' THEN COALESCE(ee.description, 'N/A')
-            ELSE ''
-          END as description,
+            CASE
+              WHEN e.source = 'user' THEN ee.name
+              ELSE
+                CASE
+                  WHEN e.system_meta IS NOT NULL THEN he.name || ' (' || e.system_meta || ')'
+                  ELSE he.name
+                END
+            END AS name,
 
-          /* ------------ Created By ------------------------------- */
-          COALESCE(u.first_name || ' ' || u.last_name, 'System') as created_by,
-
-          /* ------------ Tags ------------------------------------- */
-          CASE
-            WHEN e.source = 'user' THEN COALESCE(ee.tags, '')
-            ELSE ''
-          END as tags,
-
-          /* ------------ Gregorian date --------------------------- */
-          COALESCE(hd1.gregorian, hd2.gregorian) as gdate,
-
-          /* ------------ Hebrew date --------------------------- */
-          COALESCE (
-            hd1.yy::text || '-' ||
-            lpad(hd1.mm::text, 2, '0') || '-' ||
-            lpad(hd1.dd::text, 2, '0'),
-          
-            hd2.yy::text || '-' ||
-            lpad(hd2.mm::text, 2, '0') || '-' ||
-            lpad(hd2.dd::text, 2, '0')
-          ) as hdate,
-
-          /* ------------ Day of week------------------------------- */          
-          COALESCE(hd1.day_of_week, hd2.day_of_week) as day_of_week
-
+            COALESCE(ee.description,'')           AS description,
+            COALESCE(ee.tags,'')                  AS tags,
+            u.uuid          AS created_by_uuid,
+            u.first_name,
+            u.last_name,
+            /* ---------- system fields ---------- */
+            hed.uuid        AS hebrew_event_dates_uuid,
+            hed.event_day,
+            he.uuid         AS hebrew_events_uuid,
+            he.short_name,
+            hd2.uuid        AS hebrew_dates_uuid,
+            /* ---------- dates ---------- */
+            COALESCE(hd1.gregorian, hd2.gregorian)               AS gdate,
+            COALESCE(
+              hd1.yy::text||'-'||lpad(hd1.mm::text,2,'0')||'-'||lpad(hd1.dd::text,2,'0'),
+              hd2.yy::text||'-'||lpad(hd2.mm::text,2,'0')||'-'||lpad(hd2.dd::text,2,'0')
+            ) AS hdate,
+            COALESCE(hd1.day_of_week, hd2.day_of_week)           AS day_of_week
         FROM events e
-
-        /* User-entered events */
-        LEFT JOIN events_entry ee
-          ON (e.source = 'user'
-          AND e.source_row = ee.uuid)
-        LEFT JOIN "users" u
-          ON ee.created_by = u.uuid
-        LEFT JOIN hebrew_dates hd1
-          ON ee.hebrew_date = hd1.uuid
-
-        /* System Hebrew events */
-        LEFT JOIN hebrew_event_dates hed
-          ON (e.source <> 'user' AND e.source_row = hed.uuid)
-        LEFT JOIN hebrew_events he
-          ON hed.hebrew_event = he.uuid
-        LEFT JOIN hebrew_dates
-          hd2 ON hed.hebrew_date = hd2.uuid
+        /* user */
+        LEFT JOIN events_entry      ee  ON e.source='user'  AND e.source_row = ee.uuid
+        LEFT JOIN users             u   ON ee.created_by    = u.uuid
+        LEFT JOIN hebrew_dates      hd1 ON ee.hebrew_date   = hd1.uuid
+        /* system */
+        LEFT JOIN hebrew_event_dates hed ON e.source<>'user' AND e.source_row = hed.uuid
+        LEFT JOIN hebrew_events      he  ON hed.hebrew_event = he.uuid
+        LEFT JOIN hebrew_dates       hd2 ON hed.hebrew_date  = hd2.uuid
       )
 
       SELECT
-        p.uuid,
-        a.name as a_name,
-        b.name as b_name,
-        a.gdate as a_gdate,
-        b.gdate as b_gdate,
-        a.hdate as a_hdate,
-        b.hdate as b_hdate,
-        a.description as a_description,
-        b.description as b_description,
-        a.created_by as a_created_by,
-        b.created_by as b_created_by,
-        a.tags as a_tags,
-        b.tags as b_tags,
-        /* date maths */
-        p.diff as days,
-        p.diff * 2 as half_days,
-        round(p.diff::numeric / 7,   6) as weeks,
-        round(p.diff::numeric / 360, 6) as rev_years,
-        round(p.diff::numeric / 364, 6) as enoch_years,
-        (p.diff % 7   = 0) as exact_weeks,
-        (p.diff % 360 = 0) as exact_rev_years,
-        (p.diff % 364 = 0) as exact_enoch_years
+          p.uuid,
+          p.favorite,                -- pair-level flag
+          p.diff,
+          /* maths */
+          p.diff * 2                          AS half_days,
+          p.diff / 7.0                        AS weeks,
+          p.diff / 360.0                      AS rev_years,
+          p.diff / 364.0                      AS enoch_years,
+          (p.diff % 7   = 0)                  AS exact_weeks,
+          (p.diff % 360 = 0)                  AS exact_rev_years,
+          (p.diff % 364 = 0)                  AS exact_enoch_years,
+          /* -------- side A columns -------- */
+          da.day_index           AS a_day_index,
+          da.source              AS a_source,
+          da.day_of_week         AS a_day_of_week,
+          da.name                AS a_name,
+          da.description         AS a_description,
+          da.tags                AS a_tags,
+          da.gdate               AS a_gdate,
+          da.hdate               AS a_hdate,
+          /*  user */
+          da.events_entry_uuid   AS a_events_entry_uuid,
+          da.created_by_uuid     AS a_created_by_uuid,
+          da.first_name          AS a_first_name,
+          da.last_name           AS a_last_name,
+          /*  system */
+          da.hebrew_event_dates_uuid AS a_hebrew_event_dates_uuid,
+          da.hebrew_dates_uuid       AS a_hebrew_dates_uuid,
+          da.hebrew_events_uuid      AS a_hebrew_events_uuid,
+          da.event_day               AS a_event_day,
+          da.short_name              AS a_short_name,
+          /* -------- side B columns -------- */
+          db.day_index           AS b_day_index,
+          db.source              AS b_source,
+          db.day_of_week         AS b_day_of_week,
+          db.name                AS b_name,
+          db.description         AS b_description,
+          db.tags                AS b_tags,
+          db.gdate               AS b_gdate,
+          db.hdate               AS b_hdate,
+          /*  user */
+          db.events_entry_uuid   AS b_events_entry_uuid,
+          db.created_by_uuid     AS b_created_by_uuid,
+          db.first_name          AS b_first_name,
+          db.last_name           AS b_last_name,
+          /*  system */
+          db.hebrew_event_dates_uuid AS b_hebrew_event_dates_uuid,
+          db.hebrew_dates_uuid       AS b_hebrew_dates_uuid,
+          db.hebrew_events_uuid      AS b_hebrew_events_uuid,
+          db.event_day               AS b_event_day,
+          db.short_name              AS b_short_name
       FROM events_pairs p
-      JOIN details a ON p.a = a.uuid
-      JOIN details b ON p.b = b.uuid;
+      JOIN details da ON da.event_uuid = p.a
+      JOIN details db ON db.event_uuid = p.b;
     `);
 
     await queryInterface.sequelize.query(`
-      CREATE UNIQUE INDEX events_pair_view_uuid_idx ON events_pair_view(uuid);
+      DROP INDEX IF EXISTS events_pair_view_uuid_idx;
+
+      -- 1. PK + diff index
+      CREATE UNIQUE INDEX evp_uuid_idx ON events_pair_view(uuid);
+      CREATE INDEX IF NOT EXISTS epv_diff_idx ON events_pair_view(diff, uuid) INCLUDE (favorite);
+
+      -- 2. partial exact-flag indexes
+      CREATE INDEX IF NOT EXISTS epv_exact_rev_years_true  ON events_pair_view (uuid) WHERE exact_rev_years;
+      CREATE INDEX IF NOT EXISTS epv_exact_enoch_years_true ON events_pair_view (uuid) WHERE exact_enoch_years;
+      CREATE INDEX IF NOT EXISTS epv_exact_weeks_true ON events_pair_view (uuid) WHERE exact_weeks;
+
+      -- 3. date expression indexes
+      CREATE INDEX IF NOT EXISTS epv_a_gdate_date_idx ON events_pair_view ((a_gdate::date));
+      CREATE INDEX IF NOT EXISTS epv_b_gdate_date_idx ON events_pair_view ((b_gdate::date));
+
+      -- 4. trigram for tags
+      CREATE EXTENSION IF NOT EXISTS pg_trgm;
+      CREATE INDEX IF NOT EXISTS epv_a_tags_trgm ON events_pair_view USING gin (a_tags gin_trgm_ops);
+      CREATE INDEX IF NOT EXISTS epv_b_tags_trgm ON events_pair_view USING gin (b_tags gin_trgm_ops);
+
+      -- 5. combined UUID indexes
+      CREATE INDEX IF NOT EXISTS epv_events_entry_uuid_idx
+        ON events_pair_view (a_events_entry_uuid, b_events_entry_uuid);
+      CREATE INDEX IF NOT EXISTS epv_hebrew_events_uuid_idx
+        ON events_pair_view (a_hebrew_events_uuid, b_hebrew_events_uuid);
+      CREATE INDEX IF NOT EXISTS epv_created_by_uuid_idx
+        ON events_pair_view (a_created_by_uuid, b_created_by_uuid);
     `);
 
     /* ──────────────────────────────────────────────────────────────

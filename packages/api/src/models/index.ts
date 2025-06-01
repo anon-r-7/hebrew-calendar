@@ -115,6 +115,34 @@ try {
   Events.hasMany(EventsPairs, { foreignKey: 'b', as: 'pairsAsB' })
   EventsPairs.belongsTo(Events, { foreignKey: 'a', as: 'eventA' })
   EventsPairs.belongsTo(Events, { foreignKey: 'b', as: 'eventB' })
+
+  /* ---------- Events <-> EventsEntry (user-created events) ---------- */
+  Events.belongsTo(EventsEntry, {
+    foreignKey: 'source_row', // Events.source_row → EventsEntry.uuid
+    targetKey: 'uuid',
+    as: 'userEntry',
+    constraints: false // polymorphic – keep FK flexible
+  })
+  EventsEntry.hasOne(Events, {
+    foreignKey: 'source_row',
+    sourceKey: 'uuid',
+    as: 'eventRef',
+    constraints: false
+  })
+
+  /* ---------- Events <-> HebrewEventDates (system events) ---------- */
+  Events.belongsTo(HebrewEventDates, {
+    foreignKey: 'source_row', // Events.source_row → HebrewEventDates.uuid
+    targetKey: 'uuid',
+    as: 'systemDate',
+    constraints: false
+  })
+  HebrewEventDates.hasOne(Events, {
+    foreignKey: 'source_row',
+    sourceKey: 'uuid',
+    as: 'eventRef',
+    constraints: false
+  })
 } catch (err) {
   logger.error('[models] Error setting up associations:', err)
   process.exit(1)

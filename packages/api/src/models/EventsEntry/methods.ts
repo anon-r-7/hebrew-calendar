@@ -56,7 +56,7 @@ export async function list(opts: {
     include: [
       {
         model: HebrewDatesModel,
-        as: 'hebrewDate'
+        as: 'hebrewDateEntry'
       }
     ],
     order: [['date', 'ASC']],

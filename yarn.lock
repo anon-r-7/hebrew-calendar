@@ -5690,6 +5690,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"date-fns@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "date-fns@npm:4.1.0"
+  checksum: fb681b242cccabed45494468f64282a7d375ea970e0adbcc5dcc92dcb7aba49b2081c2c9739d41bf71ce89ed68dd73bebfe06ca35129490704775d091895710b
+  languageName: node
+  linkType: hard
+
 "debug@npm:2.6.9":
   version: 2.6.9
   resolution: "debug@npm:2.6.9"
@@ -7618,6 +7625,7 @@ __metadata:
     bcrypt: ^6.0.0
     body-parser: ^1.20.2
     cors: ^2.8.5
+    date-fns: ^4.1.0
     express: ^4.18.2
     express-async-handler: ^1.2.0
     isomorphic-unfetch: ^4.0.2
