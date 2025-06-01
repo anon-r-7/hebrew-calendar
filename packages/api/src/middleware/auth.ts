@@ -13,7 +13,7 @@ export default function authGuard(
     if (!token) throw new Error()
 
     const payload = jwt.verify(token, process.env.JWT_SECRET!) as any
-    req.auth = payload
+    ;(req as any).auth = payload
     next()
   } catch {
     next(new HttpException(401, 'Unauthorized'))

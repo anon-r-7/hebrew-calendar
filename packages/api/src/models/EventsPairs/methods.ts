@@ -1,9 +1,9 @@
-import { Op, WhereOptions } from 'sequelize'
-import models from '@api/models'
-const { EventPairs, Events } = models
+import { Op } from 'sequelize'
+import Models from '@api/models'
+import { EventsModel } from '@api/models/Events'
 
 export async function setFavorite(uuid: string, favorite: boolean) {
-  const pair = await EventPairs.findByPk(uuid)
+  const pair = await Models.EventsPairs.findByPk(uuid)
   if (!pair) return null
   await pair.update({ favorite })
   return pair
@@ -11,7 +11,8 @@ export async function setFavorite(uuid: string, favorite: boolean) {
 
 /* naive but flexible filter builder */
 export async function listWithFilters(q: Record<string, any>) {
-  const where: WhereOptions = {}
+  // @ts-ignore
+  const where: any = {}
 
   if (q.favorite !== undefined) where.favorite = q.favorite === 'true'
 
@@ -33,11 +34,11 @@ export async function listWithFilters(q: Record<string, any>) {
 
   /* add more filters as required */
 
-  return EventPairs.findAndCountAll({
+  return Models.EventsPairs.findAndCountAll({
     where,
     include: [
-      { model: Events, as: 'eventA' },
-      { model: Events, as: 'eventB' }
+      { model: EventsModel, as: 'eventA' },
+      { model: EventsModel, as: 'eventB' }
     ],
     order: [['diff', 'ASC']],
     offset: Number(q.offset ?? 0),

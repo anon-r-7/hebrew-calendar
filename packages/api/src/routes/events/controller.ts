@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import HttpException from '@api/utils/HttpException'
 import * as EntryService from '@api/models/EventsEntry/methods'
-import * as PairService from '@api/models/EventPairs/methods'
+import * as PairService from '@api/models/EventsPairs/methods'
 import * as SyncService from '@api/services/EventSync'
 
 class EventsController {
@@ -13,7 +13,7 @@ class EventsController {
   ) => {
     try {
       const { type, date, name, description, tags } = req.body
-      const userId = req.auth.sub
+      const userId = req.auth!.sub
 
       const record = await EntryService.create({
         type,

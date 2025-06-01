@@ -1,6 +1,4 @@
-import { EventEntryModel } from '@api/models/EventsEntry'
-import { EventModel } from '@api/models/Events'
-import { sequelize } from '@api/models'
+import Models from '@api/models'
 import { logger } from '@api/utils/logger'
 
 /** Internal flag – never exported */
@@ -26,9 +24,9 @@ const _run = async (): Promise<void> => {
   logger.info('[sync] starting')
   try {
     /* each job runs in a single DB transaction */
-    await sequelize.transaction(async (t) => {
+    await Models.sequelize.transaction(async (t) => {
       /* 1) grab all un-processed rows FOR UPDATE (lock) */
-      const entries = await EventEntryModel.findAll({
+      const entries = await Models.EventsEntry.findAll({
         where: { processed: false },
         lock: t.LOCK.UPDATE,
         transaction: t
@@ -42,12 +40,12 @@ const _run = async (): Promise<void> => {
       /* 2) bulk-insert into events; let DB trigger fan-out pairs */
       const eventsPayload = entries.map((e) => ({
         day_index: e.day_index,
-        source: 'user', // user event
+        source: 'user' as const,
         system_meta: null,
         source_row: e.uuid
       }))
 
-      await EventModel.bulkCreate(eventsPayload, { transaction: t })
+      await Models.Events.bulkCreate(eventsPayload, { transaction: t })
 
       /* 3) mark entries processed */
       await Promise.all(
@@ -56,7 +54,7 @@ const _run = async (): Promise<void> => {
     })
 
     /* 4) refresh MV outside the transaction (non-blocking) */
-    await sequelize.query('REFRESH MATERIALIZED VIEW events_pair_view')
+    await Models.sequelize.query('REFRESH MATERIALIZED VIEW events_pair_view')
 
     logger.info('[sync] completed')
   } catch (err) {

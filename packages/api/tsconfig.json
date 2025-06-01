@@ -4,7 +4,7 @@
     "target": "es2018",
     "lib": ["es2018", "dom", "esnext.asynciterable"],
     "types": ["jest", "node"],
-    "typeRoots": ["../../node_modules/@types"],
+    "typeRoots": ["./node_modules/@types", "./src/types"],
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,

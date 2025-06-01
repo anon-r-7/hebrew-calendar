@@ -8,7 +8,7 @@ export interface EventsEntry {
   description: string
   tags: string
   hebrew_date: string
-  day_index: string
+  day_index: number
   processed: boolean
   created_by: string
   created_at?: Date
@@ -28,7 +28,7 @@ export class EventsEntryModel
   public description!: string
   public tags!: string
   public hebrew_date!: string
-  public day_index!: string
+  public day_index!: number
   public processed!: boolean
   public created_by!: string
 }

@@ -2,7 +2,7 @@ import { Model, DataTypes, Sequelize, Optional } from 'sequelize'
 
 export interface Event {
   uuid: string
-  day_index: string
+  day_index: number
   source: 'system' | 'user'
   system_meta: 'before' | 'after' | null
   source_row: string
@@ -11,16 +11,16 @@ export interface Event {
 
 export type EventCreation = Optional<Event, 'uuid' | 'system_meta'>
 
-export class EventModel extends Model<Event, EventCreation> implements Event {
+export class EventsModel extends Model<Event, EventCreation> implements Event {
   public uuid!: string
-  public day_index!: string
+  public day_index!: number
   public source!: 'system' | 'user'
   public system_meta!: 'before' | 'after' | null
   public source_row!: string
 }
 
 export default (sequelize: Sequelize) => {
-  EventModel.init(
+  EventsModel.init(
     {
       uuid: {
         type: DataTypes.UUID,
@@ -45,5 +45,5 @@ export default (sequelize: Sequelize) => {
     }
   )
 
-  return EventModel
+  return EventsModel
 }

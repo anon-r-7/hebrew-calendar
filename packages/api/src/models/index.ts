@@ -7,13 +7,13 @@ import HebrewEventsModel from './HebrewEvents'
 import HebrewEventDatesModel from './HebrewEventDates'
 import EventsModel from './Events'
 import EventsEntryModel from './EventsEntry'
-import EventPairsModel from './EventPairs'
+import EventsPairsModel from './EventsPairs'
 import UserModel from './User'
 import MoonModel from './Moon'
 import SunModel from './Sun'
 
 /* ───────── sequelize instance ────── */
-const sequelize = new Sequelize.Sequelize(
+export const sequelize = new Sequelize.Sequelize(
   process.env.POSTGRES_DB!,
   process.env.POSTGRES_USER!,
   process.env.POSTGRES_PASSWORD!,
@@ -31,15 +31,15 @@ sequelize
   .catch((err) => logger.error(`Unable to connect: ${err}`))
 
 /* ───────── model init  ───────────── */
-const HebrewDates = HebrewDatesModel(sequelize)
-const HebrewEvents = HebrewEventsModel(sequelize)
-const HebrewEventDates = HebrewEventDatesModel(sequelize)
-const Events = EventsModel(sequelize)
-const EventsEntry = EventsEntryModel(sequelize)
-const EventPairs = EventPairsModel(sequelize)
-const User = UserModel(sequelize)
-const Moon = MoonModel(sequelize)
-const Sun = SunModel(sequelize)
+export const HebrewDates = HebrewDatesModel(sequelize)
+export const HebrewEvents = HebrewEventsModel(sequelize)
+export const HebrewEventDates = HebrewEventDatesModel(sequelize)
+export const Events = EventsModel(sequelize)
+export const EventsEntry = EventsEntryModel(sequelize)
+export const EventsPairs = EventsPairsModel(sequelize)
+export const User = UserModel(sequelize)
+export const Moon = MoonModel(sequelize)
+export const Sun = SunModel(sequelize)
 
 /* ───────── associations ──────────── */
 
@@ -74,11 +74,11 @@ EventsEntry.belongsTo(HebrewDates, {
   as: 'hebrewDateEntry'
 })
 
-/* Events  ↔ EventPairs (self-ref 1-M through a / b) */
-Events.hasMany(EventPairs, { foreignKey: 'a', as: 'pairsAsA' })
-Events.hasMany(EventPairs, { foreignKey: 'b', as: 'pairsAsB' })
-EventPairs.belongsTo(Events, { foreignKey: 'a', as: 'eventA' })
-EventPairs.belongsTo(Events, { foreignKey: 'b', as: 'eventB' })
+/* Events  ↔ EventsPairs (self-ref 1-M through a / b) */
+Events.hasMany(EventsPairs, { foreignKey: 'a', as: 'pairsAsA' })
+Events.hasMany(EventsPairs, { foreignKey: 'b', as: 'pairsAsB' })
+EventsPairs.belongsTo(Events, { foreignKey: 'a', as: 'eventA' })
+EventsPairs.belongsTo(Events, { foreignKey: 'b', as: 'eventB' })
 
 /* ───────── exports ───────────────── */
 export default {
@@ -89,7 +89,7 @@ export default {
   User,
   Events,
   EventsEntry,
-  EventPairs,
+  EventsPairs,
 
   /* existing models */
   HebrewDates,
