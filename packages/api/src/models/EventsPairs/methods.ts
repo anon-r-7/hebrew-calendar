@@ -3,10 +3,10 @@ import Models from '@api/models'
 import { mapSide } from './utils'
 import { EventPairsParams } from './interface'
 
-export const setFavorite = async (uuid: string, favorite: boolean) => {
+export const setFavorite = async (uuid: string, favorite: string) => {
   const pair = await Models.EventsPairs.findByPk(uuid)
   if (!pair) return null
-  await pair.update({ favorite })
+  await pair.update({ favorite: favorite === 'true' })
   return pair
 }
 
@@ -21,11 +21,6 @@ export const listWithFilters = async (q: EventPairsParams) => {
   if (q.events_pairs_uuid) {
     where.push('uuid = :events_pairs_uuid')
     replacements.events_pairs_uuid = q.events_pairs_uuid
-  }
-
-  if (q.favorite !== undefined) {
-    where.push('favorite = :fav')
-    replacements.fav = q.favorite === 'true'
   }
 
   const gSrc = q.gregorian_source === 'user' ? 'user' : 'system'
@@ -84,16 +79,6 @@ export const listWithFilters = async (q: EventPairsParams) => {
     )`)
   }
 
-  if (q.name) {
-    const words = q.name.split(/\s+/).filter(Boolean)
-    const conditions = words.map((word, i) => {
-      const key = `name${i}`
-      replacements[key] = `%${word}%`
-      return `(a_name ILIKE :${key} OR b_name ILIKE :${key})`
-    })
-    where.push(conditions.join(' AND '))
-  }
-
   if (q.tags) {
     const tags = q.tags.split(',').map((tag: string, i: number) => {
       const key = `tag${i}`
@@ -141,9 +126,19 @@ export const listWithFilters = async (q: EventPairsParams) => {
     replacements.w = Number(q.weeks)
   }
 
-  if (q.events_pairs_uuid) {
-    where.push('uuid = :uuid')
-    replacements.uuid = q.events_pairs_uuid
+  if (q.favorite !== undefined) {
+    where.push('ep.favorite = :fav')
+    replacements.fav = q.favorite === 'true'
+  }
+
+  if (q.name) {
+    const words = q.name.trim().split(/\s+/).filter(Boolean)
+    const conditions = words.map((word, i) => {
+      const key = `name${i}`
+      replacements[key] = `%${word}%`
+      return `(ea.name ILIKE :${key} OR eb.name ILIKE :${key})`
+    })
+    where.push(conditions.join(' AND '))
   }
 
   const whereSQL = where.length ? `WHERE ${where.join(' AND ')}` : ''
@@ -159,8 +154,17 @@ export const listWithFilters = async (q: EventPairsParams) => {
 
   const rowsRaw: any[] = await Models.sequelize.query(
     `
-    SELECT *
-    FROM events_pair_view
+    SELECT
+      epv.*,
+      ep.favorite as favorite_live, 
+      ea.name AS a_name_live,
+      ea.description AS a_description_live,
+      eb.name AS b_name_live,
+      eb.description AS b_description_live
+    FROM events_pair_view epv
+    LEFT JOIN events_pairs ep ON ep.uuid = epv.uuid
+    LEFT JOIN events_entry ea ON ea.uuid = epv.a_events_entry_uuid
+    LEFT JOIN events_entry eb ON eb.uuid = epv.b_events_entry_uuid
     ${whereSQL}
     ${orderSQL}
     OFFSET :off LIMIT :lim
@@ -172,27 +176,47 @@ export const listWithFilters = async (q: EventPairsParams) => {
   )
 
   const [{ count }] = (await Models.sequelize.query(
-    `SELECT COUNT(*)::bigint AS count FROM events_pair_view ${whereSQL}`,
+    `
+    SELECT COUNT(*)::bigint AS count
+    FROM events_pair_view epv
+    LEFT JOIN events_pairs ep ON ep.uuid = epv.uuid
+    LEFT JOIN events_entry ea ON ea.uuid = epv.a_events_entry_uuid
+    LEFT JOIN events_entry eb ON eb.uuid = epv.b_events_entry_uuid
+    ${whereSQL}
+    `,
     { replacements, type: QueryTypes.SELECT }
   )) as any[]
 
-  const rows = rowsRaw.map((r) => ({
-    events_pairs_uuid: r.uuid,
-    favorite: r.favorite,
-    calculations: {
-      diff: r.diff,
-      half_days: r.half_days,
-      weeks: Number(r.weeks),
-      revelation_years: Number(r.rev_years),
-      enochian_years: Number(r.enoch_years)
-    },
-    isExact: {
-      weeks: r.exact_weeks,
-      revelation_years: r.exact_rev_years,
-      enochian_years: r.exact_enoch_years
-    },
-    dates: [mapSide('a', r), mapSide('b', r)]
-  }))
+  const rows = rowsRaw.map((r) => {
+    return {
+      events_pairs_uuid: r.uuid,
+      favorite: r.favorite_live ?? r.favorite,
+      calculations: {
+        diff: r.diff,
+        half_days: r.half_days,
+        weeks: Number(r.weeks),
+        revelation_years: Number(r.rev_years),
+        enochian_years: Number(r.enoch_years)
+      },
+      isExact: {
+        weeks: r.exact_weeks,
+        revelation_years: r.exact_rev_years,
+        enochian_years: r.exact_enoch_years
+      },
+      dates: [
+        mapSide('a', {
+          ...r,
+          name: r.a_name_live ?? r.a_name,
+          description: r.a_description_live ?? r.a_description
+        }),
+        mapSide('b', {
+          ...r,
+          name: r.b_name_live ?? r.b_name,
+          description: r.b_description_live ?? r.b_description
+        })
+      ]
+    }
+  })
 
   const hasNext = offset + limit < Number(count)
   const hasPrev = page > 1
