@@ -1,12 +1,14 @@
 const parseDate = (d?: string) => {
   if (!d) return undefined
-  const [yy, mm, dd] = d.split('-')
+  const era = d.includes('BC') ? 'BC' : 'AD'
+  const stripped = d.replace(' BC', '')
+  const [yy, mm, dd] = stripped.split('-')
   return {
     formatted: d,
     yy: Number(yy),
     mm: Number(mm),
     dd: Number(dd),
-    era: Number(yy) > 0 ? 'AD' : 'BC'
+    era
   }
 }
 

@@ -277,7 +277,7 @@ module.exports = {
             e.source,                    -- 'user' | 'system'
             /* ---------- user fields ---------- */
             ee.uuid        AS events_entry_uuid,
-
+            e.system_meta,
 
             CASE
               WHEN e.source = 'user' THEN ee.name
@@ -349,6 +349,7 @@ module.exports = {
           da.hebrew_events_uuid      AS a_hebrew_events_uuid,
           da.event_day               AS a_event_day,
           da.short_name              AS a_short_name,
+          da.system_meta AS a_system_meta,
           /* -------- side B columns -------- */
           db.day_index           AS b_day_index,
           db.source              AS b_source,
@@ -368,7 +369,8 @@ module.exports = {
           db.hebrew_dates_uuid       AS b_hebrew_dates_uuid,
           db.hebrew_events_uuid      AS b_hebrew_events_uuid,
           db.event_day               AS b_event_day,
-          db.short_name              AS b_short_name
+          db.short_name              AS b_short_name,
+          db.system_meta AS b_system_meta
       FROM events_pairs p
       JOIN details da ON da.event_uuid = p.a
       JOIN details db ON db.event_uuid = p.b;
@@ -385,6 +387,8 @@ module.exports = {
       CREATE INDEX IF NOT EXISTS epv_exact_rev_years_true  ON events_pair_view (uuid) WHERE exact_rev_years;
       CREATE INDEX IF NOT EXISTS epv_exact_enoch_years_true ON events_pair_view (uuid) WHERE exact_enoch_years;
       CREATE INDEX IF NOT EXISTS epv_exact_weeks_true ON events_pair_view (uuid) WHERE exact_weeks;
+      CREATE INDEX IF NOT EXISTS epv_a_system_meta_before_exclude ON events_pair_view (uuid) WHERE a_system_meta IS DISTINCT FROM 'before';
+      CREATE INDEX IF NOT EXISTS epv_b_system_meta_after_exclude ON events_pair_view (uuid) WHERE b_system_meta IS DISTINCT FROM 'after';
 
       -- 3. date expression indexes
       CREATE INDEX IF NOT EXISTS epv_a_gdate_date_idx ON events_pair_view ((a_gdate::date));

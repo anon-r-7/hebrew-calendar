@@ -19,6 +19,7 @@ export interface EventPairsParams {
   // Date Props
   name?: string
   tags?: string
+  gregorian_source?: 'user' | 'system'
   gregorian?: string
   gregorian_from?: string
   gregorian_to?: string
@@ -27,4 +28,6 @@ export interface EventPairsParams {
   events_entry_uuid?: string
   hebrew_events_uuid?: string
   created_by_uuid?: string
+  exclude_before_feasts?: string
+  exclude_after_feasts?: string
 }

@@ -18,34 +18,80 @@ export const listWithFilters = async (q: EventPairsParams) => {
   const where: string[] = []
   const replacements: any = {}
 
+  if (q.events_pairs_uuid) {
+    where.push('uuid = :events_pairs_uuid')
+    replacements.events_pairs_uuid = q.events_pairs_uuid
+  }
+
   if (q.favorite !== undefined) {
     where.push('favorite = :fav')
     replacements.fav = q.favorite === 'true'
   }
 
+  const gSrc = q.gregorian_source === 'user' ? 'user' : 'system'
+
   if (q.gregorian_from && q.gregorian_to) {
-    where.push(
-      `(a_gdate BETWEEN :gfrom AND :gto OR b_gdate BETWEEN :gfrom AND :gto)`
-    )
+    where.push(`(
+      (a_source = :gsrc AND a_gdate BETWEEN :gfrom AND :gto)
+      OR
+      (b_source = :gsrc AND b_gdate BETWEEN :gfrom AND :gto)
+    )`)
+    replacements.gsrc = gSrc
     replacements.gfrom = q.gregorian_from
     replacements.gto = q.gregorian_to
   } else if (q.gregorian) {
-    where.push('(a_gdate = :g OR b_gdate = :g)')
+    where.push(`(
+      (a_source = :gsrc AND a_gdate = :g)
+      OR
+      (b_source = :gsrc AND b_gdate = :g)
+    )`)
+    replacements.gsrc = gSrc
     replacements.g = q.gregorian
   } else {
     if (q.gregorian_before) {
-      where.push('(a_gdate <= :gbefore OR b_gdate <= :gbefore)')
+      where.push(`(
+        (a_source = :gsrc AND a_gdate <= :gbefore)
+        OR
+        (b_source = :gsrc AND b_gdate <= :gbefore)
+      )`)
+      replacements.gsrc = gSrc
       replacements.gbefore = q.gregorian_before
     }
     if (q.gregorian_after) {
-      where.push('(a_gdate >= :gafter OR b_gdate >= :gafter)')
+      where.push(`(
+        (a_source = :gsrc AND a_gdate >= :gafter)
+        OR
+        (b_source = :gsrc AND b_gdate >= :gafter)
+      )`)
+      replacements.gsrc = gSrc
       replacements.gafter = q.gregorian_after
     }
   }
 
+  if (q.exclude_after_feasts === 'true') {
+    where.push(`(
+      (a_system_meta IS NULL OR a_system_meta != 'after')
+      AND
+      (b_system_meta IS NULL OR b_system_meta != 'after')
+    )`)
+  }
+
+  if (q.exclude_before_feasts === 'true') {
+    where.push(`(
+      (a_system_meta IS NULL OR a_system_meta != 'before')
+      AND
+      (b_system_meta IS NULL OR b_system_meta != 'before')
+    )`)
+  }
+
   if (q.name) {
-    where.push('(a_name ILIKE :nm OR b_name ILIKE :nm)')
-    replacements.nm = `%${q.name}%`
+    const words = q.name.split(/\s+/).filter(Boolean)
+    const conditions = words.map((word, i) => {
+      const key = `name${i}`
+      replacements[key] = `%${word}%`
+      return `(a_name ILIKE :${key} OR b_name ILIKE :${key})`
+    })
+    where.push(conditions.join(' AND '))
   }
 
   if (q.tags) {
@@ -57,7 +103,11 @@ export const listWithFilters = async (q: EventPairsParams) => {
     where.push(tags.join(' AND '))
   }
 
-  const uuidKeys = ['events_entry_uuid', 'hebrew_events_uuid', 'create_by_uuid']
+  const uuidKeys = [
+    'events_entry_uuid',
+    'hebrew_events_uuid',
+    'created_by_uuid'
+  ]
   for (const key of uuidKeys) {
     const value = q[key as keyof EventPairsParams]
     if (value) {
