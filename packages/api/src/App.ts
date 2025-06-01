@@ -28,7 +28,8 @@ export default () => {
     res.status(500).send('Fatal request error.')
   })
 
-  Routes.forEach((route) => {
+  Routes.forEach((route, idx) => {
+    if (!route.router) throw new Error(`Route at index ${idx} has no router`)
     app.use('/v1/', route.router)
   })
 

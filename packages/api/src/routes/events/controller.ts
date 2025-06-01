@@ -1,13 +1,15 @@
 import { Request, Response, NextFunction } from 'express'
 import HttpException from '@api/utils/HttpException'
-import * as EntryService from '@api/models/EventsEntry/methods'
-import * as PairService from '@api/models/EventsPairs/methods'
+import * as EventsEntryMethods from '@api/models/EventsEntry/methods'
+import * as EventsPairsMethods from '@api/models/EventsPairs/methods'
 import * as SyncService from '@api/services/EventSync'
+
+import { AuthRequest } from '@api/types/express/AuthRequest'
 
 class EventsController {
   /* POST /events/entry */
   public createEntry = async (
-    req: Request,
+    req: AuthRequest,
     res: Response,
     next: NextFunction
   ) => {
@@ -15,7 +17,7 @@ class EventsController {
       const { type, date, name, description, tags } = req.body
       const userId = req.auth!.sub
 
-      const record = await EntryService.create({
+      const record = await EventsEntryMethods.create({
         type,
         date,
         name,
@@ -38,7 +40,7 @@ class EventsController {
   ) => {
     try {
       const { name, description } = req.body
-      const record = await EntryService.update(req.params.uuid, {
+      const record = await EventsEntryMethods.update(req.params.uuid, {
         name,
         description
       })
@@ -57,7 +59,7 @@ class EventsController {
   ) => {
     try {
       const { created_by, page = 1, size = 50 } = req.query
-      const list = await EntryService.list({
+      const list = await EventsEntryMethods.list({
         created_by: created_by as string,
         page: Number(page),
         size: Number(size)
@@ -75,7 +77,7 @@ class EventsController {
     next: NextFunction
   ) => {
     try {
-      await EntryService.removeCascade(req.params.uuid)
+      await EventsEntryMethods.removeCascade(req.params.uuid)
       res.status(204).send()
     } catch (err) {
       next(err)
@@ -101,7 +103,10 @@ class EventsController {
   ) => {
     try {
       const { favorite } = req.body
-      const pair = await PairService.setFavorite(req.params.uuid, favorite)
+      const pair = await EventsPairsMethods.setFavorite(
+        req.params.uuid,
+        favorite
+      )
       if (!pair) return next(new HttpException(404, 'Pair not found'))
       res.json(pair)
     } catch (err) {
@@ -116,7 +121,7 @@ class EventsController {
     next: NextFunction
   ) => {
     try {
-      const result = await PairService.listWithFilters(req.query)
+      const result = await EventsPairsMethods.listWithFilters(req.query)
       res.json(result)
     } catch (err) {
       next(err)
