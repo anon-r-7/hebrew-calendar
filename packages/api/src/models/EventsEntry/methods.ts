@@ -49,6 +49,10 @@ export async function list(opts: {
   page: number
   size: number
 }) {
+  const options = {
+    page: opts.page ?? 1,
+    size: opts.size ?? 500
+  }
   const where: any = {}
   if (opts.created_by) where.created_by = opts.created_by
   return Models.EventsEntry.findAndCountAll({
@@ -60,8 +64,8 @@ export async function list(opts: {
       }
     ],
     order: [['date', 'ASC']],
-    offset: (opts.page - 1) * opts.size,
-    limit: opts.size
+    offset: (options.page - 1) * options.size,
+    limit: options.size
   })
 }
 

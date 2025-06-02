@@ -1,0 +1,29 @@
+@font-face {
+  font-family: 'HubotSans';
+  src:
+    url('Hubot-Sans.woff2') format('woff2 supports variations'),
+    url('Hubot-Sans.woff2') format('woff2-variations');
+  font-weight: 200 900;
+  font-stretch: 75% 125%;
+}
+
+@font-face {
+  font-family: 'HubotSans-Light';
+  src:
+    url('HubotSans-Light.woff2') format('woff2 supports variations'),
+    url('HubotSans-Light.woff2') format('woff2-variations');
+  font-weight: 200 900;
+  font-stretch: 75% 125%;
+}
+
+:focus {
+  outline: none !important;
+}
+
+.chakra-select__menu {
+  position: fixed !important; /* Ensure it's not affected by parent positioning */
+  bottom: 0 !important;      /* Align to the bottom of the viewport */
+  width: 100% !important;    /* Full width */
+  max-height: 50vh;          /* Limit the height to half of the viewport */
+  overflow-y: auto;          /* Allow scrolling within the dropdown */
+}
