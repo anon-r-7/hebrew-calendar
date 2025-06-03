@@ -16,7 +16,7 @@ const Day = ({ day, isPrimary }) => {
   return (
     <Box position="relative" w="full" p={{ base: 0.5, md: 1 }} height="100%">
       <Text
-        fontFamily={isPrimary ? 'HubotSans' : 'HubotSans-Light'}
+        fontFamily={isPrimary ? 'Fustat-Regular' : 'Fustat-Light'}
         fontWeight={isPrimary ? '500' : '300'}
         position="absolute"
         top="0"
@@ -67,13 +67,13 @@ export const EmptyCalendar = ({ dates = [], type }) => {
                 m={0}
                 bg={day ? 'brand.light' : 'gray.100'}
                 border="1px solid"
-                borderColor="brand.dark"
-                borderRadius={{ base: 'none', md: 'sm' }}
+                borderColor="brand.gray"
+                borderRadius={{ base: 'none', md: 'none' }}
                 display="flex"
                 flexDirection="column"
                 alignItems="center"
                 justifyContent="center"
-                boxShadow={theme.shadows.brand.base}>
+                boxShadow={theme.shadows.brand.surface}>
                 <Day day={day} type={type} isPrimary={Boolean(primaryDate)} />
               </Box>
             )
@@ -101,7 +101,7 @@ const Week = ({ day, theme }) => {
       flexDirection="column"
       alignItems="center"
       justifyContent="center"
-      boxShadow={theme.shadows.brand.base}>
+      boxShadow={theme.shadows.brand.surface}>
       <Text fontSize="md" fontWeight="700">
         {dayDisplay}
       </Text>

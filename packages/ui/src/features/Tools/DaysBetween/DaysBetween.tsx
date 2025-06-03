@@ -93,7 +93,7 @@ export const DaysBetween = () => {
             mt={{ base: 6, md: 6 }}
             bg="brand.primary"
             fontWeight="500"
-            fontFamily="HubotSans"
+            fontFamily="Fustat-Regular"
             borderRadius="0"
             color="white"
             mb={2}

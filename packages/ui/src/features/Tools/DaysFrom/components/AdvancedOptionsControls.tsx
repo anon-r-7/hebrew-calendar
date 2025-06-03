@@ -28,7 +28,7 @@ export const AdvancedOptionsControls = ({ apiControls, setApiControls }) => {
             mb={{ base: 2, md: 0 }}>
             <Checkbox
               size={inputSize}
-              fontFamily={'HubotSans'}
+              fontFamily={'Fustat-Regular'}
               colorScheme="blue"
               isChecked={apiControls.include_first_day}
               onChange={(e) =>

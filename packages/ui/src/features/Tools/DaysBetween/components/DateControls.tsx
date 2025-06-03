@@ -56,7 +56,7 @@ export const DateControls = ({ apiControls, setApiControls }) => {
               <Select
                 bg="white"
                 size={inputSize}
-                fontFamily={'HubotSans'}
+                fontFamily={'Fustat-Regular'}
                 color={'black'}
                 borderRadius="0"
                 w={{ base: '100%', md: '140px' }}
@@ -86,7 +86,7 @@ export const DateControls = ({ apiControls, setApiControls }) => {
                 <Select
                   bg="white"
                   size={inputSize}
-                  fontFamily={'HubotSans'}
+                  fontFamily={'Fustat-Regular'}
                   color={'black'}
                   borderRadius="0"
                   w={{ base: '100%', md: '70px' }}
@@ -107,7 +107,7 @@ export const DateControls = ({ apiControls, setApiControls }) => {
               <NumberInput
                 bg="white"
                 size={inputSize}
-                fontFamily={'HubotSans'}
+                fontFamily={'Fustat-Regular'}
                 max={
                   apiControls.type === 'gregorian'
                     ? apiControls.era_start === 'ad'
@@ -137,7 +137,7 @@ export const DateControls = ({ apiControls, setApiControls }) => {
               <NumberInput
                 bg="white"
                 size={inputSize}
-                fontFamily={'HubotSans'}
+                fontFamily={'Fustat-Regular'}
                 w={{ base: '100%', md: '140px' }}
                 max={
                   apiControls.type === 'hebrew' &&
@@ -170,7 +170,7 @@ export const DateControls = ({ apiControls, setApiControls }) => {
               <NumberInput
                 bg="white"
                 size={inputSize}
-                fontFamily={'HubotSans'}
+                fontFamily={'Fustat-Regular'}
                 max={31}
                 min={1}
                 w={{ base: '100%', md: '140px' }}
@@ -211,7 +211,7 @@ export const DateControls = ({ apiControls, setApiControls }) => {
                 <Select
                   bg="white"
                   size={inputSize}
-                  fontFamily={'HubotSans'}
+                  fontFamily={'Fustat-Regular'}
                   color={'black'}
                   borderRadius="0"
                   w={{ base: '100%', md: '70px' }}
@@ -232,7 +232,7 @@ export const DateControls = ({ apiControls, setApiControls }) => {
               <NumberInput
                 bg="white"
                 size={inputSize}
-                fontFamily={'HubotSans'}
+                fontFamily={'Fustat-Regular'}
                 max={
                   apiControls.type === 'gregorian'
                     ? apiControls.era_end === 'ad'
@@ -266,7 +266,7 @@ export const DateControls = ({ apiControls, setApiControls }) => {
               <NumberInput
                 bg="white"
                 size={inputSize}
-                fontFamily={'HubotSans'}
+                fontFamily={'Fustat-Regular'}
                 w={{ base: '100%', md: '140px' }}
                 max={
                   apiControls.type === 'hebrew' &&
@@ -295,7 +295,7 @@ export const DateControls = ({ apiControls, setApiControls }) => {
               <NumberInput
                 bg="white"
                 size={inputSize}
-                fontFamily={'HubotSans'}
+                fontFamily={'Fustat-Regular'}
                 max={31}
                 min={1}
                 w={{ base: '100%', md: '140px' }}

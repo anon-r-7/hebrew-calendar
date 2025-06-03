@@ -62,7 +62,7 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
           <NumberInput
             bg="white"
             size={inputSize}
-            fontFamily={'HubotSans'}
+            fontFamily={'Fustat-Regular'}
             max={
               apiControls.type === 'gregorian'
                 ? apiControls.era === 'ad'
@@ -90,7 +90,7 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
           <NumberInput
             bg="white"
             size={inputSize}
-            fontFamily={'HubotSans'}
+            fontFamily={'Fustat-Regular'}
             max={
               apiControls.type === 'hebrew' &&
               isHebrewLeapYear(apiControls.start.split('-')[0])
@@ -120,7 +120,7 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
             <Select
               bg="white"
               size={inputSize}
-              fontFamily={'HubotSans'}
+              fontFamily={'Fustat-Regular'}
               color={'black'}
               borderRadius="0"
               w={{ base: '33%', md: '80px' }}
@@ -138,7 +138,7 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
           <Select
             bg="white"
             size={inputSize}
-            fontFamily={'HubotSans'}
+            fontFamily={'Fustat-Regular'}
             color={'black'}
             borderRadius="0"
             w={{ base: '33%', md: '140px' }}
@@ -152,7 +152,7 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
           <Select
             bg="white"
             size={inputSize}
-            fontFamily={'HubotSans'}
+            fontFamily={'Fustat-Regular'}
             color={'black'}
             borderRadius="0"
             w={{ base: '33%', md: '90px' }}
@@ -170,15 +170,15 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
             height={{ base: '47px', md: 'initial ' }}
             mt={{ base: 0.25, md: 0 }}
             mr={2}
-            bg="brand.red"
+            bg="brand.primary"
             fontWeight="500"
-            fontFamily="HubotSans"
+            fontFamily="Fustat-Regular"
             borderRadius="0"
             color="white"
             mb={marginBottom}
             sx={{
               ':hover': {
-                bg: '#691818' // Use Chakra's color tokens or any CSS color
+                bg: '#105d89' // Use Chakra's color tokens or any CSS color
               }
             }}>
             Search

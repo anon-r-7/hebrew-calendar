@@ -36,7 +36,7 @@ export const OptionControls = ({ apiControls, setApiControls }) => {
             <Select
               bg="white"
               size={inputSize}
-              fontFamily={'HubotSans'}
+              fontFamily={'Fustat-Regular'}
               color={'black'}
               borderRadius="0"
               w={{ base: '100%', md: '140px' }}
@@ -58,7 +58,7 @@ export const OptionControls = ({ apiControls, setApiControls }) => {
             <NumberInput
               bg="white"
               size={inputSize}
-              fontFamily={'HubotSans'}
+              fontFamily={'Fustat-Regular'}
               w={{ base: '100%', md: '140px' }}
               onChange={(valueString) => handleChange('days', valueString)}
               min={15}
@@ -79,7 +79,7 @@ export const OptionControls = ({ apiControls, setApiControls }) => {
             <NumberInput
               bg="white"
               size={inputSize}
-              fontFamily={'HubotSans'}
+              fontFamily={'Fustat-Regular'}
               w={{ base: '100%', md: '140px' }}
               min={0}
               max={7}

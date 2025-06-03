@@ -1,19 +1,43 @@
 @font-face {
-  font-family: 'HubotSans';
-  src:
-    url('Hubot-Sans.woff2') format('woff2 supports variations'),
-    url('Hubot-Sans.woff2') format('woff2-variations');
-  font-weight: 200 900;
-  font-stretch: 75% 125%;
+  font-family: 'Fustat-Light';
+  src: url('/Fustat-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
 }
 
 @font-face {
-  font-family: 'HubotSans-Light';
-  src:
-    url('HubotSans-Light.woff2') format('woff2 supports variations'),
-    url('HubotSans-Light.woff2') format('woff2-variations');
-  font-weight: 200 900;
-  font-stretch: 75% 125%;
+  font-family: 'Fustat-Medium';
+  src: url('/Fustat-Medium.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Fustat-Regular';
+  src: url('/Fustat-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Fustat-SemiBold';
+  src: url('/Fustat-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Fustat-Bold';
+  src: url('/Fustat-Bold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Fustat-ExtraBold';
+  src: url('/Fustat-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
 }
 
 :focus {

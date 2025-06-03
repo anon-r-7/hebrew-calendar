@@ -16,7 +16,7 @@ import { InitialState } from 'features/Calendar/types'
 const initialState: InitialState = { dates: [] }
 
 const defaultApiControls = {
-  year: 2024,
+  year: new Date().getFullYear(),
   type: 'gregorian'
 }
 

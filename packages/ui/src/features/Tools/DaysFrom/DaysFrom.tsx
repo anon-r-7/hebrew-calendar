@@ -77,55 +77,63 @@ export const DaysFrom = () => {
         w="100%">
         <Box>
           {isMobile && (
-            <Text fontWeight="700" fontFamily={'HubotSans'}>
+            <Text fontWeight="700" fontFamily={'Fustat-Regular'}>
               {labels[0]}:
             </Text>
           )}
           <Text
             textAlign={isMobile ? 'left' : 'center'}
             fontWeight={header ? '700' : '300'}
-            fontFamily={'HubotSans'}>
+            fontFamily={'Fustat-Regular'}>
             {one}
           </Text>
         </Box>
         <Box>
           {isMobile && (
-            <Text fontWeight="700" fontFamily={'HubotSans'}>
+            <Text fontWeight="700" fontFamily={'Fustat-Regular'}>
               {labels[1]}:
             </Text>
           )}
-          <Text fontWeight={header ? '700' : '300'} fontFamily={'HubotSans'}>
+          <Text
+            fontWeight={header ? '700' : '300'}
+            fontFamily={'Fustat-Regular'}>
             {two}
           </Text>
         </Box>
         <Box>
           {isMobile && (
-            <Text fontWeight="700" fontFamily={'HubotSans'}>
+            <Text fontWeight="700" fontFamily={'Fustat-Regular'}>
               {labels[2]}:
             </Text>
           )}
-          <Text fontWeight={header ? '700' : '300'} fontFamily={'HubotSans'}>
+          <Text
+            fontWeight={header ? '700' : '300'}
+            fontFamily={'Fustat-Regular'}>
             {three}
           </Text>
         </Box>
         <Box>
           {isMobile && (
-            <Text fontWeight="700" fontFamily={'HubotSans'}>
+            <Text fontWeight="700" fontFamily={'Fustat-Regular'}>
               {labels[3]}:
             </Text>
           )}
-          <Text fontWeight={header ? '700' : '300'} fontFamily={'HubotSans'}>
+          <Text
+            fontWeight={header ? '700' : '300'}
+            fontFamily={'Fustat-Regular'}>
             {four}
           </Text>
         </Box>
         {five?.length ? (
           <Box>
             {isMobile && (
-              <Text fontWeight="700" fontFamily={'HubotSans'}>
+              <Text fontWeight="700" fontFamily={'Fustat-Regular'}>
                 {labels[4]}:
               </Text>
             )}
-            <Text fontWeight={header ? '700' : '300'} fontFamily={'HubotSans'}>
+            <Text
+              fontWeight={header ? '700' : '300'}
+              fontFamily={'Fustat-Regular'}>
               {five}
             </Text>
           </Box>
@@ -181,7 +189,7 @@ export const DaysFrom = () => {
             mt={{ base: 6, md: 6 }}
             bg="brand.primary"
             fontWeight="500"
-            fontFamily="HubotSans"
+            fontFamily="Fustat-Regular"
             borderRadius="0"
             color="white"
             mb={2}

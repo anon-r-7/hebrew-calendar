@@ -55,7 +55,7 @@ export const DateControls = ({ apiControls, setApiControls }) => {
             <Select
               bg="white"
               size={inputSize}
-              fontFamily={'HubotSans'}
+              fontFamily={'Fustat-Light'}
               color={'black'}
               borderRadius="0"
               w={{ base: '100%', md: '140px' }}
@@ -75,7 +75,7 @@ export const DateControls = ({ apiControls, setApiControls }) => {
             <Select
               bg="white"
               size={inputSize}
-              fontFamily={'HubotSans'}
+              fontFamily={'Fustat-Light'}
               color={'black'}
               borderRadius="0"
               w={{ base: '100%', md: '140px' }}
@@ -98,7 +98,7 @@ export const DateControls = ({ apiControls, setApiControls }) => {
               <Select
                 bg="white"
                 size={inputSize}
-                fontFamily={'HubotSans'}
+                fontFamily={'Fustat-Light'}
                 color={'black'}
                 borderRadius="0"
                 w={{ base: '100%', md: '70px' }}
@@ -119,7 +119,7 @@ export const DateControls = ({ apiControls, setApiControls }) => {
             <NumberInput
               bg="white"
               size={inputSize}
-              fontFamily={'HubotSans'}
+              fontFamily={'Fustat-Light'}
               max={
                 apiControls.type === 'gregorian'
                   ? apiControls.era === 'ad'
@@ -151,7 +151,7 @@ export const DateControls = ({ apiControls, setApiControls }) => {
                 <NumberInput
                   bg="white"
                   size={inputSize}
-                  fontFamily={'HubotSans'}
+                  fontFamily={'Fustat-Light'}
                   w={{ base: '100%', md: '140px' }}
                   max={
                     apiControls.type === 'hebrew' &&
@@ -184,7 +184,7 @@ export const DateControls = ({ apiControls, setApiControls }) => {
                 <NumberInput
                   bg="white"
                   size={inputSize}
-                  fontFamily={'HubotSans'}
+                  fontFamily={'Fustat-Light'}
                   max={31}
                   min={1}
                   w={{ base: '100%', md: '140px' }}
@@ -208,7 +208,7 @@ export const DateControls = ({ apiControls, setApiControls }) => {
               <Select
                 bg="white"
                 size={inputSize}
-                fontFamily={'HubotSans'}
+                fontFamily={'Fustat-Light'}
                 color={'black'}
                 borderRadius="0"
                 w={{ base: '100%', md: '180px' }}

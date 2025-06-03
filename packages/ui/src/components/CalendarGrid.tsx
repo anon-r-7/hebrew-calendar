@@ -186,9 +186,9 @@ const Event = ({ event, datesGrid, day, isPrimary }) => {
           mt={1}
           p={1}
           fontWeight="500"
-          fontFamily="HubotSans"
+          fontFamily="Fustat-Light"
           fontSize={{ base: '10', md: '12' }}
-          bg={isPrimary ? 'blue.700' : 'brand.lightBlue'}
+          bg={'brand.primary'}
           color="white"
           textAlign="center"
           borderTopLeftRadius={continueLeft ? 0 : 12}
@@ -212,7 +212,7 @@ const Event = ({ event, datesGrid, day, isPrimary }) => {
           boxShadow: 's', // Adding a shadow for emphasis
           outline: 'none'
         }}>
-        <PopoverBody style={{ fontFamily: 'HubotSans' }}>
+        <PopoverBody style={{ fontFamily: 'Fustat-Regular' }}>
           <Text style={{ fontWeight: '700' }}>{event.name}</Text>
           <Text style={{ fontSize: 14 }}>
             <b>Hebrew Date:</b> {day.yy}-{day.mm}-{day.dd}
@@ -255,7 +255,7 @@ const Details = ({
             flex: 2,
             fontSize: 12,
             fontWeight: isHeader ? 700 : 300,
-            color: isHeader ? theme.colors.brand.lightBlue : 'black'
+            color: isHeader ? theme.colors.brand.primaryLight : 'black'
           }}>
           {parent === 'Type' ? 'Type' : parent === 'sun' ? 'Solar' : 'Lunar'}
         </Text>
@@ -264,7 +264,7 @@ const Details = ({
             flex: 3,
             fontSize: 12,
             fontWeight: isHeader ? 700 : 300,
-            color: isHeader ? theme.colors.brand.lightBlue : 'black'
+            color: isHeader ? theme.colors.brand.primaryLight : 'black'
           }}>
           {type}
         </Text>
@@ -273,7 +273,7 @@ const Details = ({
             flex: 2,
             fontSize: 12,
             fontWeight: isHeader ? 700 : 300,
-            color: isHeader ? theme.colors.brand.lightBlue : 'black'
+            color: isHeader ? theme.colors.brand.primaryLight : 'black'
           }}>
           {isHeader
             ? 'Time'
@@ -294,7 +294,7 @@ const Details = ({
       _focus={{ outline: 'none' }}>
       <PopoverTrigger>
         <Text
-          fontFamily={isPrimary ? 'HubotSans' : 'HubotSans-Light'}
+          fontFamily={isPrimary ? 'Fustat-Regular' : 'Fustat-Light'}
           fontWeight={isPrimary ? '500' : '300'}
           position="absolute"
           top="0"
@@ -315,7 +315,7 @@ const Details = ({
           boxShadow: 's', // Adding a shadow for emphasis
           outline: 'none'
         }}>
-        <PopoverBody style={{ fontFamily: 'HubotSans' }}>
+        <PopoverBody style={{ fontFamily: 'Fustat-Regular' }}>
           <Flex flexDirection="row" justifyContent={'space-between'}>
             <Text style={{ fontSize: 12, fontWeight: '300' }}>
               {type === 'gregorian' ? 'Hebrew' : 'Gregorian'} {secondaryYear}/
@@ -423,7 +423,7 @@ const Day = ({ day, datesGrid, type, isPrimary, theme }) => {
       />
       <Text
         color={'#777'}
-        fontFamily={isPrimary ? 'HubotSans' : 'HubotSans-Light'}
+        fontFamily={isPrimary ? 'Fustat-Regular' : 'Fustat-Light'}
         fontWeight={isPrimary ? '500' : '300'}
         position="absolute"
         top="0"
@@ -555,19 +555,19 @@ export const CalendarGrid = ({ dates, type }) => {
                   isToday
                     ? '#ffefc0'
                     : !isPrimaryMonth(day ? day[type] : null, primaryDate)
-                    ? 'brand.grey'
+                    ? '#ccc'
                     : isDayOfRest(day)
-                    ? '#b9cad5'
+                    ? '#c7dfec'
                     : 'brand.light'
                 }
-                border="1px solid"
-                borderColor="brand.dark"
-                borderRadius={{ base: 'none', md: 'sm' }}
+                border="0.5px solid"
+                borderColor="brand.gray"
+                borderRadius={{ base: 'none', md: 'none' }}
                 display="flex"
                 flexDirection="column"
                 alignItems="center"
                 justifyContent="center"
-                boxShadow={day ? theme.shadows.brand.base : 'none'}>
+                boxShadow={day ? theme.shadows.brand.surface : 'none'}>
                 <Day
                   day={day}
                   datesGrid={datesGrid}
@@ -604,7 +604,7 @@ const Week = ({ day, theme }) => {
       flexDirection="column"
       alignItems="center"
       justifyContent="center"
-      boxShadow={theme.shadows.brand.base}>
+      boxShadow={theme.shadows.brand.surface}>
       <Text fontSize="md" fontWeight="700">
         {dayDisplay}
       </Text>
