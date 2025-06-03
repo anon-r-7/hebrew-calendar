@@ -3,8 +3,8 @@ import api from '@admin/api/events'
 export const getEntries = async ({ payload, asyncManager, store }) => {
   try {
     asyncManager.start()
-    const entries = await api.getEntries(payload)
-    store.update({ entries })
+    const { entries, total } = await api.getEntries(payload)
+    store.update({ entries, total })
     asyncManager.success()
   } catch (error) {
     asyncManager.fail(

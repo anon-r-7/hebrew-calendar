@@ -1,5 +1,4 @@
 import Models from '@api/models'
-import { HebrewDatesModel } from '@api/models/HebrewDates'
 import { Op, Transaction } from 'sequelize'
 
 /* ───────────────────────── helpers ─────────────────────────── */
@@ -14,8 +13,46 @@ async function locateHebrewDate(type: 'gregorian' | 'hebrew', date: string) {
   return Models.HebrewDates.findOne({ where: { yy, mm, dd } })
 }
 
-/* ───────────────────────── CRUD ────────────────────────────── */
+async function getTransformedById(uuid: string) {
+  const row = await Models.EventsEntry.findByPk(uuid, {
+    include: [
+      {
+        model: Models.HebrewDates,
+        as: 'hebrewDateEntry',
+        attributes: ['gregorian', 'hebrew']
+      },
+      {
+        model: Models.User,
+        as: 'creator',
+        attributes: ['uuid', 'first_name', 'last_name']
+      }
+    ]
+  })
 
+  if (!row) return null
+
+  return {
+    uuid: row.uuid,
+    date: row.date,
+    type: row.type,
+    name: row.name,
+    description: row.description,
+    tags: row.tags,
+    day_index: row.day_index,
+    processed: row.processed,
+    hebrew_date: {
+      gregorian: row.hebrewDateEntry?.gregorian ?? null,
+      hebrew: row.hebrewDateEntry?.hebrew ?? null
+    },
+    created_by: {
+      uuid: row.creator?.uuid ?? '',
+      first_name: row.creator?.first_name ?? '',
+      last_name: row.creator?.last_name ?? ''
+    }
+  }
+}
+
+/* ───────────────────────── CRUD ────────────────────────────── */
 export async function create(payload: {
   type: 'gregorian' | 'hebrew'
   date: string
@@ -27,21 +64,24 @@ export async function create(payload: {
   const hd = await locateHebrewDate(payload.type, payload.date)
   if (!hd) throw new Error('Hebrew date not found')
 
-  return Models.EventsEntry.create({
+  const row = await Models.EventsEntry.create({
     ...payload,
     hebrew_date: hd.uuid,
     day_index: hd.day_index
   })
+
+  return getTransformedById(row.uuid)
 }
 
 export async function update(
   uuid: string,
-  fields: { name?: string; description?: string }
+  fields: { name?: string; description?: string; tags?: string }
 ) {
   const row = await Models.EventsEntry.findByPk(uuid)
   if (!row) return null
+
   await row.update(fields)
-  return row
+  return getTransformedById(uuid)
 }
 
 export async function list(opts: {
@@ -49,24 +89,53 @@ export async function list(opts: {
   page: number
   size: number
 }) {
-  const options = {
-    page: opts.page ?? 1,
-    size: opts.size ?? 500
-  }
+  const page = opts.page ?? 1
+  const size = opts.size ?? 500
+
   const where: any = {}
   if (opts.created_by) where.created_by = opts.created_by
-  return Models.EventsEntry.findAndCountAll({
+
+  const { rows, count } = await Models.EventsEntry.findAndCountAll({
     where,
     include: [
       {
-        model: HebrewDatesModel,
-        as: 'hebrewDateEntry'
+        model: Models.HebrewDates,
+        as: 'hebrewDateEntry',
+        attributes: ['gregorian', 'hebrew']
+      },
+      {
+        model: Models.User,
+        as: 'creator',
+        attributes: ['uuid', 'first_name', 'last_name']
       }
     ],
     order: [['date', 'ASC']],
-    offset: (options.page - 1) * options.size,
-    limit: options.size
+    offset: (page - 1) * size,
+    limit: size
   })
+
+  return {
+    total: count,
+    entries: rows.map((row) => ({
+      uuid: row.uuid,
+      date: row.date,
+      type: row.type,
+      name: row.name,
+      description: row.description,
+      tags: row.tags,
+      day_index: row.day_index,
+      processed: row.processed,
+      hebrew_date: {
+        gregorian: row.hebrewDateEntry?.gregorian ?? null,
+        hebrew: row.hebrewDateEntry?.hebrew ?? null
+      },
+      created_by: {
+        uuid: row.creator?.uuid ?? '',
+        first_name: row.creator?.first_name ?? '',
+        last_name: row.creator?.last_name ?? ''
+      }
+    }))
+  }
 }
 
 /** cascades: events → event_pairs, then refresh MV */

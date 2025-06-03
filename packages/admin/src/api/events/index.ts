@@ -1,7 +1,7 @@
 import { client } from '../client'
 import * as Request from './interface'
 
-const baseUrl = '/v1/events'
+const baseUrl = '/events'
 
 const getParams = (payload: Record<string, any>) =>
   new URLSearchParams(payload as any).toString()

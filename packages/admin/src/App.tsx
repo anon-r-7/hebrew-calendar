@@ -9,6 +9,15 @@ export const App = () => (
     <Switch>
       <Route
         exact
+        path={Routes.EventsPairs}
+        render={(props) => (
+          <>
+            <EventsEntry {...props} />
+          </>
+        )}
+      />
+      <Route
+        exact
         path={Routes.EventsEntry}
         render={(props) => (
           <>

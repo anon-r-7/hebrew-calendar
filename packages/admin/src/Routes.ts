@@ -1,4 +1,5 @@
 export const Routes = {
+  EventsPairs: '/',
   EventsEntry: '/events-entry',
   NotFound: '/not-found'
 }

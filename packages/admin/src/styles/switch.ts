@@ -3,10 +3,13 @@ import { defineStyleConfig } from '@chakra-ui/react'
 export const Switch = defineStyleConfig({
   baseStyle: {
     track: {
-      background: 'brand.gray_20',
+      bg: 'brand.borderMuted',
       _checked: {
-        background: 'brand.primary'
+        bg: 'brand.primary'
       }
+    },
+    thumb: {
+      bg: 'white'
     }
   }
 })

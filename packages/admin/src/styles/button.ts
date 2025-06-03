@@ -2,48 +2,64 @@ import { defineStyleConfig } from '@chakra-ui/react'
 
 export const Button = defineStyleConfig({
   baseStyle: {
-    fontWeight: '500',
-    borderRadius: 'base'
+    fontWeight: '600',
+    borderRadius: 'full',
+    textTransform: 'uppercase',
+    fontFamily: 'Fustat-ExtraBold',
+    transition: 'all 0.2s ease-in-out'
   },
   sizes: {
     md: {
-      fontSize: 'sm'
+      fontSize: '14px',
+      px: '24px',
+      py: '12px'
+    },
+    sm: {
+      fontSize: '13px',
+      px: '20px',
+      py: '10px'
     }
   },
   variants: {
-    nav: {
-      px: 6,
+    solid: {
+      bg: 'brand.primary',
+      color: 'white',
+      _hover: {
+        bg: 'brand.primaryLight'
+      },
+      _active: {
+        bg: 'brand.primaryDark'
+      }
+    },
+    outline: {
       border: '2px solid',
       borderColor: 'brand.primary',
       color: 'brand.primary',
+      bg: 'transparent',
       _hover: {
-        bg: 'blue',
-        color: 'brand.biscay',
-        borderColor: 'brand.biscay'
+        bg: 'brand.surface'
+      },
+      _active: {
+        bg: 'brand.primaryLight'
       }
     },
-    cta: {
-      px: 6,
-      border: '2px solid',
-      backgroundColor: 'brand.primary',
-      borderColor: 'brand.primary',
-      color: 'brand.white',
-      _hover: {
-        bg: 'bul',
-        borderColor: 'brand.biscay'
-      }
-    },
-    default: {
-      px: 6,
-      border: '2px solid',
-      backgroundColor: 'brand.white',
-      borderColor: 'brand.primary',
+    ghost: {
       color: 'brand.primary',
+      bg: 'transparent',
       _hover: {
-        bg: 'brand.zircon',
-        color: 'brand.biscay',
-        borderColor: 'brand.biscay'
+        bg: 'brand.surface'
+      }
+    },
+    subtle: {
+      bg: 'brand.surface',
+      color: 'brand.text',
+      _hover: {
+        bg: 'brand.primaryLight'
       }
     }
+  },
+  defaultProps: {
+    size: 'md',
+    variant: 'solid'
   }
 })

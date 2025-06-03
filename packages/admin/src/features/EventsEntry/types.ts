@@ -1,13 +1,3 @@
-export interface HebrewDate {
-  uuid: string
-  gregorian: Date
-  day_of_week: string
-  day_index: number
-  dd: number
-  mm: number
-  yy: number
-}
-
 export interface Entry {
   uuid: string
   date: string
@@ -15,10 +5,17 @@ export interface Entry {
   name: string
   description: string
   tags: string
-  hebrew_date: HebrewDate
+  hebrew_date: {
+    gregorian: string
+    hebrew: string
+  }
   day_index: number
   processed: boolean
-  created_by: string
+  created_by: {
+    uuid: string
+    first_name: string
+    last_name: string
+  }
 }
 
 export interface InitialState {
