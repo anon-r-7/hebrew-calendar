@@ -164,12 +164,4 @@ export async function removeCascade(uuid: string) {
     /* delete entry */
     await entry.destroy({ transaction: t })
   })
-
-  // TODO: user should be advised to sync after deleting
-  // /* refresh MV outside trx; intentionally do not block return */
-  // Models.sequelize
-  //   .query('REFRESH MATERIALIZED VIEW CONCURRENTLY events_pair_view')
-  //   .catch((err) =>
-  //     console.error('Failed to refresh materialized view:', err.message)
-  //   )
 }

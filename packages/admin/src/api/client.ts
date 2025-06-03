@@ -15,3 +15,14 @@ client.interceptors.request.use((config) => {
   }
   return config
 })
+
+client.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401) {
+      Cookies.remove(AUTH_TOKEN_KEY)
+      window.dispatchEvent(new Event('AUTH_LOGOUT'))
+    }
+    return Promise.reject(error)
+  }
+)

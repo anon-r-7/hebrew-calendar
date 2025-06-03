@@ -104,7 +104,7 @@ class EventsController {
   /* POST /event_entry/sync */
   public sync = async (_req: Request, res: Response) => {
     SyncService.enqueue()
-    res.status(202).json({ queued: true })
+    res.status(201).json({ syncing: true })
   }
 
   /* GET /event_entry/sync */

@@ -6,6 +6,7 @@ import Cookies from 'js-cookie'
 import { Routes } from '@admin/Routes'
 import { Auth } from '@admin/features/Auth/Auth'
 import { EventsEntry } from '@admin/features/EventsEntry/EventsEntry'
+import { EventsPairs } from '@admin/features/EventsPairs/EventsPairs'
 
 const AUTH_TOKEN_KEY = 'auth_token'
 
@@ -20,6 +21,12 @@ export const App = () => {
   useEffect(() => {
     const existingToken = Cookies.get(AUTH_TOKEN_KEY)
     if (existingToken) setToken(existingToken)
+
+    const handleLogout = () => setToken(null)
+
+    window.addEventListener('AUTH_LOGOUT', handleLogout)
+
+    return () => window.removeEventListener('AUTH_LOGOUT', handleLogout)
   }, [])
 
   if (!token) {
@@ -32,7 +39,7 @@ export const App = () => {
         <Route
           exact
           path={Routes.EventsPairs}
-          render={(props) => <EventsEntry {...props} />}
+          render={(props) => <EventsPairs {...props} />}
         />
         <Route
           exact

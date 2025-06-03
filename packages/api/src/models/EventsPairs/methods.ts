@@ -6,7 +6,7 @@ import { EventPairsParams } from './interface'
 export const setFavorite = async (uuid: string, favorite: string) => {
   const pair = await Models.EventsPairs.findByPk(uuid)
   if (!pair) return null
-  await pair.update({ favorite: favorite === 'true' })
+  await pair.update({ favorite })
   return pair
 }
 
@@ -126,9 +126,9 @@ export const listWithFilters = async (q: EventPairsParams) => {
     replacements.w = Number(q.weeks)
   }
 
-  if (q.favorite !== undefined) {
+  if (q.favorite === 'true') {
     where.push('ep.favorite = :fav')
-    replacements.fav = q.favorite === 'true'
+    replacements.fav = true
   }
 
   if (q.name) {
@@ -156,7 +156,7 @@ export const listWithFilters = async (q: EventPairsParams) => {
     `
     SELECT
       epv.*,
-      ep.favorite as favorite_live, 
+      ep.favorite as favorite_live,
       ea.name AS a_name_live,
       ea.description AS a_description_live,
       eb.name AS b_name_live,
@@ -190,7 +190,7 @@ export const listWithFilters = async (q: EventPairsParams) => {
   const rows = rowsRaw.map((r) => {
     return {
       events_pairs_uuid: r.uuid,
-      favorite: r.favorite_live ?? r.favorite,
+      favorite: r.favorite_live,
       calculations: {
         diff: r.diff,
         half_days: r.half_days,

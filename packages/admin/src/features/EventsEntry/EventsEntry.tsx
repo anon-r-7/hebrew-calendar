@@ -152,7 +152,7 @@ export const EventsEntry: React.FC = () => {
 
   useEffect(() => {
     fetch()
-  }, [createdBy])
+  }, [createdBy, page, size])
 
   useEffect(() => {
     init()

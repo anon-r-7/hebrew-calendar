@@ -244,11 +244,12 @@ module.exports = {
       CREATE OR REPLACE FUNCTION fan_out_events_pairs() RETURNS trigger as $$
       BEGIN
         IF (NEW.source = 'user') THEN
-          INSERT INTO events_pairs (a, b, diff)
+          INSERT INTO events_pairs (a, b, diff, favorite)
           SELECT
             LEAST(NEW.uuid, e.uuid),
             GREATEST(NEW.uuid, e.uuid),
-            ABS(NEW.day_index - e.day_index) + 1
+            ABS(NEW.day_index - e.day_index) + 1,
+            false
           FROM events e
           WHERE e.uuid <> NEW.uuid;
         END IF;

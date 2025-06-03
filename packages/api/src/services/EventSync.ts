@@ -45,7 +45,9 @@ const _run = async (): Promise<void> => {
         source_row: e.uuid
       }))
 
-      await Models.Events.bulkCreate(eventsPayload, { transaction: t })
+      for (const eventPayload of eventsPayload) {
+        await Models.Events.create(eventPayload, { transaction: t })
+      }
 
       /* 3) mark entries processed */
       await Promise.all(
