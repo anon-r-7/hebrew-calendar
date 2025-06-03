@@ -142,7 +142,7 @@ const isDayOfRest = (day) => {
   return isRest
 }
 
-const Event = ({ event, datesGrid, day, isPrimary }) => {
+const Event = ({ event, datesGrid, day }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const eventName = useBreakpointValue({
@@ -240,7 +240,6 @@ const Details = ({
   secondaryDate,
   primaryYear,
   secondaryYear,
-  isPrimary,
   type,
   astronomy,
   theme
@@ -417,7 +416,6 @@ const Day = ({ day, datesGrid, type, isPrimary, theme }) => {
         primaryYear={primaryYear}
         secondaryYear={secondaryYear}
         astronomy={day.astronomy}
-        isPrimary={isPrimary}
         type={type}
         theme={theme}
       />
@@ -434,13 +432,7 @@ const Day = ({ day, datesGrid, type, isPrimary, theme }) => {
       </Text>
       <Box mt={5}>
         {events.map((event, k) => (
-          <Event
-            event={event}
-            day={day}
-            datesGrid={datesGrid}
-            isPrimary={isPrimary}
-            key={k}
-          />
+          <Event event={event} day={day} datesGrid={datesGrid} key={k} />
         ))}
       </Box>
     </Box>

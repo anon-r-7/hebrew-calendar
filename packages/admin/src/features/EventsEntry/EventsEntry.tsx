@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import {
   Box,
   Button,
@@ -24,7 +24,14 @@ import {
   useDisclosure,
   VStack,
   Icon,
-  useToast
+  useToast,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter,
+  Collapse
 } from '@chakra-ui/react'
 import { IconType } from 'react-icons'
 import { FiEdit, FiTrash2, FiPlus, FiSave } from 'react-icons/fi'
@@ -98,11 +105,25 @@ export const EventsEntry: React.FC = () => {
     onClose: closeDrawer
   } = useDisclosure()
 
+  const {
+    isOpen: isAlertOpen,
+    onOpen: openAlert,
+    onClose: closeAlert
+  } = useDisclosure()
+  const cancelRef = useRef(null)
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null)
+
   /* -------------------------------- State --------------------------------- */
 
   const [page, setPage] = useState(1)
   const [size, setSize] = useState(PAGE_SIZE_OPTIONS[0])
   const [createdBy, setCreatedBy] = useState<string | undefined>()
+
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
+    {}
+  )
+  const toggleExpanded = (uuid: string) =>
+    setExpandedItems((prev) => ({ ...prev, [uuid]: !prev[uuid] }))
 
   // Editing state
   const [editing, setEditing] = useState<Entry | null>(null)
@@ -165,6 +186,21 @@ export const EventsEntry: React.FC = () => {
 
   const handleDelete = async (uuid: string) => {
     await deleteEntry({ asyncManager, store, uuid })
+  }
+
+  /* -------------------------- Delete Confirmation ---------------------------- */
+
+  const confirmDelete = (uuid: string) => {
+    setPendingDelete(uuid)
+    openAlert()
+  }
+
+  const onDeleteConfirmed = async () => {
+    if (pendingDelete) {
+      await handleDelete(pendingDelete)
+      setPendingDelete(null)
+      closeAlert()
+    }
   }
 
   /* -------------------------- Batch Create Flow ---------------------------- */
@@ -333,8 +369,8 @@ export const EventsEntry: React.FC = () => {
         </Button>
       </Flex>
 
-      {/* Entries Table */}
-      <Box overflowX="auto">
+      {/* Entries Table - Desktop View */}
+      <Box display={{ base: 'none', md: 'block' }} overflowX="auto">
         <Table variant="simple" size="sm">
           <Thead>
             <Tr>
@@ -375,7 +411,7 @@ export const EventsEntry: React.FC = () => {
                       size="sm"
                       aria-label="delete"
                       variant="ghost"
-                      onClick={() => handleDelete(e.uuid)}
+                      onClick={() => confirmDelete(e.uuid)}
                     />
                   </HStack>
                 </Td>
@@ -384,6 +420,71 @@ export const EventsEntry: React.FC = () => {
           </Tbody>
         </Table>
       </Box>
+
+      {/* Entries Table - Mobile View */}
+      <VStack display={{ base: 'flex', md: 'none' }} spacing={4} mt={4}>
+        {store.state.entries.map((e) => {
+          const isExpanded = !!expandedItems[e.uuid]
+
+          return (
+            <Box
+              key={e.uuid}
+              w="full"
+              borderWidth="1px"
+              borderRadius="md"
+              p={4}
+              onClick={() => toggleExpanded(e.uuid)}
+              cursor="pointer">
+              <HStack justify="space-between" mb={2}>
+                <Text fontWeight="bold">{e.hebrew_date.gregorian}</Text>
+                <Text>{e.name}</Text>
+              </HStack>
+              <Collapse in={isExpanded} animateOpacity>
+                <VStack spacing={2} align="start" mt={2} fontSize="sm">
+                  <Text>
+                    <b>Hebrew:</b> {e.hebrew_date.hebrew}
+                  </Text>
+                  <Text>
+                    <b>Description:</b> {e.description}
+                  </Text>
+                  <Text>
+                    <b>Tags:</b> {e.tags}
+                  </Text>
+                  <Text>
+                    <b>Creator:</b> {e.created_by.first_name}
+                  </Text>
+                  <Text>
+                    <b>Processed:</b> {e.processed ? 'TRUE' : 'FALSE'}
+                  </Text>
+                  <HStack pt={2} spacing={2} alignSelf="flex-end">
+                    <IconButton
+                      icon={<Icon as={castIcon(FiEdit)} boxSize={4} />}
+                      size="sm"
+                      aria-label="edit"
+                      variant="ghost"
+                      onClick={(e_) => {
+                        e_.stopPropagation()
+                        setEditing(e)
+                        openDrawer()
+                      }}
+                    />
+                    <IconButton
+                      icon={<Icon as={castIcon(FiTrash2)} boxSize={4} />}
+                      size="sm"
+                      aria-label="delete"
+                      variant="ghost"
+                      onClick={(e_) => {
+                        e_.stopPropagation()
+                        confirmDelete(e.uuid)
+                      }}
+                    />
+                  </HStack>
+                </VStack>
+              </Collapse>
+            </Box>
+          )
+        })}
+      </VStack>
 
       {/* Pagination */}
       {renderPagination()}
@@ -574,6 +675,29 @@ export const EventsEntry: React.FC = () => {
           </DrawerFooter>
         </DrawerContent>
       </Drawer>
+      <AlertDialog
+        isOpen={isAlertOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={closeAlert}>
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Confirm Deletion
+            </AlertDialogHeader>
+            <AlertDialogBody>
+              Are you sure? This action cannot be undone.
+            </AlertDialogBody>
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={closeAlert}>
+                Cancel
+              </Button>
+              <Button colorScheme="red" onClick={onDeleteConfirmed} ml={3}>
+                Delete
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Box>
   )
 }
