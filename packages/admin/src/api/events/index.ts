@@ -7,6 +7,11 @@ const getParams = (payload: Record<string, any>) =>
   new URLSearchParams(payload as any).toString()
 
 export default {
+  getUsers: async (): Promise<any> => {
+    const { data } = await client.get(`${baseUrl}/users`)
+    return data
+  },
+
   createEntry: async (payload: Request.CreateEntry): Promise<any> => {
     const { data } = await client.post(`${baseUrl}/entry`, payload)
     return data

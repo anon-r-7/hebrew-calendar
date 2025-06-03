@@ -1,7 +1,7 @@
 import { client } from '../client'
 import * as Request from './interface'
 
-const baseUrl = '/v1/auth'
+const baseUrl = '/auth'
 
 export default {
   login: async (payload: Request.Login): Promise<any> => {

@@ -7626,6 +7626,7 @@ __metadata:
     babel-loader: ^8.2.2
     babel-plugin-module-resolver: ^5.0.0
     framer-motion: ^9.0.4
+    js-cookie: ^3.0.5
     react: latest
     react-dom: latest
     react-helmet: ^6.1.0

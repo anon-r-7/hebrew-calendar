@@ -27,6 +27,11 @@ class Route implements BaseRoute {
 
   private initializeRoutes() {
     try {
+      this.router.get(
+        `${this.path}/users`,
+        authMiddlware,
+        this.controller.getUsers
+      )
       this.router.post(
         `${this.path}/entry`,
         authMiddlware,

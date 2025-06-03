@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import HttpException from '@api/utils/HttpException'
+import * as UserMethods from '@api/models/User/methods'
 import * as EventsEntryMethods from '@api/models/EventsEntry/methods'
 import * as EventsPairsMethods from '@api/models/EventsPairs/methods'
 import * as SyncService from '@api/services/EventSync'
@@ -7,6 +8,20 @@ import * as SyncService from '@api/services/EventSync'
 import { AuthRequest } from '@api/types/express/AuthRequest'
 
 class EventsController {
+  /* POST /events/users */
+  public getUsers = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const records = await UserMethods.findAll()
+      res.status(201).json(records)
+    } catch (err) {
+      next(err)
+    }
+  }
+
   /* POST /events/entry */
   public createEntry = async (
     req: AuthRequest,
@@ -39,10 +54,11 @@ class EventsController {
     next: NextFunction
   ) => {
     try {
-      const { name, description } = req.body
+      const { name, description, tags } = req.body
       const record = await EventsEntryMethods.update(req.params.uuid, {
         name,
-        description
+        description,
+        tags
       })
       if (!record) return next(new HttpException(404, 'Entry not found'))
       res.json(record)
@@ -59,6 +75,7 @@ class EventsController {
   ) => {
     try {
       const { created_by, page = 1, size = 50 } = req.query
+
       const list = await EventsEntryMethods.list({
         created_by: created_by as string,
         page: Number(page),
@@ -78,7 +95,7 @@ class EventsController {
   ) => {
     try {
       await EventsEntryMethods.removeCascade(req.params.uuid)
-      res.status(204).send()
+      res.status(201).send({ success: true })
     } catch (err) {
       next(err)
     }

@@ -23,7 +23,8 @@ import {
   useBreakpointValue,
   useDisclosure,
   VStack,
-  Icon
+  Icon,
+  useToast
 } from '@chakra-ui/react'
 import { IconType } from 'react-icons'
 import { FiEdit, FiTrash2, FiPlus, FiSave } from 'react-icons/fi'
@@ -34,6 +35,7 @@ import { Loading } from '@admin/components/Loading'
 import { getDateFromParts } from '@admin/utils/date'
 
 import {
+  getUsers,
   createEntry,
   deleteEntry,
   getEntries,
@@ -46,8 +48,9 @@ import { Entry, InitialState } from './types'
 /* -------------------------------------------------------------------------- */
 
 const initialState: InitialState = {
+  users: [],
   entries: [],
-  total: 0,
+  total: 0
 }
 
 const PAGE_SIZE_OPTIONS = [500, 1000]
@@ -87,6 +90,8 @@ const emptyDraft = (): DraftEntry => ({
 export const EventsEntry: React.FC = () => {
   const store = useStore(initialState)
   const asyncManager = useAsyncManager()
+  const toast = useToast()
+
   const {
     isOpen: isDrawerOpen,
     onOpen: openDrawer,
@@ -114,14 +119,23 @@ export const EventsEntry: React.FC = () => {
       payload: {
         page,
         size,
-        created_by: createdBy
+        ...(createdBy ? { created_by: createdBy } : {})
       }
     })
   }, [page, size, createdBy])
 
+  const init = async () => {
+    await getUsers({ asyncManager, store })
+    await fetch()
+  }
+
   useEffect(() => {
     fetch()
-  }, [fetch])
+  }, [createdBy])
+
+  useEffect(() => {
+    init()
+  }, [])
 
   /* ----------------------------- Pagination -------------------------------- */
 
@@ -170,22 +184,53 @@ export const EventsEntry: React.FC = () => {
   }
 
   const saveDrafts = async () => {
+    const newEntries = []
+    const failedDrafts = []
+
+    asyncManager.start()
+
     for (const d of drafts) {
-      const date = getDateFromParts(d)
-      await createEntry({
-        asyncManager,
-        store,
-        payload: {
-          date,
-          type: d.type,
-          name: d.name,
-          description: d.description,
-          tags: d.tags
+      try {
+        const date = getDateFromParts(d)
+        const entry = await createEntry({
+          payload: {
+            date,
+            type: d.type,
+            name: d.name,
+            description: d.description,
+            tags: d.tags
+          }
+        })
+        if (entry?.uuid) {
+          newEntries.push(entry)
+        } else {
+          failedDrafts.push(d)
         }
+      } catch {
+        failedDrafts.push(d)
+      }
+    }
+
+    if (newEntries.length > 0) {
+      store.update({
+        entries: [...newEntries, ...store.state.entries]
       })
     }
-    setDrafts([])
-    closeDrawer()
+
+    asyncManager.success()
+
+    setDrafts(failedDrafts)
+    if (!failedDrafts.length) {
+      closeDrawer()
+    } else {
+      toast({
+        title: 'The following events failed to create',
+        description: 'Trying editting and creating again',
+        status: 'error',
+        duration: 8000,
+        isClosable: true
+      })
+    }
   }
 
   /* ------------------------ Responsive Drawer Side ------------------------- */
@@ -293,24 +338,26 @@ export const EventsEntry: React.FC = () => {
         <Table variant="simple" size="sm">
           <Thead>
             <Tr>
-              <Th>Date</Th>
+              <Th>Gregorian</Th>
+              <Th>Hebrew</Th>
               <Th>Name</Th>
               <Th>Description</Th>
               <Th>Tags</Th>
-              <Th>Processed</Th>
               <Th>Creator</Th>
+              <Th>Processed</Th>
               <Th isNumeric>Actions</Th>
             </Tr>
           </Thead>
           <Tbody>
             {store.state.entries.map((e) => (
               <Tr key={e.uuid} _hover={{ bg: 'brand.surface' }}>
+                <Td>{e.hebrew_date.gregorian}</Td>
+                <Td>{e.hebrew_date.hebrew}</Td>
                 <Td>{e.name}</Td>
                 <Td>{e.description}</Td>
-                <Td>{e.hebrew_date.gregorian}</Td>
                 <Td>{e.tags}</Td>
-                <Td>{e.processed}</Td>
-                <Td>{e.created_by.name}</Td>
+                <Td>{e.created_by.first_name}</Td>
+                <Td>{e.processed ? 'TRUE' : 'FALSE'}</Td>
                 <Td isNumeric>
                   <HStack justify="flex-end">
                     <IconButton
@@ -348,6 +395,7 @@ export const EventsEntry: React.FC = () => {
         size="sm"
         onClose={() => {
           setEditing(null)
+          setDrafts([])
           closeDrawer()
         }}>
         <DrawerOverlay />

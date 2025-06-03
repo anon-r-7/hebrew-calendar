@@ -6,10 +6,10 @@ export const useStore = (initialState) => {
   const reset = () => setState(initialState)
 
   const update = (next) => {
-    setState({
-      ...state,
+    setState((prev) => ({
+      ...prev,
       ...next
-    })
+    }))
   }
 
   const componentDidUnmount = () => reset()

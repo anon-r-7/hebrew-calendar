@@ -1,5 +1,18 @@
 import api from '@admin/api/events'
 
+export const getUsers = async ({ asyncManager, store }) => {
+  try {
+    asyncManager.start()
+    const users = await api.getUsers()
+    store.update({ users })
+    asyncManager.success()
+  } catch (error) {
+    asyncManager.fail(
+      `Hmm, there was a problem getting users. Please try again.`
+    )
+  }
+}
+
 export const getEntries = async ({ payload, asyncManager, store }) => {
   try {
     asyncManager.start()
@@ -13,22 +26,12 @@ export const getEntries = async ({ payload, asyncManager, store }) => {
   }
 }
 
-export const createEntry = async ({ payload, asyncManager, store }) => {
+export const createEntry = async ({ payload }) => {
   try {
-    asyncManager.start()
     const entry = await api.createEntry(payload)
-
-    if (entry?.uuid) {
-      store.update({
-        entries: [entry, ...store.state.entries]
-      })
-    }
-
-    asyncManager.success()
+    return entry
   } catch (error) {
-    asyncManager.fail(
-      `Hmm, there was a problem creating entry. Please try again.`
-    )
+    return null
   }
 }
 
@@ -58,12 +61,11 @@ export const deleteEntry = async ({ uuid, asyncManager, store }) => {
   try {
     asyncManager.start()
     const response = await api.deleteEntry(uuid)
-
     if (response?.success) {
-      const next = store.state.entries
+      const next = [...store.state.entries] // make a shallow copy
       const index = next.findIndex((row) => row.uuid === uuid)
       if (index > -1) {
-        next.slice(index, 1)
+        next.splice(index, 1)
         store.update({ entries: next })
       }
     }
@@ -71,7 +73,7 @@ export const deleteEntry = async ({ uuid, asyncManager, store }) => {
     asyncManager.success()
   } catch (error) {
     asyncManager.fail(
-      `Hmm, there was a problem creating entry. Please try again.`
+      `Hmm, there was a problem deleting the entry. Please try again.`
     )
   }
 }

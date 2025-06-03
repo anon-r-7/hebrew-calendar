@@ -20,6 +20,7 @@
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "framer-motion": "^9.0.4",
+    "js-cookie": "^3.0.5",
     "react": "latest",
     "react-dom": "latest",
     "react-helmet": "^6.1.0",

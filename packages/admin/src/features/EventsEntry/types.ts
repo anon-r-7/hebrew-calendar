@@ -1,3 +1,9 @@
+export interface User {
+  uuid: string
+  first_name: string
+  last_name: string
+}
+
 export interface Entry {
   uuid: string
   date: string
@@ -19,5 +25,7 @@ export interface Entry {
 }
 
 export interface InitialState {
+  users: User[]
   entries: Entry[]
+  total: number
 }

@@ -19,7 +19,7 @@ async function getTransformedById(uuid: string) {
       {
         model: Models.HebrewDates,
         as: 'hebrewDateEntry',
-        attributes: ['gregorian', 'hebrew']
+        attributes: ['gregorian', 'yy', 'mm', 'dd']
       },
       {
         model: Models.User,
@@ -41,8 +41,10 @@ async function getTransformedById(uuid: string) {
     day_index: row.day_index,
     processed: row.processed,
     hebrew_date: {
-      gregorian: row.hebrewDateEntry?.gregorian ?? null,
-      hebrew: row.hebrewDateEntry?.hebrew ?? null
+      gregorian: row.hebrewDateEntry?.gregorian,
+      hebrew: `${String(row.hebrewDateEntry?.yy).padStart(4, '0')}-${String(
+        row.hebrewDateEntry?.mm
+      ).padStart(2, '0')}-${String(row.hebrewDateEntry?.dd).padStart(2, '0')}`
     },
     created_by: {
       uuid: row.creator?.uuid ?? '',
@@ -101,7 +103,7 @@ export async function list(opts: {
       {
         model: Models.HebrewDates,
         as: 'hebrewDateEntry',
-        attributes: ['gregorian', 'hebrew']
+        attributes: ['gregorian', 'yy', 'mm', 'dd']
       },
       {
         model: Models.User,
@@ -126,8 +128,10 @@ export async function list(opts: {
       day_index: row.day_index,
       processed: row.processed,
       hebrew_date: {
-        gregorian: row.hebrewDateEntry?.gregorian ?? null,
-        hebrew: row.hebrewDateEntry?.hebrew ?? null
+        gregorian: row.hebrewDateEntry?.gregorian,
+        hebrew: `${String(row.hebrewDateEntry?.yy).padStart(4, '0')}-${String(
+          row.hebrewDateEntry?.mm
+        ).padStart(2, '0')}-${String(row.hebrewDateEntry?.dd).padStart(2, '0')}`
       },
       created_by: {
         uuid: row.creator?.uuid ?? '',
@@ -161,8 +165,11 @@ export async function removeCascade(uuid: string) {
     await entry.destroy({ transaction: t })
   })
 
-  /* refresh MV outside trx */
-  await Models.sequelize.query(
-    'REFRESH MATERIALIZED VIEW CONCURRENTLY events_pair_view'
-  )
+  // TODO: user should be advised to sync after deleting
+  // /* refresh MV outside trx; intentionally do not block return */
+  // Models.sequelize
+  //   .query('REFRESH MATERIALIZED VIEW CONCURRENTLY events_pair_view')
+  //   .catch((err) =>
+  //     console.error('Failed to refresh materialized view:', err.message)
+  //   )
 }
