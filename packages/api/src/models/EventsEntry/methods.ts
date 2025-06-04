@@ -1,12 +1,21 @@
 import Models from '@api/models'
-import { Op, Transaction } from 'sequelize'
+import { Op, Transaction, QueryTypes } from 'sequelize'
 
 /* ───────────────────────── helpers ─────────────────────────── */
 
 async function locateHebrewDate(type: 'gregorian' | 'hebrew', date: string) {
   if (type === 'gregorian') {
-    // date = 'YYYY-MM-DD'
-    return Models.HebrewDates.findOne({ where: { gregorian: date } })
+    const [results] = await Models.sequelize.query(
+      `SELECT * FROM hebrew_dates WHERE gregorian = :date LIMIT 1`,
+      {
+        replacements: { date },
+        type: QueryTypes.SELECT,
+        model: Models.HebrewDates,
+        mapToModel: true,
+      }
+    )
+
+    return results ?? null
   }
   // hebrew: 'YYYY-MM-DD'   (yy-mm-dd already padded)
   const [yy, mm, dd] = date.split('-').map(Number)
