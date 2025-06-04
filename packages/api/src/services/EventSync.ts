@@ -19,49 +19,59 @@ export const enqueue = (): boolean => {
 /* ------------------------------------------------------------------ */
 /* internal implementation                                            */
 /* ------------------------------------------------------------------ */
-
 const _run = async (): Promise<void> => {
   logger.info('[sync] starting')
   try {
-    /* each job runs in a single DB transaction */
-    await Models.sequelize.transaction(async (t) => {
-      /* 1) grab all un-processed rows FOR UPDATE (lock) */
-      const entries = await Models.EventsEntry.findAll({
-        where: { processed: false },
-        lock: t.LOCK.UPDATE,
-        transaction: t
+    let processedCount = 0
+    let hasMore = true
+
+    while (hasMore) {
+      const didProcess = await Models.sequelize.transaction(async (t) => {
+        // 1. Get one unprocessed row with a FOR UPDATE lock, skip locked rows
+        const entry = await Models.EventsEntry.findOne({
+          where: { processed: false },
+          lock: t.LOCK.UPDATE,
+          skipLocked: true, // Avoid blocking if another transaction holds it
+          transaction: t
+        })
+
+        if (!entry) {
+          return false // no more entries left to process
+        }
+
+        // 2. Insert event, letting the DB trigger do the fan-out
+        const eventPayload = {
+          day_index: entry.day_index,
+          source: 'user' as const,
+          system_meta: null,
+          source_row: entry.uuid
+        }
+
+        await Models.Events.create(eventPayload, { transaction: t })
+
+        // 3. Mark entry as processed
+        await entry.update({ processed: true }, { transaction: t })
+
+        processedCount++
+        return true
       })
 
-      if (!entries.length) {
-        logger.info('[sync] nothing to do')
-        return
-      }
+      hasMore = didProcess
+      logger.info(`[sync] complete ${processedCount} events`)
+    }
 
-      /* 2) bulk-insert into events; let DB trigger fan-out pairs */
-      const eventsPayload = entries.map((e) => ({
-        day_index: e.day_index,
-        source: 'user' as const,
-        system_meta: null,
-        source_row: e.uuid
-      }))
-
-      for (const eventPayload of eventsPayload) {
-        await Models.Events.create(eventPayload, { transaction: t })
-      }
-
-      /* 3) mark entries processed */
-      await Promise.all(
-        entries.map((e) => e.update({ processed: true }, { transaction: t }))
-      )
-    })
-
-    /* 4) refresh MV outside the transaction (non-blocking) */
-    await Models.sequelize.query('REFRESH MATERIALIZED VIEW events_pair_view')
-
-    logger.info('[sync] completed')
+    logger.info(`[sync] completed: ${processedCount} events processed`)
   } catch (err) {
     logger.error(`[sync] failed: ${err}`)
   } finally {
     _running = false
+  }
+
+  // Refresh materialized view once after all inserts complete
+  try {
+    Models.sequelize.query('REFRESH MATERIALIZED VIEW events_pair_view')
+    logger.info('[sync] materialized view refreshed')
+  } catch (err) {
+    logger.error(`[sync] MV refresh failed: ${err}`)
   }
 }

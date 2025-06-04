@@ -11,7 +11,7 @@ async function locateHebrewDate(type: 'gregorian' | 'hebrew', date: string) {
         replacements: { date },
         type: QueryTypes.SELECT,
         model: Models.HebrewDates,
-        mapToModel: true,
+        mapToModel: true
       }
     )
 

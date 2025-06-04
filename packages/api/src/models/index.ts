@@ -28,7 +28,10 @@ try {
       dialect: 'postgres',
       timezone: '-5:00',
       // eslint-disable-next-line
-      logging: process.env.NODE_ENV === 'development' ? console.log : false
+      // logging: (msg) => {
+      //   console.log(`[Sequelize] ${new Date().toISOString()} — ${msg}`)
+      // }
+      logging: true
     }
   )
 } catch (err) {

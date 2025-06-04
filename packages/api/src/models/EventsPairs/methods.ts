@@ -1,5 +1,5 @@
-import { QueryTypes } from 'sequelize'
 import Models from '@api/models'
+import { pgPool } from '@api/models/pool'
 import { mapSide } from './utils'
 import { EventPairsParams } from './interface'
 
@@ -160,8 +160,8 @@ export const listWithFilters = async (q: EventPairsParams) => {
       gregorian_desc: 'ORDER BY a_gdate DESC'
     }[orderKey] ?? 'ORDER BY diff ASC'
 
-  const rowsRaw: any[] = await Models.sequelize.query(
-    `
+ 
+  const query =    `
     SELECT
       epv.*,
       ep.favorite as favorite_live,
@@ -176,26 +176,36 @@ export const listWithFilters = async (q: EventPairsParams) => {
     ${whereSQL}
     ${orderSQL}
     OFFSET :off LIMIT :lim
-    `,
-    {
-      replacements: { ...replacements, off: offset, lim: limit },
-      type: QueryTypes.SELECT
-    }
-  )
+  `
+  // TODO: figure out how to refactor replacements, off and lim into pg expectations
 
-  const [{ count }] = (await Models.sequelize.query(
-    `
+  const countQuery = `
     SELECT COUNT(*)::bigint AS count
     FROM events_pair_view epv
     LEFT JOIN events_pairs ep ON ep.uuid = epv.uuid
     LEFT JOIN events_entry ea ON ea.uuid = epv.a_events_entry_uuid
     LEFT JOIN events_entry eb ON eb.uuid = epv.b_events_entry_uuid
     ${whereSQL}
-    `,
-    { replacements, type: QueryTypes.SELECT }
-  )) as any[]
+  `
+  // TODO: figure out how to refactor replacements into pg expectations
 
-  const rows = rowsRaw.map((r) => {
+  const client = await pgPool.connect()
+
+  let rows = [], count = 0 
+
+  try {
+    // TODO: validate if this is the right way to do replacements and offset and limit
+    const response = await client.query(query, { ...replacements, offset, limit })
+    rows = response.rows || []
+
+    const countResponse = await client.query(countQuery, replacements)
+    count = Number(countResponse.rows[0].count)
+  } finally {
+    client.release()
+  }
+
+  // TODO: validate this still works
+  rows = rows.map((r) => {
     const sideA = mapSide('a', {
       ...r,
       name: r.a_name_live ?? r.a_name,
@@ -233,9 +243,11 @@ export const listWithFilters = async (q: EventPairsParams) => {
     }
   })
 
+  // TODO: validate these are still good
   const hasNext = offset + limit < Number(count)
   const hasPrev = page > 1
 
+  // TODO: validate this is still good
   return {
     meta: {
       count: { total: Number(count), current: rows.length },
