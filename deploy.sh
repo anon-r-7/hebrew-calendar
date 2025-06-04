@@ -48,6 +48,25 @@ echo "Starting UI..."
 pm2 start pm2.config.js --only hebrew-calendar-ui
 check_status "Starting UI"
 
+# Deploy admin
+cd ../admin || { echo "Error: Could not change to Admin directory. Exiting..."; exit 1; }
+
+echo "Stopping Admin..."
+pm2 stop hebrew-calendar-admin
+check_status "Stopping Admin"
+
+echo "Building Admin..."
+yarn build
+check_status "Building Admin"
+
+echo "Updating Admin environment variables in index.html..."
+./update_env.sh
+check_status "Updating Admin environment variables"
+
+echo "Starting Admin..."
+pm2 start pm2.config.js --only hebrew-calendar-admin
+check_status "Starting Admin"
+
 # Return to root
 cd "$ROOT_DIR" || { echo "Error: Could not return to project root directory. Exiting..."; exit 1; }
 
