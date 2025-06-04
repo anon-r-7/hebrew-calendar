@@ -188,6 +188,24 @@ export const listWithFilters = async (q: EventPairsParams) => {
   )) as any[]
 
   const rows = rowsRaw.map((r) => {
+    const sideA = mapSide('a', {
+      ...r,
+      name: r.a_name_live ?? r.a_name,
+      description: r.a_description_live ?? r.a_description
+    })
+
+    const sideB = mapSide('b', {
+      ...r,
+      name: r.b_name_live ?? r.b_name,
+      description: r.b_description_live ?? r.b_description
+    })
+
+    // Ensure user is always on side A if one is system and the other is user
+    const [finalA, finalB] =
+      sideA.source === 'system' && sideB.source === 'user'
+        ? [sideB, sideA]
+        : [sideA, sideB]
+
     return {
       events_pairs_uuid: r.uuid,
       favorite: r.favorite_live,
@@ -203,18 +221,7 @@ export const listWithFilters = async (q: EventPairsParams) => {
         revelation_years: r.exact_rev_years,
         enochian_years: r.exact_enoch_years
       },
-      dates: [
-        mapSide('a', {
-          ...r,
-          name: r.a_name_live ?? r.a_name,
-          description: r.a_description_live ?? r.a_description
-        }),
-        mapSide('b', {
-          ...r,
-          name: r.b_name_live ?? r.b_name,
-          description: r.b_description_live ?? r.b_description
-        })
-      ]
+      dates: [finalA, finalB]
     }
   })
 

@@ -40,6 +40,7 @@ import { useStore } from '@admin/hooks/useStore'
 import { useAsyncManager } from '@admin/hooks/useAsyncManager'
 import { Loading } from '@admin/components/Loading'
 import { getDateFromParts } from '@admin/utils/date'
+import { NavBar } from '@admin/components/NavBar'
 
 import {
   getUsers,
@@ -332,372 +333,375 @@ export const EventsEntry: React.FC = () => {
   /* -------------------------------------------------------------------------- */
 
   return (
-    <Box p={4}>
-      <Loading loading={asyncManager.loading} />
+    <>
+      <NavBar />
+      <Box p={4}>
+        <Loading loading={asyncManager.loading} />
 
-      {/* Top Actions */}
-      <Flex
-        mb={12}
-        justify="space-between"
-        direction={{ base: 'column', md: 'row' }}
-        gap={4}>
-        <HStack>
-          <Text width={175} fontWeight="bold">
-            Created By
-          </Text>
-          <ChakraSelect
-            placeholder="All"
-            maxW="200px"
-            onChange={(e) => {
-              setCreatedBy(e.target.value || undefined)
-              setPage(1)
-            }}>
-            {/* Replace with real user list */}
-            {store?.state?.users?.map?.((u: any) => (
-              <option key={u.uuid} value={u.uuid}>
-                {u.first_name} {u.last_name}
-              </option>
-            ))}
-          </ChakraSelect>
-        </HStack>
+        {/* Top Actions */}
+        <Flex
+          mb={12}
+          justify="space-between"
+          direction={{ base: 'column', md: 'row' }}
+          gap={4}>
+          <HStack>
+            <Text width={175} fontWeight="bold">
+              Created By
+            </Text>
+            <ChakraSelect
+              placeholder="All"
+              maxW="200px"
+              onChange={(e) => {
+                setCreatedBy(e.target.value || undefined)
+                setPage(1)
+              }}>
+              {/* Replace with real user list */}
+              {store?.state?.users?.map?.((u: any) => (
+                <option key={u.uuid} value={u.uuid}>
+                  {u.first_name} {u.last_name}
+                </option>
+              ))}
+            </ChakraSelect>
+          </HStack>
 
-        <Button
-          leftIcon={<Icon as={castIcon(FiPlus)} boxSize={4} />}
-          onClick={openDrawer}
-          alignSelf={{ base: 'flex-start', md: 'auto' }}>
-          Create Date
-        </Button>
-      </Flex>
+          <Button
+            leftIcon={<Icon as={castIcon(FiPlus)} boxSize={4} />}
+            onClick={openDrawer}
+            alignSelf={{ base: 'flex-start', md: 'auto' }}>
+            Create Date
+          </Button>
+        </Flex>
 
-      {/* Entries Table - Desktop View */}
-      <Box display={{ base: 'none', md: 'block' }} overflowX="auto">
-        <Table variant="simple" size="sm">
-          <Thead>
-            <Tr>
-              <Th>Gregorian</Th>
-              <Th>Hebrew</Th>
-              <Th>Name</Th>
-              <Th>Description</Th>
-              <Th>Tags</Th>
-              <Th>Creator</Th>
-              <Th>Processed</Th>
-              <Th isNumeric>Actions</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {store.state.entries.map((e) => (
-              <Tr key={e.uuid} _hover={{ bg: 'brand.surface' }}>
-                <Td>{e.hebrew_date.gregorian}</Td>
-                <Td>{e.hebrew_date.hebrew}</Td>
-                <Td>{e.name}</Td>
-                <Td>{e.description}</Td>
-                <Td>{e.tags}</Td>
-                <Td>{e.created_by.first_name}</Td>
-                <Td>{e.processed ? 'TRUE' : 'FALSE'}</Td>
-                <Td isNumeric>
-                  <HStack justify="flex-end">
-                    <IconButton
-                      icon={<Icon as={castIcon(FiEdit)} boxSize={4} />}
-                      size="sm"
-                      aria-label="edit"
-                      variant="ghost"
-                      onClick={() => {
-                        setEditing(e)
-                        openDrawer()
-                      }}
-                    />
-                    <IconButton
-                      icon={<Icon as={castIcon(FiTrash2)} boxSize={4} />}
-                      size="sm"
-                      aria-label="delete"
-                      variant="ghost"
-                      onClick={() => confirmDelete(e.uuid)}
-                    />
-                  </HStack>
-                </Td>
+        {/* Entries Table - Desktop View */}
+        <Box display={{ base: 'none', md: 'block' }} overflowX="auto">
+          <Table variant="simple" size="sm">
+            <Thead>
+              <Tr>
+                <Th>Gregorian</Th>
+                <Th>Hebrew</Th>
+                <Th>Name</Th>
+                <Th>Description</Th>
+                <Th>Tags</Th>
+                <Th>Creator</Th>
+                <Th>Processed</Th>
+                <Th isNumeric>Actions</Th>
               </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </Box>
-
-      {/* Entries Table - Mobile View */}
-      <VStack display={{ base: 'flex', md: 'none' }} spacing={4} mt={4}>
-        {store.state.entries.map((e) => {
-          const isExpanded = !!expandedItems[e.uuid]
-
-          return (
-            <Box
-              key={e.uuid}
-              w="full"
-              borderWidth="1px"
-              borderRadius="md"
-              p={4}
-              onClick={() => toggleExpanded(e.uuid)}
-              cursor="pointer">
-              <HStack justify="space-between" mb={2}>
-                <Text fontWeight="bold">{e.hebrew_date.gregorian}</Text>
-                <Text>{e.name}</Text>
-              </HStack>
-              <Collapse in={isExpanded} animateOpacity>
-                <VStack spacing={2} align="start" mt={2} fontSize="sm">
-                  <Text>
-                    <b>Hebrew:</b> {e.hebrew_date.hebrew}
-                  </Text>
-                  <Text>
-                    <b>Description:</b> {e.description}
-                  </Text>
-                  <Text>
-                    <b>Tags:</b> {e.tags}
-                  </Text>
-                  <Text>
-                    <b>Creator:</b> {e.created_by.first_name}
-                  </Text>
-                  <Text>
-                    <b>Processed:</b> {e.processed ? 'TRUE' : 'FALSE'}
-                  </Text>
-                  <HStack pt={2} spacing={2} alignSelf="flex-end">
-                    <IconButton
-                      icon={<Icon as={castIcon(FiEdit)} boxSize={4} />}
-                      size="sm"
-                      aria-label="edit"
-                      variant="ghost"
-                      onClick={(e_) => {
-                        e_.stopPropagation()
-                        setEditing(e)
-                        openDrawer()
-                      }}
-                    />
-                    <IconButton
-                      icon={<Icon as={castIcon(FiTrash2)} boxSize={4} />}
-                      size="sm"
-                      aria-label="delete"
-                      variant="ghost"
-                      onClick={(e_) => {
-                        e_.stopPropagation()
-                        confirmDelete(e.uuid)
-                      }}
-                    />
-                  </HStack>
-                </VStack>
-              </Collapse>
-            </Box>
-          )
-        })}
-      </VStack>
-
-      {/* Pagination */}
-      {renderPagination()}
-
-      {/* Drawer for Edit / Create */}
-      <Drawer
-        isOpen={isDrawerOpen}
-        placement={drawerPlacement ?? 'bottom'}
-        size="sm"
-        onClose={() => {
-          setEditing(null)
-          setDrafts([])
-          closeDrawer()
-        }}>
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerHeader>
-            {editing ? 'Edit Entry' : 'Create Entries'}
-          </DrawerHeader>
-          <DrawerBody>
-            {editing && (
-              <VStack spacing={4}>
-                <Input
-                  placeholder="Name"
-                  value={editing.name}
-                  onChange={(e) =>
-                    setEditing({ ...editing, name: e.target.value })
-                  }
-                />
-                <Input
-                  placeholder="Description"
-                  value={editing.description}
-                  onChange={(e) =>
-                    setEditing({ ...editing, description: e.target.value })
-                  }
-                />
-                <Input
-                  placeholder="Tags"
-                  value={editing.tags}
-                  onChange={(e) =>
-                    setEditing({ ...editing, tags: e.target.value })
-                  }
-                />
-              </VStack>
-            )}
-
-            {!editing && (
-              <VStack spacing={6} align="stretch">
-                {drafts.map((d, idx) => (
-                  <Box key={d.id} p={4} borderWidth="1px" borderRadius="md">
-                    <HStack mb={3} justify="space-between">
-                      <Text fontWeight="bold">Entry {idx + 1}</Text>
+            </Thead>
+            <Tbody>
+              {store.state.entries.map((e) => (
+                <Tr key={e.uuid} _hover={{ bg: 'brand.surface' }}>
+                  <Td>{e.hebrew_date.gregorian}</Td>
+                  <Td>{e.hebrew_date.hebrew}</Td>
+                  <Td>{e.name}</Td>
+                  <Td>{e.description}</Td>
+                  <Td>{e.tags}</Td>
+                  <Td>{e.created_by.first_name}</Td>
+                  <Td>{e.processed ? 'TRUE' : 'FALSE'}</Td>
+                  <Td isNumeric>
+                    <HStack justify="flex-end">
                       <IconButton
+                        icon={<Icon as={castIcon(FiEdit)} boxSize={4} />}
                         size="sm"
-                        icon={<Icon as={castIcon(FiTrash2)} boxSize={4} />}
-                        aria-label="remove"
+                        aria-label="edit"
                         variant="ghost"
-                        onClick={() => removeDraft(d.id)}
+                        onClick={() => {
+                          setEditing(e)
+                          openDrawer()
+                        }}
+                      />
+                      <IconButton
+                        icon={<Icon as={castIcon(FiTrash2)} boxSize={4} />}
+                        size="sm"
+                        aria-label="delete"
+                        variant="ghost"
+                        onClick={() => confirmDelete(e.uuid)}
                       />
                     </HStack>
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
 
-                    <Flex gap={3} wrap="wrap" mb={3}>
-                      <Input
-                        placeholder="Name"
-                        flex="1"
-                        value={d.name}
-                        onChange={(e) =>
-                          updateDraft(d.id, 'name', e.target.value)
-                        }
+        {/* Entries Table - Mobile View */}
+        <VStack display={{ base: 'flex', md: 'none' }} spacing={4} mt={4}>
+          {store.state.entries.map((e) => {
+            const isExpanded = !!expandedItems[e.uuid]
+
+            return (
+              <Box
+                key={e.uuid}
+                w="full"
+                borderWidth="1px"
+                borderRadius="md"
+                p={4}
+                onClick={() => toggleExpanded(e.uuid)}
+                cursor="pointer">
+                <HStack justify="space-between" mb={2}>
+                  <Text fontWeight="bold">{e.hebrew_date.gregorian}</Text>
+                  <Text>{e.name}</Text>
+                </HStack>
+                <Collapse in={isExpanded} animateOpacity>
+                  <VStack spacing={2} align="start" mt={2} fontSize="sm">
+                    <Text>
+                      <b>Hebrew:</b> {e.hebrew_date.hebrew}
+                    </Text>
+                    <Text>
+                      <b>Description:</b> {e.description}
+                    </Text>
+                    <Text>
+                      <b>Tags:</b> {e.tags}
+                    </Text>
+                    <Text>
+                      <b>Creator:</b> {e.created_by.first_name}
+                    </Text>
+                    <Text>
+                      <b>Processed:</b> {e.processed ? 'TRUE' : 'FALSE'}
+                    </Text>
+                    <HStack pt={2} spacing={2} alignSelf="flex-end">
+                      <IconButton
+                        icon={<Icon as={castIcon(FiEdit)} boxSize={4} />}
+                        size="sm"
+                        aria-label="edit"
+                        variant="ghost"
+                        onClick={(e_) => {
+                          e_.stopPropagation()
+                          setEditing(e)
+                          openDrawer()
+                        }}
                       />
-                    </Flex>
-
-                    <Flex gap={3} wrap="wrap" mb={3}>
-                      <Input
-                        placeholder="Description"
-                        flex="2"
-                        value={d.description}
-                        onChange={(e) =>
-                          updateDraft(d.id, 'description', e.target.value)
-                        }
+                      <IconButton
+                        icon={<Icon as={castIcon(FiTrash2)} boxSize={4} />}
+                        size="sm"
+                        aria-label="delete"
+                        variant="ghost"
+                        onClick={(e_) => {
+                          e_.stopPropagation()
+                          confirmDelete(e.uuid)
+                        }}
                       />
-                    </Flex>
+                    </HStack>
+                  </VStack>
+                </Collapse>
+              </Box>
+            )
+          })}
+        </VStack>
 
-                    <Flex gap={3} wrap="wrap" mb={3}>
-                      <Box flexBasis="calc(50% - 0.5rem)">
-                        <ChakraSelect
-                          value={d.type}
+        {/* Pagination */}
+        {renderPagination()}
+
+        {/* Drawer for Edit / Create */}
+        <Drawer
+          isOpen={isDrawerOpen}
+          placement={drawerPlacement ?? 'bottom'}
+          size="sm"
+          onClose={() => {
+            setEditing(null)
+            setDrafts([])
+            closeDrawer()
+          }}>
+          <DrawerOverlay />
+          <DrawerContent>
+            <DrawerHeader>
+              {editing ? 'Edit Entry' : 'Create Entries'}
+            </DrawerHeader>
+            <DrawerBody>
+              {editing && (
+                <VStack spacing={4}>
+                  <Input
+                    placeholder="Name"
+                    value={editing.name}
+                    onChange={(e) =>
+                      setEditing({ ...editing, name: e.target.value })
+                    }
+                  />
+                  <Input
+                    placeholder="Description"
+                    value={editing.description}
+                    onChange={(e) =>
+                      setEditing({ ...editing, description: e.target.value })
+                    }
+                  />
+                  <Input
+                    placeholder="Tags"
+                    value={editing.tags}
+                    onChange={(e) =>
+                      setEditing({ ...editing, tags: e.target.value })
+                    }
+                  />
+                </VStack>
+              )}
+
+              {!editing && (
+                <VStack spacing={6} align="stretch">
+                  {drafts.map((d, idx) => (
+                    <Box key={d.id} p={4} borderWidth="1px" borderRadius="md">
+                      <HStack mb={3} justify="space-between">
+                        <Text fontWeight="bold">Entry {idx + 1}</Text>
+                        <IconButton
+                          size="sm"
+                          icon={<Icon as={castIcon(FiTrash2)} boxSize={4} />}
+                          aria-label="remove"
+                          variant="ghost"
+                          onClick={() => removeDraft(d.id)}
+                        />
+                      </HStack>
+
+                      <Flex gap={3} wrap="wrap" mb={3}>
+                        <Input
+                          placeholder="Name"
+                          flex="1"
+                          value={d.name}
                           onChange={(e) =>
-                            updateDraft(
-                              d.id,
-                              'type',
-                              e.target.value as 'hebrew' | 'gregorian'
-                            )
-                          }>
-                          <option value="gregorian">Gregorian</option>
-                          <option value="hebrew">Hebrew</option>
-                        </ChakraSelect>
-                      </Box>
-                      {d.type === 'gregorian' ? (
+                            updateDraft(d.id, 'name', e.target.value)
+                          }
+                        />
+                      </Flex>
+
+                      <Flex gap={3} wrap="wrap" mb={3}>
+                        <Input
+                          placeholder="Description"
+                          flex="2"
+                          value={d.description}
+                          onChange={(e) =>
+                            updateDraft(d.id, 'description', e.target.value)
+                          }
+                        />
+                      </Flex>
+
+                      <Flex gap={3} wrap="wrap" mb={3}>
                         <Box flexBasis="calc(50% - 0.5rem)">
                           <ChakraSelect
-                            value={d.era}
+                            value={d.type}
                             onChange={(e) =>
                               updateDraft(
                                 d.id,
-                                'era',
-                                e.target.value as 'AD' | 'BC'
+                                'type',
+                                e.target.value as 'hebrew' | 'gregorian'
                               )
                             }>
-                            <option value="AD">AD</option>
-                            <option value="BC">BC</option>
+                            <option value="gregorian">Gregorian</option>
+                            <option value="hebrew">Hebrew</option>
                           </ChakraSelect>
                         </Box>
-                      ) : null}
-                    </Flex>
+                        {d.type === 'gregorian' ? (
+                          <Box flexBasis="calc(50% - 0.5rem)">
+                            <ChakraSelect
+                              value={d.era}
+                              onChange={(e) =>
+                                updateDraft(
+                                  d.id,
+                                  'era',
+                                  e.target.value as 'AD' | 'BC'
+                                )
+                              }>
+                              <option value="AD">AD</option>
+                              <option value="BC">BC</option>
+                            </ChakraSelect>
+                          </Box>
+                        ) : null}
+                      </Flex>
 
-                    <Flex gap={3} wrap="wrap" mb={3}>
-                      <Box flexBasis="calc(33% - 0.5rem)">
-                        <Input
-                          placeholder="YY"
-                          value={d.yy}
-                          onChange={(e) =>
-                            updateDraft(d.id, 'yy', e.target.value)
-                          }
-                        />
-                      </Box>
-                      <Box flexBasis="calc(33% - 0.5rem)">
-                        <Input
-                          placeholder="MM"
-                          value={d.mm}
-                          onChange={(e) =>
-                            updateDraft(d.id, 'mm', e.target.value)
-                          }
-                        />
-                      </Box>
-                      <Box flexBasis="calc(33% - 0.5rem)">
-                        <Input
-                          placeholder="DD"
-                          value={d.dd}
-                          onChange={(e) =>
-                            updateDraft(d.id, 'dd', e.target.value)
-                          }
-                        />
-                      </Box>
-                    </Flex>
+                      <Flex gap={3} wrap="wrap" mb={3}>
+                        <Box flexBasis="calc(33% - 0.5rem)">
+                          <Input
+                            placeholder="YY"
+                            value={d.yy}
+                            onChange={(e) =>
+                              updateDraft(d.id, 'yy', e.target.value)
+                            }
+                          />
+                        </Box>
+                        <Box flexBasis="calc(33% - 0.5rem)">
+                          <Input
+                            placeholder="MM"
+                            value={d.mm}
+                            onChange={(e) =>
+                              updateDraft(d.id, 'mm', e.target.value)
+                            }
+                          />
+                        </Box>
+                        <Box flexBasis="calc(33% - 0.5rem)">
+                          <Input
+                            placeholder="DD"
+                            value={d.dd}
+                            onChange={(e) =>
+                              updateDraft(d.id, 'dd', e.target.value)
+                            }
+                          />
+                        </Box>
+                      </Flex>
 
-                    <Flex gap={3} wrap="wrap" mb={3}>
-                      <Input
-                        placeholder="Tags"
-                        flex="1"
-                        value={d.tags}
-                        onChange={(e) =>
-                          updateDraft(d.id, 'tags', e.target.value)
-                        }
-                      />
-                    </Flex>
-                  </Box>
-                ))}
-                <Button
-                  variant="outline"
-                  leftIcon={<Icon as={castIcon(FiPlus)} boxSize={4} />}
-                  onClick={addDraft}>
-                  Add another
-                </Button>
-              </VStack>
-            )}
-          </DrawerBody>
-          <DrawerFooter>
-            <HStack w="full" justify="space-between">
-              <Button variant="ghost" onClick={closeDrawer}>
-                Cancel
-              </Button>
-              {editing ? (
-                <Button
-                  leftIcon={<Icon as={castIcon(FiSave)} boxSize={4} />}
-                  onClick={handleUpdate}>
-                  Save Changes
-                </Button>
-              ) : (
-                <Button
-                  leftIcon={<Icon as={castIcon(FiSave)} boxSize={4} />}
-                  isDisabled={!drafts.length}
-                  onClick={saveDrafts}>
-                  Save Entries
-                </Button>
+                      <Flex gap={3} wrap="wrap" mb={3}>
+                        <Input
+                          placeholder="Tags"
+                          flex="1"
+                          value={d.tags}
+                          onChange={(e) =>
+                            updateDraft(d.id, 'tags', e.target.value)
+                          }
+                        />
+                      </Flex>
+                    </Box>
+                  ))}
+                  <Button
+                    variant="outline"
+                    leftIcon={<Icon as={castIcon(FiPlus)} boxSize={4} />}
+                    onClick={addDraft}>
+                    Add another
+                  </Button>
+                </VStack>
               )}
-            </HStack>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
-      <AlertDialog
-        isOpen={isAlertOpen}
-        leastDestructiveRef={cancelRef}
-        onClose={closeAlert}>
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
-              Confirm Deletion
-            </AlertDialogHeader>
-            <AlertDialogBody>
-              Are you sure? This action cannot be undone.
-            </AlertDialogBody>
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={closeAlert}>
-                Cancel
-              </Button>
-              <Button colorScheme="red" onClick={onDeleteConfirmed} ml={3}>
-                Delete
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
-    </Box>
+            </DrawerBody>
+            <DrawerFooter>
+              <HStack w="full" justify="space-between">
+                <Button variant="ghost" onClick={closeDrawer}>
+                  Cancel
+                </Button>
+                {editing ? (
+                  <Button
+                    leftIcon={<Icon as={castIcon(FiSave)} boxSize={4} />}
+                    onClick={handleUpdate}>
+                    Save Changes
+                  </Button>
+                ) : (
+                  <Button
+                    leftIcon={<Icon as={castIcon(FiSave)} boxSize={4} />}
+                    isDisabled={!drafts.length}
+                    onClick={saveDrafts}>
+                    Save Entries
+                  </Button>
+                )}
+              </HStack>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
+        <AlertDialog
+          isOpen={isAlertOpen}
+          leastDestructiveRef={cancelRef}
+          onClose={closeAlert}>
+          <AlertDialogOverlay>
+            <AlertDialogContent>
+              <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                Confirm Deletion
+              </AlertDialogHeader>
+              <AlertDialogBody>
+                Are you sure? This action cannot be undone.
+              </AlertDialogBody>
+              <AlertDialogFooter>
+                <Button ref={cancelRef} onClick={closeAlert}>
+                  Cancel
+                </Button>
+                <Button colorScheme="red" onClick={onDeleteConfirmed} ml={3}>
+                  Delete
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialogOverlay>
+        </AlertDialog>
+      </Box>
+    </>
   )
 }
