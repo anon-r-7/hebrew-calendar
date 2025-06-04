@@ -47,6 +47,7 @@ export interface GetPairsParams {
   gregorian_after?: string // '0076-06-12 BC'
   exclude_before_feasts?: boolean
   exclude_after_feasts?: boolean
+  require_user_source?: boolean
   tags?: string // comma-separated
   name?: string
 }

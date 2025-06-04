@@ -79,6 +79,14 @@ export const listWithFilters = async (q: EventPairsParams) => {
     )`)
   }
 
+  if (q.require_user_source === 'true') {
+    where.push(`(
+      a_source = 'user'
+      AND
+      b_source = 'user'
+    )`)
+  }
+
   if (q.tags) {
     const tags = q.tags.split(',').map((tag: string, i: number) => {
       const key = `tag${i}`

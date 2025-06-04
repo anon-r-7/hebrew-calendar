@@ -30,4 +30,5 @@ export interface EventPairsParams {
   created_by_uuid?: string
   exclude_before_feasts?: string
   exclude_after_feasts?: string
+  require_user_source?: string
 }

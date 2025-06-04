@@ -145,6 +145,7 @@ export const EventsPairs: React.FC = () => {
 
     exclude_before_feasts: undefined,
     exclude_after_feasts: undefined,
+    require_user_source: undefined,
 
     // ─ IDs
     events_pairs_uuid: '',
@@ -351,6 +352,17 @@ export const EventsPairs: React.FC = () => {
                 </Checkbox>
 
                 <Checkbox
+                  isChecked={!!filters.require_user_source}
+                  onChange={(e) =>
+                    handleFilterChange(
+                      'require_user_source',
+                      e.target.checked ? true : undefined
+                    )
+                  }>
+                  Only user events
+                </Checkbox>
+
+                <Checkbox
                   isChecked={!!filters.exclude_before_feasts}
                   onChange={(e) =>
                     handleFilterChange(
@@ -488,7 +500,10 @@ export const EventsPairs: React.FC = () => {
                       onChange={(e) =>
                         updateGregorianFilter('gregorian', e.target.value)
                       }
-                      isInvalid={gregorianFilters.valid_gregorian === false}
+                      isInvalid={
+                        gregorianFilters.gregorian &&
+                        gregorianFilters.valid_gregorian === false
+                      }
                     />
                   )}
 
@@ -505,6 +520,7 @@ export const EventsPairs: React.FC = () => {
                           )
                         }
                         isInvalid={
+                          gregorianFilters.gregorian_from &&
                           gregorianFilters.valid_gregorian_from === false
                         }
                       />
@@ -516,6 +532,7 @@ export const EventsPairs: React.FC = () => {
                           updateGregorianFilter('gregorian_to', e.target.value)
                         }
                         isInvalid={
+                          gregorianFilters.gregorian_to &&
                           gregorianFilters.valid_gregorian_to === false
                         }
                       />
@@ -534,6 +551,7 @@ export const EventsPairs: React.FC = () => {
                         )
                       }
                       isInvalid={
+                        gregorianFilters.gregorian_before &&
                         gregorianFilters.valid_gregorian_before === false
                       }
                     />
@@ -548,6 +566,7 @@ export const EventsPairs: React.FC = () => {
                         updateGregorianFilter('gregorian_after', e.target.value)
                       }
                       isInvalid={
+                        gregorianFilters.gregorian_after &&
                         gregorianFilters.valid_gregorian_after === false
                       }
                     />

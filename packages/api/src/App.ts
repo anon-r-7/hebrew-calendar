@@ -12,7 +12,11 @@ export default () => {
 
   app.use(
     cors({
-      origin: ['https://hebrewfeasts.com', 'https://admin.hebrewfeasts.com'],
+      origin: [
+        'https://hebrewfeasts.com',
+        'https://admin.hebrewfeasts.com',
+        'http://localhost:3006'
+      ],
       credentials: true
     })
   )
