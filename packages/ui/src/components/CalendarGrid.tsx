@@ -240,6 +240,7 @@ const Details = ({
   secondaryDate,
   primaryYear,
   secondaryYear,
+  isPrimary,
   type,
   astronomy,
   theme
@@ -416,6 +417,7 @@ const Day = ({ day, datesGrid, type, isPrimary, theme }) => {
         primaryYear={primaryYear}
         secondaryYear={secondaryYear}
         astronomy={day.astronomy}
+        isPrimary={isPrimary}
         type={type}
         theme={theme}
       />
