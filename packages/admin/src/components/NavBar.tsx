@@ -1,7 +1,7 @@
 import React from 'react'
 import { Box, Flex, Link as ChakraLink, Text } from '@chakra-ui/react'
 import { NavLink as RouterLink, useLocation } from 'react-router-dom'
-import { Routes } from '../routes'
+import { Routes } from '@admin/Routes'
 
 const navItems = [
   { label: 'Analyze', to: Routes.EventsPairs },
