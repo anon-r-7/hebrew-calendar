@@ -18,6 +18,11 @@ import {
   Thead,
   Tr,
   Text,
+  Stack,
+  NumberInput,
+  NumberInputField,
+  RadioGroup,
+  Radio,
   VStack
 } from '@chakra-ui/react'
 import { IconType } from 'react-icons'
@@ -69,15 +74,44 @@ export const EventsPairs: React.FC = () => {
 
   /* ----------- Filters (UI state & API-side params kept in sync) ----------- */
   const [filters, setFilters] = useState<GetPairsParams>({
-    favorite: false,
+    // ─ quick flags & search
+    favorite: undefined,
     name: '',
     tags: '',
-    order: 'gregorian_desc'
+    order: 'gregorian_desc',
+
+    // ─ numeric
+    weeks: '',
+    revelation_years: '',
+    enochian_years: '',
+    exact_weeks: undefined,
+    exact_rev_years: undefined,
+    exact_enoch_years: undefined,
+
+    // ─ gregorian group
+    gregorian_source: 'user', // default
+    gregorian: '',
+    gregorian_from: '',
+    gregorian_to: '',
+    gregorian_before: '',
+    gregorian_after: '',
+
+    exclude_before_feasts: undefined,
+    exclude_after_feasts: undefined,
+
+    // ─ IDs
+    events_pairs_uuid: '',
+    events_entry_uuid: '',
+    hebrew_events_uuid: '',
+    created_by_uuid: ''
   })
 
-  const handleFilterChange = (field: keyof GetPairsParams, value: any) => {
+  const handleFilterChange = <K extends keyof GetPairsParams>(
+    field: K,
+    value: GetPairsParams[K]
+  ) => {
     setFilters((prev) => ({ ...prev, [field]: value }))
-    setPage(1) // always reset to first page when filters change
+    setPage(1)
   }
 
   /* ------------------------------ Callbacks -------------------------------- */
@@ -189,103 +223,498 @@ export const EventsPairs: React.FC = () => {
           borderWidth="1px"
           borderRadius="md"
           bg="brand.surface">
-          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
-            <Input
-              placeholder="Name contains…"
-              value={filters.name ?? ''}
-              onChange={(e) => handleFilterChange('name', e.target.value)}
-            />
+          <Stack spacing={6}>
+            {/* ➊ — Quick search & flags */}
+            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+              <Input
+                placeholder="Name contains…"
+                value={filters.name ?? ''}
+                onChange={(e) => handleFilterChange('name', e.target.value)}
+              />
 
-            <Input
-              placeholder="Tags CSV"
-              value={filters.tags ?? ''}
-              onChange={(e) => handleFilterChange('tags', e.target.value)}
-            />
+              <Input
+                placeholder="Tags (Comma Separated)"
+                value={filters.tags ?? ''}
+                onChange={(e) => handleFilterChange('tags', e.target.value)}
+              />
 
-            <ChakraSelect
-              value={filters.order}
-              onChange={(e) =>
-                handleFilterChange('order', e.target.value as any)
-              }>
-              <option value="gregorian_desc">Newest first</option>
-              <option value="gregorian">Oldest first</option>
-              <option value="diff">Smallest diff</option>
-              <option value="diff_desc">Largest diff</option>
-            </ChakraSelect>
+              <ChakraSelect
+                value={filters.order}
+                onChange={(e) =>
+                  handleFilterChange('order', e.target.value as any)
+                }>
+                <option value="gregorian_desc">Newest first</option>
+                <option value="gregorian">Oldest first</option>
+                <option value="diff">Smallest diff</option>
+                <option value="diff_desc">Largest diff</option>
+              </ChakraSelect>
 
-            <Checkbox
-              isChecked={!!filters.favorite}
-              onChange={(e) =>
-                handleFilterChange('favorite', e.target.checked || undefined)
-              }>
-              Favorites only
-            </Checkbox>
+              <Checkbox
+                isChecked={!!filters.favorite}
+                onChange={(e) =>
+                  handleFilterChange(
+                    'favorite',
+                    e.target.checked ? true : undefined
+                  )
+                }>
+                Favorites only
+              </Checkbox>
 
-            <Checkbox
-              isChecked={!!filters.exact_weeks}
-              onChange={(e) =>
-                handleFilterChange('exact_weeks', e.target.checked || undefined)
-              }>
-              Exact weeks
-            </Checkbox>
+              <Checkbox
+                isChecked={!!filters.exclude_before_feasts}
+                onChange={(e) =>
+                  handleFilterChange(
+                    'exclude_before_feasts',
+                    e.target.checked ? true : undefined
+                  )
+                }>
+                Exclude “before” feasts
+              </Checkbox>
 
-            {/* More filters can be added here on demand */}
-          </SimpleGrid>
+              <Checkbox
+                isChecked={!!filters.exclude_after_feasts}
+                onChange={(e) =>
+                  handleFilterChange(
+                    'exclude_after_feasts',
+                    e.target.checked ? true : undefined
+                  )
+                }>
+                Exclude “after” feasts
+              </Checkbox>
+            </SimpleGrid>
+
+            {/* ➋ — Numeric + exact flags */}
+            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+              <NumberInput
+                value={filters.weeks ?? ''}
+                onChange={(valueStr) => {
+                  handleFilterChange('weeks', valueStr === '' ? '' : valueStr)
+                }}>
+                <NumberInputField placeholder="Weeks =" />
+              </NumberInput>
+
+              <NumberInput
+                value={filters.revelation_years ?? ''}
+                onChange={(valueStr) => {
+                  handleFilterChange(
+                    'revelation_years',
+                    valueStr === '' ? '' : valueStr
+                  )
+                }}>
+                <NumberInputField placeholder="Revelation years =" />
+              </NumberInput>
+
+              <NumberInput
+                value={filters.enochian_years ?? ''}
+                onChange={(valueStr) => {
+                  handleFilterChange(
+                    'enochian_years',
+                    valueStr === '' ? '' : valueStr
+                  )
+                }}>
+                <NumberInputField placeholder="Enochian years =" />
+              </NumberInput>
+
+              <Checkbox
+                isChecked={!!filters.exact_weeks}
+                onChange={(e) =>
+                  handleFilterChange(
+                    'exact_weeks',
+                    e.target.checked ? true : undefined
+                  )
+                }>
+                Exact weeks
+              </Checkbox>
+
+              <Checkbox
+                isChecked={!!filters.exact_rev_years}
+                onChange={(e) =>
+                  handleFilterChange(
+                    'exact_rev_years',
+                    e.target.checked ? true : undefined
+                  )
+                }>
+                Exact revelation years
+              </Checkbox>
+
+              <Checkbox
+                isChecked={!!filters.exact_enoch_years}
+                onChange={(e) =>
+                  handleFilterChange(
+                    'exact_enoch_years',
+                    e.target.checked ? true : undefined
+                  )
+                }>
+                Exact enochian years
+              </Checkbox>
+            </SimpleGrid>
+
+            {/* ➌ — Gregorian filter (mutually exclusive) */}
+            <Box>
+              <Text mb={2} fontWeight="bold">
+                Gregorian date filter
+              </Text>
+
+              {/* radio chooses the mode */}
+              <RadioGroup
+                value={
+                  filters.gregorian
+                    ? 'exact'
+                    : filters.gregorian_from || filters.gregorian_to
+                    ? 'range'
+                    : filters.gregorian_before
+                    ? 'before'
+                    : filters.gregorian_after
+                    ? 'after'
+                    : ''
+                }
+                onChange={(val) => {
+                  // clear all date fields first
+                  handleFilterChange('gregorian', '')
+                  handleFilterChange('gregorian_from', '')
+                  handleFilterChange('gregorian_to', '')
+                  handleFilterChange('gregorian_before', '')
+                  handleFilterChange('gregorian_after', '')
+                  // then set the mode
+                  if (val === 'exact') handleFilterChange('gregorian', '')
+                  if (val === 'range') handleFilterChange('gregorian_from', '')
+                  if (val === 'before')
+                    handleFilterChange('gregorian_before', '')
+                  if (val === 'after') handleFilterChange('gregorian_after', '')
+                }}>
+                <HStack spacing={8}>
+                  <Radio value="exact">Exact date</Radio>
+                  <Radio value="range">Range</Radio>
+                  <Radio value="before">Before</Radio>
+                  <Radio value="after">After</Radio>
+                </HStack>
+              </RadioGroup>
+
+              {/* source selector */}
+              <HStack mt={2} spacing={4}>
+                <Text whiteSpace="nowrap">Gregorian Source:</Text>
+                <ChakraSelect
+                  w="120px"
+                  value={filters.gregorian_source}
+                  onChange={(e) =>
+                    handleFilterChange('gregorian_source', e.target.value)
+                  }>
+                  <option value="user">user</option>
+                  <option value="system">system</option>
+                </ChakraSelect>
+
+                {/* date inputs, rendered conditionally by mode */}
+                {filters.gregorian !== '' && (
+                  <Input
+                    type="text"
+                    w="150px"
+                    placeholder="YYYY-MM-DD [BC]"
+                    value={filters.gregorian}
+                    onChange={(e) =>
+                      handleFilterChange('gregorian', e.target.value)
+                    }
+                  />
+                )}
+
+                {(filters.gregorian_from !== '' ||
+                  filters.gregorian_to !== '') && (
+                  <>
+                    <Input
+                      type="text"
+                      w="150px"
+                      placeholder="From"
+                      value={filters.gregorian_from}
+                      onChange={(e) =>
+                        handleFilterChange('gregorian_from', e.target.value)
+                      }
+                    />
+                    <Input
+                      type="text"
+                      w="150px"
+                      placeholder="To"
+                      value={filters.gregorian_to}
+                      onChange={(e) =>
+                        handleFilterChange('gregorian_to', e.target.value)
+                      }
+                    />
+                  </>
+                )}
+
+                {filters.gregorian_before !== '' && (
+                  <Input
+                    type="text"
+                    w="150px"
+                    placeholder="≤ Date"
+                    value={filters.gregorian_before}
+                    onChange={(e) =>
+                      handleFilterChange('gregorian_before', e.target.value)
+                    }
+                  />
+                )}
+
+                {filters.gregorian_after !== '' && (
+                  <Input
+                    type="text"
+                    w="150px"
+                    placeholder="≥ Date"
+                    value={filters.gregorian_after}
+                    onChange={(e) =>
+                      handleFilterChange('gregorian_after', e.target.value)
+                    }
+                  />
+                )}
+              </HStack>
+            </Box>
+
+            {/* ➍ — ID / UUID filters */}
+            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+              {/*<Input
+                placeholder="Pair UUID"
+                value={filters.events_pairs_uuid ?? ''}
+                onChange={(e) =>
+                  handleFilterChange('events_pairs_uuid', e.target.value)
+                }
+              />*/}
+              <Input
+                placeholder="Entry UUID"
+                value={filters.events_entry_uuid ?? ''}
+                onChange={(e) =>
+                  handleFilterChange('events_entry_uuid', e.target.value)
+                }
+              />
+              <Input
+                placeholder="Hebrew events UUID"
+                value={filters.hebrew_events_uuid ?? ''}
+                onChange={(e) =>
+                  handleFilterChange('hebrew_events_uuid', e.target.value)
+                }
+              />
+              <Input
+                placeholder="Creator UUID"
+                value={filters.created_by_uuid ?? ''}
+                onChange={(e) =>
+                  handleFilterChange('created_by_uuid', e.target.value)
+                }
+              />
+            </SimpleGrid>
+          </Stack>
         </Box>
       </Collapse>
 
       {/* ---------------------------- Desktop ---------------------------- */}
       <Box display={{ base: 'none', md: 'block' }} overflowX="auto">
         <Table variant="simple" size="sm">
-          <Thead>
+          <Thead fontSize="xs">
+            {/* ──────────────── Row 1 – group labels ──────────────── */}
             <Tr>
-              <Th>A (Gregorian)</Th>
-              <Th>B (Gregorian)</Th>
-              <Th isNumeric>Diff&nbsp;(days)</Th>
-              <Th isNumeric>Weeks</Th>
-              <Th>Names</Th>
-              <Th>Tags</Th>
-              <Th isNumeric>Actions</Th>
+              <Th px={1} rowSpan={2}>
+                Fav
+              </Th>
+
+              <Th
+                px={1}
+                colSpan={5}
+                textAlign="center"
+                borderLeft="1px solid"
+                borderRight="1px solid"
+                borderColor="gray.200">
+                Distance
+              </Th>
+
+              <Th
+                px={1}
+                colSpan={3}
+                textAlign="center"
+                borderLeft="1px solid"
+                borderRight="1px solid"
+                borderColor="gray.200">
+                Evenly Divisible
+              </Th>
+
+              {/* group labels */}
+              <Th
+                px={1}
+                colSpan={6}
+                textAlign="center"
+                borderLeft="1px solid"
+                borderRight="1px solid"
+                borderColor="gray.200">
+                Side A
+              </Th>
+              <Th
+                px={1}
+                colSpan={6}
+                textAlign="center"
+                borderRight="1px solid"
+                borderColor="gray.200">
+                Side B
+              </Th>
+
+              {/* actions */}
+              <Th isNumeric px={1} rowSpan={2}></Th>
+            </Tr>
+
+            {/* ──────────────── Row 2 – column labels ─────────────── */}
+            <Tr>
+              <Th
+                isNumeric
+                px={1}
+                rowSpan={2}
+                borderLeft="1px solid"
+                borderColor="gray.200">
+                ½-days
+              </Th>
+              <Th isNumeric px={1} rowSpan={2}>
+                Days
+              </Th>
+              <Th isNumeric px={1} rowSpan={2}>
+                Weeks
+              </Th>
+              <Th isNumeric px={1} rowSpan={2}>
+                Rev yrs
+              </Th>
+              <Th isNumeric px={1} rowSpan={2}>
+                Enoch yrs
+              </Th>
+
+              <Th
+                px={1}
+                rowSpan={2}
+                textAlign="center"
+                borderLeft="1px solid"
+                borderColor="gray.200">
+                Weeks
+              </Th>
+              <Th px={1} rowSpan={2} textAlign="center">
+                Rev Yrs
+              </Th>
+              <Th px={1} rowSpan={2} textAlign="center">
+                Enoch Yrs
+              </Th>
+
+              {/* Side A */}
+              <Th px={1} borderLeft="1px solid" borderColor="gray.200">
+                Name
+              </Th>
+              {/*<Th px={1}>Desc</Th>*/}
+              {/*<Th px={1}>Src</Th>*/}
+              <Th px={1}>Weekday</Th>
+              <Th px={1}>Gregorian</Th>
+              <Th px={1}>Hebrew</Th>
+              <Th px={1}>Tags</Th>
+              <Th px={1} borderRight="1px solid" borderColor="gray.200">
+                By
+              </Th>
+
+              {/* Side B */}
+              <Th px={1}>Name</Th>
+              {/*<Th px={1}>Desc</Th>*/}
+              {/*<Th px={1}>Src</Th>*/}
+              <Th px={1}>Weekday</Th>
+              <Th px={1}>Gregorian</Th>
+              <Th px={1}>Hebrew</Th>
+              <Th px={1}>Tags</Th>
+              <Th px={1} borderRight="1px solid" borderColor="gray.200">
+                By
+              </Th>
             </Tr>
           </Thead>
+
           <Tbody>
             {store.state.pairs.map((p) => {
               const [a, b] = p.dates
-              const names = p.dates.map((d) => d.name).join(' / ')
-              const tags =
-                a.user?.tags ??
-                b.user?.tags ??
-                a.system?.short_name ??
-                b.system?.short_name ??
-                '—'
+              const tagsA = a.user?.tags ?? a.system?.short_name ?? '—'
+              const tagsB = b.user?.tags ?? b.system?.short_name ?? '—'
 
               return (
                 <Tr key={p.events_pairs_uuid} _hover={{ bg: 'brand.surface' }}>
-                  <Td>{a.gregorian.formatted}</Td>
-                  <Td>{b.gregorian.formatted}</Td>
-                  <Td isNumeric>{p.calculations.diff}</Td>
-                  <Td isNumeric>{p.calculations.weeks}</Td>
-                  <Td>{names}</Td>
-                  <Td>{tags}</Td>
-                  <Td isNumeric>
-                    <HStack justify="flex-end">
-                      <IconButton
-                        icon={
-                          p.favorite ? (
-                            <Icon as={castIcon(AiFillStar)} boxSize={4} />
-                          ) : (
-                            <Icon as={castIcon(FiStar)} boxSize={4} />
-                          )
-                        }
-                        size="sm"
-                        aria-label="toggle favorite"
-                        variant="ghost"
-                        onClick={() =>
-                          handleToggleFavorite(p.events_pairs_uuid, p.favorite)
-                        }
-                      />
-                    </HStack>
+                  {/* ─── Global ─── */}
+                  <Td px={1}>
+                    <IconButton
+                      icon={
+                        p.favorite ? (
+                          <Icon
+                            as={castIcon(AiFillStar)}
+                            boxSize={4}
+                            color="yellow.400"
+                          />
+                        ) : (
+                          <Icon as={castIcon(FiStar)} boxSize={4} />
+                        )
+                      }
+                      size="sm"
+                      aria-label="toggle favorite"
+                      variant="ghost"
+                      onClick={() =>
+                        handleToggleFavorite(p.events_pairs_uuid, p.favorite)
+                      }
+                    />
                   </Td>
+                  <Td
+                    isNumeric
+                    px={1}
+                    borderLeft="1px solid"
+                    borderColor="gray.200">
+                    {p.calculations.half_days}
+                  </Td>
+                  <Td isNumeric px={1}>
+                    {p.calculations.diff}
+                  </Td>
+                  <Td isNumeric px={1}>
+                    {p.calculations.weeks.toFixed(4)}
+                  </Td>
+                  <Td isNumeric px={1}>
+                    {p.calculations.revelation_years.toFixed(4)}
+                  </Td>
+                  <Td isNumeric px={1}>
+                    {p.calculations.enochian_years.toFixed(4)}
+                  </Td>
+                  <Td
+                    px={1}
+                    textAlign="center"
+                    borderLeft="1px solid"
+                    borderColor="gray.200">
+                    {p.isExact.weeks ? '✓' : ''}
+                  </Td>
+                  <Td px={1} textAlign="center">
+                    {p.isExact.revelation_years ? '✓' : ''}
+                  </Td>
+                  <Td px={1} textAlign="center">
+                    {p.isExact.enochian_years ? '✓' : ''}
+                  </Td>
+
+                  {/* ─── Side A ─── */}
+                  <Td px={1} borderLeft="1px solid" borderColor="gray.200">
+                    {a.name}
+                    {a.system?.event_day && ` (Day ${a.system?.event_day})`}
+                  </Td>
+                  {/*<Td px={1}>{a.user?.description}</Td>*/}
+                  {/*<Td px={1}>{a.source}</Td>*/}
+                  <Td px={1}>{a.day_of_week}</Td>
+                  <Td px={1}>{a.gregorian.formatted}</Td>
+                  <Td px={1}>{a.hebrew.formatted}</Td>
+                  <Td px={1}>{tagsA}</Td>
+                  <Td px={1} borderRight="1px solid" borderColor="gray.200">
+                    {a.user?.created_by.first_name ?? '—'}
+                  </Td>
+
+                  {/* ─── Side B ─── */}
+                  <Td px={1}>
+                    {b.name}
+                    {b.system?.event_day && ` (Day ${b.system?.event_day})`}
+                  </Td>
+                  {/*<Td px={1}>{b.user?.description}</Td>*/}
+                  {/*<Td px={1}>{b.source}</Td>*/}
+                  <Td px={1}>{b.day_of_week}</Td>
+                  <Td px={1}>{b.gregorian.formatted}</Td>
+                  <Td px={1}>{b.hebrew.formatted}</Td>
+                  <Td px={1}>{tagsB}</Td>
+                  <Td px={1} borderRight="1px solid" borderColor="gray.200">
+                    {b.user?.created_by.first_name ?? '—'}
+                  </Td>
+
+                  {/* actions column already covered by row-span header */}
+                  <Td px={1} isNumeric />
                 </Tr>
               )
             })}
@@ -298,6 +727,8 @@ export const EventsPairs: React.FC = () => {
         {store.state.pairs.map((p) => {
           const isExpanded = !!expandedItems[p.events_pairs_uuid]
           const [a, b] = p.dates
+          const tagsA = a.user?.tags ?? a.system?.short_name ?? '—'
+          const tagsB = b.user?.tags ?? b.system?.short_name ?? '—'
 
           return (
             <Box
@@ -309,30 +740,125 @@ export const EventsPairs: React.FC = () => {
               onClick={() => toggleExpanded(p.events_pairs_uuid)}
               cursor="pointer">
               <HStack justify="space-between" mb={2}>
-                <Text fontWeight="bold">{a.gregorian.formatted}</Text>
+                <Text fontWeight="bold">
+                  {a.gregorian.formatted} vs. {b.gregorian.formatted}
+                </Text>
                 {p.favorite && (
                   <Icon as={castIcon(AiFillStar)} color="yellow.400" />
                 )}
               </HStack>
               <Collapse in={isExpanded} animateOpacity>
                 <VStack spacing={2} align="start" mt={2} fontSize="sm">
-                  <Text>
-                    <b>B&nbsp;(Greg.) :</b> {b.gregorian.formatted}
+                  {/* ➊ — Global metrics */}
+
+                  {/* ➋ — Distance */}
+                  <Text mt={2} fontWeight="bold">
+                    — Distance —
                   </Text>
                   <Text>
-                    <b>Diff&nbsp;(days) :</b> {p.calculations.diff}
+                    <b>½-days:</b> {p.calculations.half_days}
                   </Text>
                   <Text>
-                    <b>Weeks :</b> {p.calculations.weeks}
+                    <b>Days</b> {p.calculations.diff}
                   </Text>
                   <Text>
-                    <b>Names :</b> {p.dates.map((d) => d.name).join(' / ')}
+                    <b>Weeks:</b> {p.calculations.weeks.toFixed(4)}
+                  </Text>
+                  <Text>
+                    <b>Rev&nbsp;years:</b>{' '}
+                    {p.calculations.revelation_years.toFixed(4)}
+                  </Text>
+                  <Text>
+                    <b>Enoch&nbsp;years:</b>{' '}
+                    {p.calculations.enochian_years.toFixed(4)}
+                  </Text>
+
+                  {/* ➋ — Evenly Divisible */}
+                  <Text mt={2} fontWeight="bold">
+                    — Evenly Divisible —
+                  </Text>
+                  <Text>
+                    <b>Weeks:</b> {p.isExact.weeks ? '✓' : '-'}
+                  </Text>
+                  <Text>
+                    <b>Rev&nbsp;Yrs:</b>{' '}
+                    {p.isExact.revelation_years ? '✓' : '—'}
+                  </Text>
+                  <Text>
+                    <b>Enoch&nbsp;Yrs:</b>{' '}
+                    {p.isExact.enochian_years ? '✓' : '—'}
+                  </Text>
+
+                  {/* ➋ — Side A */}
+                  <Text mt={2} fontWeight="bold">
+                    — Side A —
+                  </Text>
+                  <Text>
+                    <b>Name:</b> {a.name}
+                    {a.system?.event_day && ` (Day ${a.system?.event_day})`}
+                  </Text>
+                  {/*<Text>
+                    <b>Description:</b> {a.user?.description}
+                  </Text>*/}
+                  {/*<Text>
+                    <b>Source:</b> {a.source}
+                  </Text>*/}
+                  <Text>
+                    <b>Day of week:</b> {a.day_of_week}
+                  </Text>
+                  <Text>
+                    <b>Gregorian:</b> {a.gregorian.formatted}
+                  </Text>
+                  <Text>
+                    <b>Hebrew:</b> {a.hebrew.formatted}
+                  </Text>
+                  <Text>
+                    <b>Tags:</b> {tagsA}
+                  </Text>
+                  <Text>
+                    <b>Created&nbsp;by:</b>{' '}
+                    {a.user?.created_by.first_name ?? '—'}
+                  </Text>
+
+                  {/* ➌ — Side B */}
+                  <Text mt={2} fontWeight="bold">
+                    — Side B —
+                  </Text>
+                  <Text>
+                    <b>Name:</b> {b.name}
+                    {b.system?.event_day && ` (Day ${b.system?.event_day})`}
+                  </Text>
+                  {/*<Text>
+                    <b>Description:</b> {b.user?.description}
+                  </Text>*/}
+                  {/*<Text>
+                    <b>Source:</b> {b.source}
+                  </Text>*/}
+                  <Text>
+                    <b>Day of week:</b> {b.day_of_week}
+                  </Text>
+                  <Text>
+                    <b>Gregorian:</b> {b.gregorian.formatted}
+                  </Text>
+                  <Text>
+                    <b>Hebrew:</b> {b.hebrew.formatted}
+                  </Text>
+                  <Text>
+                    <b>Tags:</b> {tagsB}
+                  </Text>
+                  <Text>
+                    <b>Created&nbsp;by:</b>{' '}
+                    {b.user?.created_by.first_name ?? '—'}
                   </Text>
                   <HStack pt={2} spacing={2} alignSelf="flex-end">
                     <IconButton
                       icon={
                         p.favorite ? (
-                          <Icon as={castIcon(AiFillStar)} boxSize={4} />
+                          <Icon
+                            as={castIcon(AiFillStar)}
+                            boxSize={4}
+                            color="yellow.400"
+                          />
                         ) : (
                           <Icon as={castIcon(FiStar)} boxSize={4} />
                         )
