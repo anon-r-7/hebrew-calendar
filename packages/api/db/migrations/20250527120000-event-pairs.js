@@ -264,6 +264,17 @@ module.exports = {
         EXECUTE PROCEDURE fan_out_events_pairs();
     `);
 
+   /* ──────────────────────────────────────────────────────────────
+       6. Add "event_day" for sukkot, matzot, and chanukkah
+       ─────────────────────────────────────────────────────────── */
+    await queryInterface.removeColumn('hebrew_event_dates', 'event_day') .catch(() => {});
+
+    await queryInterface.addColumn('hebrew_event_dates', 'event_day', {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+    });
+
+
     /* ──────────────────────────────────────────────────────────────
        6. Materialised view for read-heavy workloads
        ─────────────────────────────────────────────────────────── */
@@ -409,15 +420,6 @@ module.exports = {
         ON events_pair_view (a_created_by_uuid, b_created_by_uuid);
     `);
 
-    /* ──────────────────────────────────────────────────────────────
-       6. Add "event_day" for sukkot, matzot, and chanukkah
-       ─────────────────────────────────────────────────────────── */
-    await queryInterface.removeColumn('hebrew_event_dates', 'event_day') .catch(() => {});
-
-    await queryInterface.addColumn('hebrew_event_dates', 'event_day', {
-      type: Sequelize.INTEGER,
-      allowNull: true,
-    });
 
     await queryInterface.sequelize.query(`
       WITH ranked AS (
