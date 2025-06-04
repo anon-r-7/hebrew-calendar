@@ -68,6 +68,12 @@ class Route implements BaseRoute {
         authMiddlware,
         this.controller.listPairs
       )
+
+      this.router.get(
+        `${this.path}/filter-meta`,
+        authMiddlware,
+        this.controller.getFilterMeta
+      )
     } catch (err) {
       console.error('[events route] Error registering routes:', err)
       throw err

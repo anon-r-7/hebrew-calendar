@@ -65,8 +65,18 @@ export interface Pair {
   }>
 }
 
+interface FilterMeta {
+  uuid: string
+  name: string
+}
+
 export interface InitialState {
   syncing: boolean
   pairs: Pair[]
   meta: Meta
+  filterMeta: {
+    events: FilterMeta[]
+    users: FilterMeta[]
+    entries: FilterMeta[]
+  }
 }

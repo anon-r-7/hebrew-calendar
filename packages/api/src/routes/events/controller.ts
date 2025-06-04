@@ -1,8 +1,11 @@
 import { Request, Response, NextFunction } from 'express'
 import HttpException from '@api/utils/HttpException'
+
 import * as UserMethods from '@api/models/User/methods'
 import * as EventsEntryMethods from '@api/models/EventsEntry/methods'
 import * as EventsPairsMethods from '@api/models/EventsPairs/methods'
+import * as HebrewEventsMethods from '@api/models/HebrewEvents/methods'
+
 import * as SyncService from '@api/services/EventSync'
 
 import { AuthRequest } from '@api/types/express/AuthRequest'
@@ -140,6 +143,30 @@ class EventsController {
     try {
       const result = await EventsPairsMethods.listWithFilters(req.query)
       res.json(result)
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  /* GET /filter_meta */
+  public getFilterMeta = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const events = await HebrewEventsMethods.findForEvents()
+      const users = await UserMethods.findAll()
+      const entries = await EventsEntryMethods.findMeta()
+
+      res.json({
+        events,
+        users: users.map((user) => ({
+          uuid: user.uuid,
+          name: `${user.first_name} ${user.last_name}`
+        })),
+        entries
+      })
     } catch (err) {
       next(err)
     }

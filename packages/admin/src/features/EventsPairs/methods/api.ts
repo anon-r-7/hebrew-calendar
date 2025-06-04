@@ -1,5 +1,24 @@
 import api from '@admin/api/events'
 
+export const getFilterMeta = async ({ asyncManager, store }) => {
+  try {
+    asyncManager.start()
+    const { events, users, entries } = await api.getFilterMeta()
+    store.update({
+      filterMeta: {
+        events: events ?? [],
+        users: users ?? [],
+        entries: entries ?? []
+      }
+    })
+    asyncManager.success()
+  } catch (error) {
+    asyncManager.fail(
+      `Hmm, there was a problem getting filter meta. Please try again.`
+    )
+  }
+}
+
 export const getPairs = async ({ payload, asyncManager, store }) => {
   try {
     asyncManager.start()

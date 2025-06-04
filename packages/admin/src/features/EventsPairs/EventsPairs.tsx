@@ -33,9 +33,22 @@ import { useStore } from '@admin/hooks/useStore'
 import { useAsyncManager } from '@admin/hooks/useAsyncManager'
 import { Loading } from '@admin/components/Loading'
 
-import { getPairs, updatePair, postSync, getSync } from './methods/api'
+import {
+  getPairs,
+  updatePair,
+  postSync,
+  getSync,
+  getFilterMeta
+} from './methods/api'
 import { InitialState } from './types'
 import { GetPairsParams } from '@admin/api/events/interface'
+
+/* -------------------------------------------------------------------------- */
+/*                                Utils                                       */
+/* -------------------------------------------------------------------------- */
+
+const isValidDateFormat = (value: string) =>
+  /^\d{4}-\d{2}-\d{2}( BC)?$/.test(value)
 
 /* -------------------------------------------------------------------------- */
 /*                                Constants                                   */
@@ -46,10 +59,29 @@ const initialState: InitialState = {
   meta: {
     count: { total: 0, current: 0 },
     page: { current: 1, next: null, prev: null, limit: 50 }
+  },
+  filterMeta: {
+    events: [],
+    users: [],
+    entries: []
   }
 }
 
 const PAGE_SIZE_OPTIONS = [50, 100, 200]
+
+const initialGregorianFilters = {
+  gregorian: '',
+  gregorian_from: '',
+  gregorian_to: '',
+  gregorian_before: '',
+  gregorian_after: '',
+
+  valid_gregorian: false,
+  valid_gregorian_from: false,
+  valid_gregorian_to: false,
+  valid_gregorian_before: false,
+  valid_gregorian_after: false
+}
 
 /* -------------------------------------------------------------------------- */
 /*                                 Component                                  */
@@ -65,12 +97,26 @@ export const EventsPairs: React.FC = () => {
   const [size, setSize] = useState<number>(PAGE_SIZE_OPTIONS[0])
 
   const [showFilters, setShowFilters] = useState(false)
-
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {}
   )
   const toggleExpanded = (uuid: string) =>
     setExpandedItems((prev) => ({ ...prev, [uuid]: !prev[uuid] }))
+
+  const [gregorianSelection, setGregorianSelection] = useState('exact')
+  const [gregorianSource, setGregorianSource] = useState('user')
+
+  const [gregorianFilters, setGregorianFilters] = useState(
+    initialGregorianFilters
+  )
+
+  const updateGregorianFilter = (key, value) => {
+    setGregorianFilters((prev) => ({
+      ...prev,
+      [key]: value,
+      [`valid_${key}`]: isValidDateFormat(value)
+    }))
+  }
 
   /* ----------- Filters (UI state & API-side params kept in sync) ----------- */
   const [filters, setFilters] = useState<GetPairsParams>({
@@ -114,6 +160,12 @@ export const EventsPairs: React.FC = () => {
     setPage(1)
   }
 
+  /* -------------------------------- Refs  --------------------------------- */
+  const lastFiltersRef = useRef<string>(JSON.stringify(filters))
+  const lastPageRef = useRef<number>(page)
+  const lastSizeRef = useRef<number>(size)
+  const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   /* ------------------------------ Callbacks -------------------------------- */
   const fetchPairs = useCallback(() => {
     getPairs({
@@ -125,7 +177,15 @@ export const EventsPairs: React.FC = () => {
         ...filters
       }
     })
-  }, [page, size, filters])
+  }, [asyncManager, store, page, size, filters])
+
+  const init = async () => {
+    await getFilterMeta({
+      asyncManager,
+      store
+    })
+    fetchPairs()
+  }
 
   /* ------------------------------ Effects -------------------------------- */
   useEffect(() => {
@@ -136,8 +196,35 @@ export const EventsPairs: React.FC = () => {
   }, [store.state.syncing])
 
   useEffect(() => {
-    fetchPairs()
-  }, [fetchPairs])
+    const filtersString = JSON.stringify(filters)
+    const filtersChanged = filtersString !== lastFiltersRef.current
+
+    const pageChanged = page !== lastPageRef.current
+    const sizeChanged = size !== lastSizeRef.current
+
+    if (!filtersChanged && !pageChanged && !sizeChanged) return undefined
+
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current)
+    }
+
+    debounceTimeoutRef.current = setTimeout(() => {
+      lastFiltersRef.current = filtersString
+      lastPageRef.current = page
+      lastSizeRef.current = size
+      fetchPairs()
+    }, 300)
+
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current)
+      }
+    }
+  }, [filters, page, size, fetchPairs])
+
+  useEffect(() => {
+    init()
+  }, [])
 
   /* ---- Poll sync status while the backend is still working ---- */
   const pollSyncStatus = useCallback(async () => {
@@ -357,30 +444,19 @@ export const EventsPairs: React.FC = () => {
 
               {/* radio chooses the mode */}
               <RadioGroup
-                value={
-                  filters.gregorian
-                    ? 'exact'
-                    : filters.gregorian_from || filters.gregorian_to
-                    ? 'range'
-                    : filters.gregorian_before
-                    ? 'before'
-                    : filters.gregorian_after
-                    ? 'after'
-                    : ''
-                }
-                onChange={(val) => {
-                  // clear all date fields first
-                  handleFilterChange('gregorian', '')
-                  handleFilterChange('gregorian_from', '')
-                  handleFilterChange('gregorian_to', '')
-                  handleFilterChange('gregorian_before', '')
-                  handleFilterChange('gregorian_after', '')
-                  // then set the mode
-                  if (val === 'exact') handleFilterChange('gregorian', '')
-                  if (val === 'range') handleFilterChange('gregorian_from', '')
-                  if (val === 'before')
-                    handleFilterChange('gregorian_before', '')
-                  if (val === 'after') handleFilterChange('gregorian_after', '')
+                value={gregorianSelection}
+                onChange={(value) => {
+                  setFilters((prev) => ({
+                    ...prev,
+                    gregorian: '',
+                    gregorian_from: '',
+                    gregorian_to: '',
+                    gregorian_before: '',
+                    gregorian_after: ''
+                  }))
+                  setPage(1)
+                  setGregorianFilters(initialGregorianFilters)
+                  setGregorianSelection(value)
                 }}>
                 <HStack spacing={8}>
                   <Radio value="exact">Exact date</Radio>
@@ -392,77 +468,113 @@ export const EventsPairs: React.FC = () => {
 
               {/* source selector */}
               <HStack mt={2} spacing={4}>
-                <Text whiteSpace="nowrap">Gregorian Source:</Text>
                 <ChakraSelect
-                  w="120px"
-                  value={filters.gregorian_source}
-                  onChange={(e) =>
-                    handleFilterChange('gregorian_source', e.target.value)
-                  }>
+                  w="300px"
+                  value={gregorianSource}
+                  onChange={(e) => setGregorianSource(e.target.value)}>
                   <option value="user">user</option>
                   <option value="system">system</option>
                 </ChakraSelect>
 
                 {/* date inputs, rendered conditionally by mode */}
-                {filters.gregorian !== '' && (
+                {gregorianSelection === 'exact' && (
                   <Input
                     type="text"
-                    w="150px"
                     placeholder="YYYY-MM-DD [BC]"
-                    value={filters.gregorian}
+                    value={gregorianFilters.gregorian}
                     onChange={(e) =>
-                      handleFilterChange('gregorian', e.target.value)
+                      updateGregorianFilter('gregorian', e.target.value)
                     }
+                    isInvalid={gregorianFilters.valid_gregorian === false}
                   />
                 )}
 
-                {(filters.gregorian_from !== '' ||
-                  filters.gregorian_to !== '') && (
+                {gregorianSelection === 'range' && (
                   <>
                     <Input
                       type="text"
-                      w="150px"
                       placeholder="From"
-                      value={filters.gregorian_from}
+                      value={gregorianFilters.gregorian_from}
                       onChange={(e) =>
-                        handleFilterChange('gregorian_from', e.target.value)
+                        updateGregorianFilter('gregorian_from', e.target.value)
+                      }
+                      isInvalid={
+                        gregorianFilters.valid_gregorian_from === false
                       }
                     />
                     <Input
                       type="text"
-                      w="150px"
                       placeholder="To"
-                      value={filters.gregorian_to}
+                      value={gregorianFilters.gregorian_to}
                       onChange={(e) =>
-                        handleFilterChange('gregorian_to', e.target.value)
+                        updateGregorianFilter('gregorian_to', e.target.value)
                       }
+                      isInvalid={gregorianFilters.valid_gregorian_to === false}
                     />
                   </>
                 )}
 
-                {filters.gregorian_before !== '' && (
+                {gregorianSelection === 'before' && (
                   <Input
                     type="text"
-                    w="150px"
                     placeholder="≤ Date"
-                    value={filters.gregorian_before}
+                    value={gregorianFilters.gregorian_before}
                     onChange={(e) =>
-                      handleFilterChange('gregorian_before', e.target.value)
+                      updateGregorianFilter('gregorian_before', e.target.value)
+                    }
+                    isInvalid={
+                      gregorianFilters.valid_gregorian_before === false
                     }
                   />
                 )}
 
-                {filters.gregorian_after !== '' && (
+                {gregorianSelection === 'after' && (
                   <Input
                     type="text"
-                    w="150px"
                     placeholder="≥ Date"
-                    value={filters.gregorian_after}
+                    value={gregorianFilters.gregorian_after}
                     onChange={(e) =>
-                      handleFilterChange('gregorian_after', e.target.value)
+                      updateGregorianFilter('gregorian_after', e.target.value)
                     }
+                    isInvalid={gregorianFilters.valid_gregorian_after === false}
                   />
                 )}
+                <Button
+                  color="brand.primary"
+                  onClick={() => {
+                    const payload: any = { gregorian_source: gregorianSource }
+
+                    if (gregorianSelection === 'exact') {
+                      payload.gregorian = gregorianFilters.gregorian
+                    } else if (gregorianSelection === 'range') {
+                      payload.gregorian_from = gregorianFilters.gregorian_from
+                      payload.gregorian_to = gregorianFilters.gregorian_to
+                    } else if (gregorianSelection === 'before') {
+                      payload.gregorian_before =
+                        gregorianFilters.gregorian_before
+                    } else if (gregorianSelection === 'after') {
+                      payload.gregorian_after = gregorianFilters.gregorian_after
+                    }
+
+                    setFilters((prev) => ({
+                      ...prev,
+                      ...payload
+                    }))
+                    setPage(1)
+                  }}
+                  isDisabled={
+                    (gregorianSelection === 'exact' &&
+                      !gregorianFilters.valid_gregorian) ||
+                    (gregorianSelection === 'range' &&
+                      (!gregorianFilters.valid_gregorian_from ||
+                        !gregorianFilters.valid_gregorian_to)) ||
+                    (gregorianSelection === 'before' &&
+                      !gregorianFilters.valid_gregorian_before) ||
+                    (gregorianSelection === 'after' &&
+                      !gregorianFilters.valid_gregorian_after)
+                  }>
+                  Set Dates
+                </Button>
               </HStack>
             </Box>
 
@@ -475,27 +587,56 @@ export const EventsPairs: React.FC = () => {
                   handleFilterChange('events_pairs_uuid', e.target.value)
                 }
               />*/}
-              <Input
-                placeholder="Entry UUID"
+              <ChakraSelect
+                placeholder="Select Entry"
                 value={filters.events_entry_uuid ?? ''}
                 onChange={(e) =>
-                  handleFilterChange('events_entry_uuid', e.target.value)
-                }
-              />
-              <Input
-                placeholder="Hebrew events UUID"
+                  handleFilterChange(
+                    'events_entry_uuid',
+                    e.target.value === '' ? '' : e.target.value
+                  )
+                }>
+                <option value="">—</option>
+                {store.state.filterMeta.entries.map((entry) => (
+                  <option key={entry.uuid} value={entry.uuid}>
+                    {entry.name}
+                  </option>
+                ))}
+              </ChakraSelect>
+
+              <ChakraSelect
+                placeholder="Select Hebrew Event"
                 value={filters.hebrew_events_uuid ?? ''}
                 onChange={(e) =>
-                  handleFilterChange('hebrew_events_uuid', e.target.value)
-                }
-              />
-              <Input
-                placeholder="Creator UUID"
+                  handleFilterChange(
+                    'hebrew_events_uuid',
+                    e.target.value === '' ? '' : e.target.value
+                  )
+                }>
+                <option value="">—</option>
+                {store.state.filterMeta.events.map((event) => (
+                  <option key={event.uuid} value={event.uuid}>
+                    {event.name}
+                  </option>
+                ))}
+              </ChakraSelect>
+
+              <ChakraSelect
+                placeholder="Select Creator"
                 value={filters.created_by_uuid ?? ''}
                 onChange={(e) =>
-                  handleFilterChange('created_by_uuid', e.target.value)
-                }
-              />
+                  handleFilterChange(
+                    'created_by_uuid',
+                    e.target.value === '' ? '' : e.target.value
+                  )
+                }>
+                <option value="">—</option>
+                {store.state.filterMeta.users.map((user) => (
+                  <option key={user.uuid} value={user.uuid}>
+                    {user.name}
+                  </option>
+                ))}
+              </ChakraSelect>
             </SimpleGrid>
           </Stack>
         </Box>

@@ -165,3 +165,9 @@ export async function removeCascade(uuid: string) {
     await entry.destroy({ transaction: t })
   })
 }
+
+export async function findMeta() {
+  const eventPairs = await Models.EventsEntry.findAll()
+
+  return eventPairs.map(({ uuid, name }) => ({ uuid, name }))
+}

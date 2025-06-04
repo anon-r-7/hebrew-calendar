@@ -58,5 +58,10 @@ export default {
     const params = getParams(payload)
     const { data } = await client.get(`${baseUrl}/pair?${params}`)
     return data
+  },
+
+  getFilterMeta: async (): Promise<any> => {
+    const { data } = await client.get(`${baseUrl}/filter-meta`)
+    return data
   }
 }
