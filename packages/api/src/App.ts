@@ -10,7 +10,13 @@ const port = process.env.SERVER_PORT ? process.env.SERVER_PORT : 5000
 export default () => {
   const app = express()
 
-  app.use(cors())
+  app.use(
+    cors({
+      origin: ['https://hebrewfeasts.com', 'https://admin.hebrewfeasts.com'],
+      credentials: true
+    })
+  )
+
   app.use(bodyParser.json())
 
   app.use(
