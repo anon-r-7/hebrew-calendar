@@ -10,6 +10,21 @@ export const setFavorite = async (uuid: string, favorite: string) => {
   return pair
 }
 
+const convertNamedParams = (sql: string, replacements: Record<string, any>) => {
+  const values: any[] = []
+  const nameToIndex: Record<string, number> = {}
+
+  const convertedSql = sql.replace(/(::\w+)|:(\w+)/g, (_, cast, name) => {
+    if (cast) return cast // preserve PostgreSQL casts (::type)
+    if (!(name in nameToIndex)) {
+      nameToIndex[name] = values.push(replacements[name])
+    }
+    return `$${nameToIndex[name]}`
+  })
+
+  return { convertedSql, values }
+}
+
 export const listWithFilters = async (q: EventPairsParams) => {
   const page = Math.max(1, Number(q.page ?? 1))
   const limit = Math.min(500, Number(q.limit ?? 50))
@@ -101,19 +116,14 @@ export const listWithFilters = async (q: EventPairsParams) => {
     'hebrew_events_uuid',
     'created_by_uuid'
   ]
-  for (const key of uuidKeys) {
+  uuidKeys.forEach((key) => {
     const value = q[key as keyof EventPairsParams]
     if (value) {
-      where.push(
-        `(${['a', 'b']
-          .map((letter, i) => `${letter}_${key} = :${key}${i}`)
-          .join(' OR ')})`
-      )
-      ;['a', 'b'].forEach((letter, i) => {
-        replacements[`${key}${i}`] = value
-      })
+      where.push(`(a_${key} = :${key}0 OR b_${key} = :${key}1)`)
+      replacements[`${key}0`] = value
+      replacements[`${key}1`] = value
     }
-  }
+  })
 
   if (q.exact_rev_years === 'true') where.push('exact_rev_years = true')
   if (q.exact_enoch_years === 'true') where.push('exact_enoch_years = true')
@@ -141,12 +151,11 @@ export const listWithFilters = async (q: EventPairsParams) => {
 
   if (q.name) {
     const words = q.name.trim().split(/\s+/).filter(Boolean)
-    const conditions = words.map((word, i) => {
+    words.forEach((word, i) => {
       const key = `name${i}`
       replacements[key] = `%${word}%`
-      return `(ea.name ILIKE :${key} OR eb.name ILIKE :${key})`
+      where.push(`(ea.name ILIKE :${key} OR eb.name ILIKE :${key})`)
     })
-    where.push(conditions.join(' AND '))
   }
 
   const whereSQL = where.length ? `WHERE ${where.join(' AND ')}` : ''
@@ -160,15 +169,24 @@ export const listWithFilters = async (q: EventPairsParams) => {
       gregorian_desc: 'ORDER BY a_gdate DESC'
     }[orderKey] ?? 'ORDER BY diff ASC'
 
- 
-  const query =    `
+  const query = `
     SELECT
       epv.*,
       ep.favorite as favorite_live,
       ea.name AS a_name_live,
       ea.description AS a_description_live,
       eb.name AS b_name_live,
-      eb.description AS b_description_live
+      eb.description AS b_description_live,
+
+      CASE
+        WHEN epv.a_gdate < DATE '0001-01-01' THEN TO_CHAR(epv.a_gdate, 'YYYY-MM-DD') || ' BC'
+        ELSE TO_CHAR(epv.a_gdate, 'YYYY-MM-DD')
+      END AS a_gdate_string,
+      CASE
+        WHEN epv.b_gdate < DATE '0001-01-01' THEN TO_CHAR(epv.b_gdate, 'YYYY-MM-DD') || ' BC'
+        ELSE TO_CHAR(epv.b_gdate, 'YYYY-MM-DD')
+      END AS b_gdate_string
+
     FROM events_pair_view epv
     LEFT JOIN events_pairs ep ON ep.uuid = epv.uuid
     LEFT JOIN events_entry ea ON ea.uuid = epv.a_events_entry_uuid
@@ -177,7 +195,6 @@ export const listWithFilters = async (q: EventPairsParams) => {
     ${orderSQL}
     OFFSET :off LIMIT :lim
   `
-  // TODO: figure out how to refactor replacements, off and lim into pg expectations
 
   const countQuery = `
     SELECT COUNT(*)::bigint AS count
@@ -187,24 +204,30 @@ export const listWithFilters = async (q: EventPairsParams) => {
     LEFT JOIN events_entry eb ON eb.uuid = epv.b_events_entry_uuid
     ${whereSQL}
   `
-  // TODO: figure out how to refactor replacements into pg expectations
+
+  const { convertedSql: finalQuery, values: finalValues } = convertNamedParams(
+    query,
+    { ...replacements, off: offset, lim: limit }
+  )
+
+  const { convertedSql: finalCountQuery, values: finalCountValues } =
+    convertNamedParams(countQuery, { ...replacements })
 
   const client = await pgPool.connect()
 
-  let rows = [], count = 0 
+  let rows = [],
+    count = 0
 
   try {
-    // TODO: validate if this is the right way to do replacements and offset and limit
-    const response = await client.query(query, { ...replacements, offset, limit })
-    rows = response.rows || []
+    const response = await client.query(finalQuery, finalValues)
+    const countResponse = await client.query(finalCountQuery, finalCountValues)
 
-    const countResponse = await client.query(countQuery, replacements)
+    rows = response.rows
     count = Number(countResponse.rows[0].count)
   } finally {
     client.release()
   }
 
-  // TODO: validate this still works
   rows = rows.map((r) => {
     const sideA = mapSide('a', {
       ...r,
@@ -243,11 +266,8 @@ export const listWithFilters = async (q: EventPairsParams) => {
     }
   })
 
-  // TODO: validate these are still good
   const hasNext = offset + limit < Number(count)
   const hasPrev = page > 1
-
-  // TODO: validate this is still good
   return {
     meta: {
       count: { total: Number(count), current: rows.length },

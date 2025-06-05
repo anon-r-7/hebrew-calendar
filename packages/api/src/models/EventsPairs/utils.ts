@@ -1,5 +1,6 @@
 const parseDate = (d?: string) => {
   if (!d) return undefined
+
   const era = d.includes('BC') ? 'BC' : 'AD'
   const stripped = d.replace(' BC', '')
   const [yy, mm, dd] = stripped.split('-')
@@ -19,7 +20,7 @@ const parseHebrew = (d?: string) => {
 }
 
 export const mapSide = (p: 'a' | 'b', r: any) => {
-  const gdate = r[`${p}_gdate`]
+  const gdate = r[`${p}_gdate_string`]
   const hdate = r[`${p}_hdate`]
 
   const base = {
