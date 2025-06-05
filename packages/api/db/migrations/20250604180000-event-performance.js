@@ -3,6 +3,8 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     try {
       await queryInterface.sequelize.query(`
+        CREATE UNIQUE INDEX CONCURRENTLY events_pair_view_pkey ON events_pair_view (uuid);
+
         -- ───────────────────────────────────────────────────────────────────────────
         -- 1) Trigram extension for tag searches (only once)
         -- ───────────────────────────────────────────────────────────────────────────

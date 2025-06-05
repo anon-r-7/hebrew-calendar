@@ -69,7 +69,7 @@ const _run = async (): Promise<void> => {
 
   // Refresh materialized view once after all inserts complete
   try {
-    Models.sequelize.query('REFRESH MATERIALIZED VIEW events_pair_view')
+    Models.sequelize.query('REFRESH MATERIALIZED VIEW CONCURRENTLY events_pair_view;')
     logger.info('[sync] materialized view refreshed')
   } catch (err) {
     logger.error(`[sync] MV refresh failed: ${err}`)
