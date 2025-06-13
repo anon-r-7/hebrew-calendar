@@ -11,6 +11,8 @@ export const env = {
       typeof envApiUrl == 'string'
         ? // @ts-expect-error:next-line
           envApiUrl
-        : 'http://localhost:5000'
+        : 'https://api.hebrewfeasts.com'
+      // TODO: revert
+      // : 'http://localhost:5000'
     )
 }

@@ -23,7 +23,13 @@ import {
   NumberInputField,
   RadioGroup,
   Radio,
-  VStack
+  VStack,
+  Drawer,
+  DrawerBody,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerContent,
+  DrawerOverlay
 } from '@chakra-ui/react'
 import { IconType } from 'react-icons'
 import { FiFilter, FiLoader, FiRefreshCw, FiStar } from 'react-icons/fi'
@@ -43,6 +49,12 @@ import {
 } from './methods/api'
 import { InitialState } from './types'
 import { GetPairsParams } from '@admin/api/events/interface'
+import { getFactors } from '@admin/utils/factors'
+
+const significantNumbers = [
+  3, 7, 12, 13, 24, 40, 49, 50, 52, 90, 91, 360, 364, 2000, 8190, 32760, 131040,
+  728000, 2948400
+]
 
 /* -------------------------------------------------------------------------- */
 /*                                Utils                                       */
@@ -97,7 +109,7 @@ export const EventsPairs: React.FC = () => {
   const [page, setPage] = useState<number>(1)
   const [size, setSize] = useState<number>(PAGE_SIZE_OPTIONS[0])
 
-  const [showFilters, setShowFilters] = useState(false)
+  const [showFilters, setShowFilters] = useState(true)
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {}
   )
@@ -117,6 +129,25 @@ export const EventsPairs: React.FC = () => {
       [key]: value,
       [`valid_${key}`]: isValidDateFormat(value)
     }))
+  }
+
+  /* -------------------------------- Drawer Components --------------------------------- */
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [selectedPair, setSelectedPair] = useState(null)
+  const [openedSections, setOpenedSections] = useState([])
+
+  const openDrawerForMetric = (metricName, pair) => {
+    setSelectedPair(pair)
+    setOpenedSections([metricName]) // by default only clicked metric is open
+    setIsDrawerOpen(true)
+  }
+
+  const toggleSection = (metricName) => {
+    setOpenedSections((prev) =>
+      prev.includes(metricName)
+        ? prev.filter((s) => s !== metricName)
+        : [...prev, metricName]
+    )
   }
 
   /* ----------- Filters (UI state & API-side params kept in sync) ----------- */
@@ -163,10 +194,11 @@ export const EventsPairs: React.FC = () => {
   }
 
   /* -------------------------------- Refs  --------------------------------- */
-  const lastFiltersRef = useRef<string>(JSON.stringify(filters))
-  const lastPageRef = useRef<number>(page)
-  const lastSizeRef = useRef<number>(size)
-  const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Temporarily remove these
+  // const lastFiltersRef = useRef<string>(JSON.stringify(filters))
+  // const lastPageRef = useRef<number>(page)
+  // const lastSizeRef = useRef<number>(size)
+  // const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   /* ------------------------------ Callbacks -------------------------------- */
   const fetchPairs = useCallback(() => {
@@ -186,43 +218,45 @@ export const EventsPairs: React.FC = () => {
       asyncManager,
       store
     })
-    fetchPairs()
+    // Disabled to not start out by fetching.
+    // fetchPairs()
   }
 
   /* ------------------------------ Effects -------------------------------- */
-  useEffect(() => {
-    if (syncingRef.current && !store.state.syncing) {
-      fetchPairs()
-    }
-    syncingRef.current = store.state.syncing
-  }, [store.state.syncing])
+  // Disable on the fly filtering in favor of user-explit filtering on button push
+  // useEffect(() => {
+  //   if (syncingRef.current && !store.state.syncing) {
+  //     fetchPairs()
+  //   }
+  //   syncingRef.current = store.state.syncing
+  // }, [store.state.syncing])
 
-  useEffect(() => {
-    const filtersString = JSON.stringify(filters)
-    const filtersChanged = filtersString !== lastFiltersRef.current
+  // useEffect(() => {
+  //   const filtersString = JSON.stringify(filters)
+  //   const filtersChanged = filtersString !== lastFiltersRef.current
 
-    const pageChanged = page !== lastPageRef.current
-    const sizeChanged = size !== lastSizeRef.current
+  //   const pageChanged = page !== lastPageRef.current
+  //   const sizeChanged = size !== lastSizeRef.current
 
-    if (!filtersChanged && !pageChanged && !sizeChanged) return undefined
+  //   if (!filtersChanged && !pageChanged && !sizeChanged) return undefined
 
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current)
-    }
+  //   if (debounceTimeoutRef.current) {
+  //     clearTimeout(debounceTimeoutRef.current)
+  //   }
 
-    debounceTimeoutRef.current = setTimeout(() => {
-      lastFiltersRef.current = filtersString
-      lastPageRef.current = page
-      lastSizeRef.current = size
-      fetchPairs()
-    }, 300)
+  //   debounceTimeoutRef.current = setTimeout(() => {
+  //     lastFiltersRef.current = filtersString
+  //     lastPageRef.current = page
+  //     lastSizeRef.current = size
+  //     fetchPairs()
+  //   }, 300)
 
-    return () => {
-      if (debounceTimeoutRef.current) {
-        clearTimeout(debounceTimeoutRef.current)
-      }
-    }
-  }, [filters, page, size, fetchPairs])
+  //   return () => {
+  //     if (debounceTimeoutRef.current) {
+  //       clearTimeout(debounceTimeoutRef.current)
+  //     }
+  //   }
+  // }, [filters, page, size, fetchPairs])
 
   useEffect(() => {
     init()
@@ -362,6 +396,8 @@ export const EventsPairs: React.FC = () => {
                   Only user events
                 </Checkbox>
 
+                <div />
+
                 <Checkbox
                   isChecked={!!filters.exclude_before_feasts}
                   onChange={(e) =>
@@ -382,6 +418,41 @@ export const EventsPairs: React.FC = () => {
                     )
                   }>
                   Exclude “after” feasts
+                </Checkbox>
+
+                <div />
+
+                <Checkbox
+                  isChecked={!!filters.exact_weeks}
+                  onChange={(e) =>
+                    handleFilterChange(
+                      'exact_weeks',
+                      e.target.checked ? true : undefined
+                    )
+                  }>
+                  Exact weeks
+                </Checkbox>
+
+                <Checkbox
+                  isChecked={!!filters.exact_rev_years}
+                  onChange={(e) =>
+                    handleFilterChange(
+                      'exact_rev_years',
+                      e.target.checked ? true : undefined
+                    )
+                  }>
+                  Exact revelation years
+                </Checkbox>
+
+                <Checkbox
+                  isChecked={!!filters.exact_enoch_years}
+                  onChange={(e) =>
+                    handleFilterChange(
+                      'exact_enoch_years',
+                      e.target.checked ? true : undefined
+                    )
+                  }>
+                  Exact enochian years
                 </Checkbox>
               </SimpleGrid>
 
@@ -416,39 +487,6 @@ export const EventsPairs: React.FC = () => {
                   }}>
                   <NumberInputField placeholder="Enochian years =" />
                 </NumberInput>
-
-                <Checkbox
-                  isChecked={!!filters.exact_weeks}
-                  onChange={(e) =>
-                    handleFilterChange(
-                      'exact_weeks',
-                      e.target.checked ? true : undefined
-                    )
-                  }>
-                  Exact weeks
-                </Checkbox>
-
-                <Checkbox
-                  isChecked={!!filters.exact_rev_years}
-                  onChange={(e) =>
-                    handleFilterChange(
-                      'exact_rev_years',
-                      e.target.checked ? true : undefined
-                    )
-                  }>
-                  Exact revelation years
-                </Checkbox>
-
-                <Checkbox
-                  isChecked={!!filters.exact_enoch_years}
-                  onChange={(e) =>
-                    handleFilterChange(
-                      'exact_enoch_years',
-                      e.target.checked ? true : undefined
-                    )
-                  }>
-                  Exact enochian years
-                </Checkbox>
               </SimpleGrid>
 
               {/* ➌ — Gregorian filter (mutually exclusive) */}
@@ -672,6 +710,9 @@ export const EventsPairs: React.FC = () => {
                 </ChakraSelect>
               </SimpleGrid>
             </Stack>
+            <HStack mt={4} spacing={4}>
+              <Button onClick={fetchPairs}>Search</Button>
+            </HStack>
           </Box>
         </Collapse>
 
@@ -831,20 +872,75 @@ export const EventsPairs: React.FC = () => {
                       px={1}
                       borderLeft="1px solid"
                       borderColor="gray.200">
-                      {p.calculations.half_days}
+                      <Text
+                        as="button"
+                        cursor="pointer"
+                        _hover={{
+                          textDecoration: 'underline',
+                          color: 'inherit'
+                        }}
+                        _focus={{ outline: 'none' }}
+                        onClick={() => openDrawerForMetric('half_days', p)}>
+                        {p.calculations.half_days}
+                      </Text>
                     </Td>
                     <Td isNumeric px={1}>
-                      {p.calculations.diff}
+                      <Text
+                        as="button"
+                        cursor="pointer"
+                        _hover={{
+                          textDecoration: 'underline',
+                          color: 'inherit'
+                        }}
+                        _focus={{ outline: 'none' }}
+                        onClick={() => openDrawerForMetric('diff', p)}>
+                        {p.calculations.diff}
+                      </Text>
                     </Td>
                     <Td isNumeric px={1}>
-                      {p.calculations.weeks.toFixed(4)}
+                      <Text
+                        as="button"
+                        cursor="pointer"
+                        _hover={{
+                          textDecoration: 'underline',
+                          color: 'inherit'
+                        }}
+                        _focus={{ outline: 'none' }}
+                        onClick={() => openDrawerForMetric('weeks', p)}>
+                        {p.calculations.weeks.toFixed(4)}
+                      </Text>
                     </Td>
                     <Td isNumeric px={1}>
-                      {p.calculations.revelation_years.toFixed(4)}
+                      <Text
+                        as="button"
+                        cursor="pointer"
+                        _hover={{
+                          textDecoration: 'underline',
+                          color: 'inherit'
+                        }}
+                        _focus={{ outline: 'none' }}
+                        onClick={() =>
+                          openDrawerForMetric('revelation_years', p)
+                        }>
+                        {p.calculations.revelation_years.toFixed(4)}
+                      </Text>
                     </Td>
                     <Td isNumeric px={1}>
-                      {p.calculations.enochian_years.toFixed(4)}
+                      <Text
+                        as="button"
+                        cursor="pointer"
+                        _hover={{
+                          textDecoration: 'underline',
+                          color: 'inherit'
+                        }}
+                        _focus={{ outline: 'none' }}
+                        onClick={() =>
+                          openDrawerForMetric('enochian_years', p)
+                        }>
+                        {p.calculations.enochian_years.toFixed(4)}
+                      </Text>
                     </Td>
+
                     <Td
                       px={1}
                       textAlign="center"
@@ -932,22 +1028,90 @@ export const EventsPairs: React.FC = () => {
                       — Distance —
                     </Text>
                     <Text>
-                      <b>½-days:</b> {p.calculations.half_days}
+                      <b>½-days:</b>{' '}
+                      <Text
+                        as="button"
+                        onClick={(evt) => {
+                          evt.stopPropagation();
+                          openDrawerForMetric('half_days', p);
+                        }}
+                        display="inline"
+                        textDecoration="underline"
+                        cursor="pointer"
+                        _hover={{ textDecoration: 'underline', color: 'inherit' }}
+                        _focus={{ outline: 'none' }}>
+                        {p.calculations.half_days}
+                      </Text>
                     </Text>
+
                     <Text>
-                      <b>Days</b> {p.calculations.diff}
+                      <b>Days:</b>{' '}
+                      <Text
+                        as="button"
+                        onClick={(evt) => {
+                          evt.stopPropagation();
+                          openDrawerForMetric('diff', p);
+                        }}
+                        display="inline"
+                        textDecoration="underline"
+                        cursor="pointer"
+                        _hover={{ textDecoration: 'underline', color: 'inherit' }}
+                        _focus={{ outline: 'none' }}>
+                        {p.calculations.diff}
+                      </Text>
                     </Text>
+
                     <Text>
-                      <b>Weeks:</b> {p.calculations.weeks.toFixed(4)}
+                      <b>Weeks:</b>{' '}
+                      <Text
+                        as="button"
+                        onClick={(evt) => {
+                          evt.stopPropagation();
+                          openDrawerForMetric('weeks', p);
+                        }}
+                        display="inline"
+                        textDecoration="underline"
+                        cursor="pointer"
+                        _hover={{ textDecoration: 'underline', color: 'inherit' }}
+                        _focus={{ outline: 'none' }}>
+                        {p.calculations.weeks.toFixed(4)}
+                      </Text>
                     </Text>
+
                     <Text>
                       <b>Rev&nbsp;years:</b>{' '}
-                      {p.calculations.revelation_years.toFixed(4)}
+                      <Text
+                        as="button"
+                        onClick={(evt) => {
+                          evt.stopPropagation();
+                          openDrawerForMetric('revelation_years', p);
+                        }}
+                        display="inline"
+                        textDecoration="underline"
+                        cursor="pointer"
+                        _hover={{ textDecoration: 'underline', color: 'inherit' }}
+                        _focus={{ outline: 'none' }}>
+                        {p.calculations.revelation_years.toFixed(4)}
+                      </Text>
                     </Text>
+
                     <Text>
                       <b>Enoch&nbsp;years:</b>{' '}
-                      {p.calculations.enochian_years.toFixed(4)}
+                      <Text
+                        as="button"
+                        onClick={(evt) => {
+                          evt.stopPropagation();
+                          openDrawerForMetric('enochian_years', p);
+                        }}
+                        display="inline"
+                        textDecoration="underline"
+                        cursor="pointer"
+                        _hover={{ textDecoration: 'underline', color: 'inherit' }}
+                        _focus={{ outline: 'none' }}>
+                        {p.calculations.enochian_years.toFixed(4)}
+                      </Text>
                     </Text>
+
 
                     {/* ➋ — Evenly Divisible */}
                     <Text mt={2} fontWeight="bold">
@@ -1135,6 +1299,108 @@ export const EventsPairs: React.FC = () => {
             ))}
           </ChakraSelect>
         </HStack>
+
+        {/* --------------------------- Drawer --------------------------- */}
+        <Drawer
+          isOpen={isDrawerOpen}
+          placement="right" // could also be 'bottom' for mobile responsiveness
+          size="md"
+          onClose={() => {
+            setSelectedPair(null)
+            setOpenedSections([])
+            setIsDrawerOpen(false)
+          }}>
+          <DrawerOverlay />
+          <DrawerContent>
+            <DrawerHeader>Factors</DrawerHeader>
+            <DrawerBody>
+              {selectedPair && (
+                <VStack spacing={4} align="stretch">
+                  {[
+                    { metric: 'half_days', label: 'Half Days' },
+                    { metric: 'diff', label: 'Days' },
+                    { metric: 'weeks', label: 'Weeks' },
+                    { metric: 'revelation_years', label: 'Revelation Years' },
+                    { metric: 'enochian_years', label: 'Enochian Years' }
+                  ].map(({ metric, label }) => {
+                    const rawValue = selectedPair.calculations[metric]
+                    const roundedValue = Math.round(rawValue)
+                    const factors = getFactors(rawValue)
+
+                    const isOpen = openedSections.includes(metric)
+
+                    return (
+                      <Box
+                        key={metric}
+                        borderWidth="1px"
+                        borderRadius="md"
+                        p={4}>
+                        <HStack justify="space-between" mb={2}>
+                          <Text fontWeight="bold" fontSize="lg">
+                            {label}
+                          </Text>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => toggleSection(metric)}>
+                            {isOpen ? 'Collapse' : 'Expand'}
+                          </Button>
+                        </HStack>
+
+                        {isOpen && (
+                          <VStack align="start" spacing={2}>
+                            <Text>
+                              <strong>Number:</strong> {rawValue}
+                            </Text>
+                            {Math.abs(rawValue - roundedValue) > 0.0001 && (
+                              <Text>
+                                <strong>Nearest Whole Number:</strong>{' '}
+                                {roundedValue}
+                              </Text>
+                            )}
+                            <Text>
+                              <strong>Factors:</strong>
+                            </Text>
+                            <Flex wrap="wrap" gap="4px">
+                              {factors.length > 0 ? (
+                                factors.map((f) => (
+                                  <Box
+                                    key={f}
+                                    px={2}
+                                    py={0.5}
+                                    borderRadius="full"
+                                    borderWidth={
+                                      significantNumbers.includes(f) ? '2px' : '1px'
+                                    }
+                                    borderColor={
+                                      significantNumbers.includes(f) ? 'blue.400' : 'gray.300'
+                                    }
+                                    fontSize="sm"
+                                    fontWeight={
+                                      significantNumbers.includes(f) ? 'bold' : 'normal'
+                                    }>
+                                    {f}
+                                  </Box>
+                                ))
+                              ) : (
+                                <Text>None (non-integer or ≤ 0)</Text>
+                              )}
+                            </Flex>
+                          </VStack>
+                        )}
+                      </Box>
+                    )
+                  })}
+                </VStack>
+              )}
+            </DrawerBody>
+            <DrawerFooter>
+              <Button variant="ghost" onClick={() => setIsDrawerOpen(false)}>
+                Close
+              </Button>
+            </DrawerFooter>
+          </DrawerContent>
+        </Drawer>
       </Box>
     </>
   )
