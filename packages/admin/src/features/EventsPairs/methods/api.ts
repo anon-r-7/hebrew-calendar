@@ -61,7 +61,6 @@ export const updatePair = async ({
 
 export const getSync = async ({ asyncManager, store }) => {
   try {
-    asyncManager.start()
     const syncing = await api.getSync()
     store.update({ syncing })
     asyncManager.success()

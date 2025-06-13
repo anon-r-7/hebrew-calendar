@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import {
   Box,
   Button,
@@ -110,11 +110,14 @@ export const EventsPairs: React.FC = () => {
   const store = useStore(initialState)
   const asyncManager = useAsyncManager()
 
+  const syncingRef = useRef(store.state.syncing)
+
   /* -------------------------------- State --------------------------------- */
   const [page, setPage] = useState<number>(1)
   const [size, setSize] = useState<number>(PAGE_SIZE_OPTIONS[0])
 
   const [showFilters, setShowFilters] = useState(true)
+  const [showSyncDetails, setShowSyncDetails] = useState(false)
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {}
   )
@@ -217,12 +220,14 @@ export const EventsPairs: React.FC = () => {
   }, [])
 
   const startSyncPoll = () => {
+    pollSyncStatus()
+    setShowSyncDetails(true)
     const id = setInterval(async () => {
-      const syncingNow = store.state.syncing.syncing
-      if (syncingNow) {
+      if (syncingRef.current) {
         await pollSyncStatus()
       } else {
         clearInterval(id)
+        setShowSyncDetails(false)
       }
     }, 15000)
   }
@@ -239,10 +244,13 @@ export const EventsPairs: React.FC = () => {
     })
     startSyncPoll()
   }
-
   useEffect(() => {
     init()
   }, [])
+
+  useEffect(() => {
+    syncingRef.current = store.state.syncing.syncing
+  }, [store.state.syncing.syncing])
 
   /* ----------------------------- Pagination -------------------------------- */
   const totalPages = useMemo(() => {
@@ -284,63 +292,85 @@ export const EventsPairs: React.FC = () => {
           justify="space-between"
           direction={{ base: 'column', md: 'row' }}
           gap={4}>
-          <Button
-            color={'black'}
-            leftIcon={
-              store.state.syncing.syncing ? (
-                <Icon as={castIcon(FiLoader)} boxSize={4} className="spin" />
-              ) : (
-                <Icon as={castIcon(FiRefreshCw)} boxSize={4} />
-              )
-            }
-            onClick={handleSync}
-            colorScheme={store.state.syncing.syncing ? 'orange' : 'brand'}
-            isDisabled={store.state.syncing.syncing}
-            alignSelf={{ base: 'flex-start', md: 'auto' }}>
-            {store.state.syncing.syncing ? 'Syncing…' : 'Sync Pairs'}
-          </Button>
+          <Box borderRadius="md" p={2}>
+            <Button
+              color={'black'}
+              leftIcon={
+                store.state.syncing.syncing ? (
+                  <Icon as={castIcon(FiLoader)} boxSize={4} className="spin" />
+                ) : (
+                  <Icon as={castIcon(FiRefreshCw)} boxSize={4} />
+                )
+              }
+              onClick={async () => {
+                await handleSync()
+              }}
+              colorScheme={store.state.syncing.syncing ? 'orange' : 'brand'}
+              isDisabled={store.state.syncing.syncing}
+              justifyContent="space-between">
+              {store.state.syncing.syncing ? 'Syncing…' : 'Sync Pairs'}
+            </Button>
 
-          {store.state.syncing.syncing && (
-            <Box mt={2} fontSize="sm" color="gray.600">
-              <Text>
-                Started:{' '}
-                {store.state.syncing.start
-                  ? new Date(store.state.syncing.start).toLocaleString()
-                  : '—'}
-              </Text>
-              <Text>
-                Est. End:{' '}
-                {store.state.syncing.estimatedEnd
-                  ? new Date(store.state.syncing.estimatedEnd).toLocaleString()
-                  : '—'}
-              </Text>
-              <Text>
-                Remaining:{' '}
-                {store.state.syncing.estimatedRemaining
-                  ? `${store.state.syncing.estimatedRemaining.minutes} min ${store.state.syncing.estimatedRemaining.seconds} sec`
-                  : '—'}
-              </Text>
-              <Text>
-                Last run time:{' '}
-                {store.state.syncing.lastRunTime
-                  ? `${Math.round(store.state.syncing.lastRunTime / 1000)} sec`
-                  : '—'}
-              </Text>
-              <Text>
-                Avg run time:{' '}
-                {store.state.syncing.averageRunTime
-                  ? `${Math.round(
-                      store.state.syncing.averageRunTime / 1000
-                    )} sec`
-                  : '—'}
-              </Text>
-            </Box>
-          )}
+            {store.state.syncing.syncing ? (
+              <Button
+                variant={'secondary'}
+                ml={3}
+                onClick={() => setShowSyncDetails(!showSyncDetails)}>
+                Details
+              </Button>
+            ) : null}
+
+            <Collapse
+              in={showSyncDetails && store.state.syncing.syncing}
+              animateOpacity>
+              <Box mt={3} fontSize="sm" color="gray.600">
+                <Text>
+                  Started:{' '}
+                  {store.state.syncing.start
+                    ? new Date(store.state.syncing.start).toLocaleString()
+                    : '—'}
+                </Text>
+                <Text>
+                  Est. End:{' '}
+                  {store.state.syncing.estimatedEnd
+                    ? new Date(
+                        store.state.syncing.estimatedEnd
+                      ).toLocaleString()
+                    : '—'}
+                </Text>
+                <Text>
+                  Remaining:{' '}
+                  {store.state.syncing.estimatedRemaining
+                    ? `${store.state.syncing.estimatedRemaining.minutes} min ${store.state.syncing.estimatedRemaining.seconds} sec`
+                    : '—'}
+                </Text>
+                <Text>
+                  Last run time:{' '}
+                  {store.state.syncing.lastRunTime
+                    ? `${(store.state.syncing.lastRunTime / 1000 / 60).toFixed(
+                        2
+                      )} min`
+                    : '—'}
+                </Text>
+                <Text>
+                  Avg run time:{' '}
+                  {store.state.syncing.averageRunTime
+                    ? `${(
+                        store.state.syncing.averageRunTime /
+                        1000 /
+                        60
+                      ).toFixed(2)} min`
+                    : '—'}
+                </Text>
+              </Box>
+            </Collapse>
+          </Box>
 
           <Button
             leftIcon={<Icon as={castIcon(FiFilter)} boxSize={4} />}
-            variant="outline"
-            onClick={() => setShowFilters(!showFilters)}>
+            variant="clear"
+            onClick={() => setShowFilters(!showFilters)}
+            alignSelf={{ base: 'flex-start', md: 'auto' }}>
             Filters
           </Button>
         </Flex>
@@ -716,7 +746,13 @@ export const EventsPairs: React.FC = () => {
               </SimpleGrid>
             </Stack>
             <HStack mt={4} spacing={4}>
-              <Button onClick={fetchPairs}>Search</Button>
+              <Button
+                onClick={() => {
+                  fetchPairs()
+                  setShowFilters(false)
+                }}>
+                Search
+              </Button>
             </HStack>
           </Box>
         </Collapse>
