@@ -71,7 +71,14 @@ interface FilterMeta {
 }
 
 export interface InitialState {
-  syncing: boolean
+  syncing: {
+    syncing: boolean
+    start: Date | null
+    estimatedEnd: Date | null
+    estimatedRemaining: number | null
+    lastRunTime: number | null
+    averageRunTime: number | null
+  }
   pairs: Pair[]
   meta: Meta
   filterMeta: {

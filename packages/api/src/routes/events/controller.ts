@@ -107,12 +107,12 @@ class EventsController {
   /* POST /event_entry/sync */
   public sync = async (_req: Request, res: Response) => {
     SyncService.enqueue()
-    res.status(201).json({ syncing: true })
+    res.json(SyncService.getStatus())
   }
 
   /* GET /event_entry/sync */
   public syncStatus = (_req: Request, res: Response) => {
-    res.json({ syncing: SyncService.isRunning() })
+    res.json(SyncService.getStatus())
   }
 
   /* PATCH /event_pair/:uuid { favorite } */

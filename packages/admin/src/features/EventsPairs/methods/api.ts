@@ -62,7 +62,7 @@ export const updatePair = async ({
 export const getSync = async ({ asyncManager, store }) => {
   try {
     asyncManager.start()
-    const { syncing } = await api.getSync()
+    const syncing = await api.getSync()
     store.update({ syncing })
     asyncManager.success()
   } catch (error) {
@@ -75,7 +75,7 @@ export const getSync = async ({ asyncManager, store }) => {
 export const postSync = async ({ asyncManager, store }) => {
   try {
     asyncManager.start()
-    const { syncing } = await api.postSync()
+    const syncing = await api.postSync()
     store.update({ syncing })
     asyncManager.success()
   } catch (error) {

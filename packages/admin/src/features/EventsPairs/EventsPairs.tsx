@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Box,
   Button,
@@ -67,7 +67,14 @@ const isValidDateFormat = (value: string) =>
 /*                                Constants                                   */
 /* -------------------------------------------------------------------------- */
 const initialState: InitialState = {
-  syncing: false,
+  syncing: {
+    syncing: false,
+    start: null,
+    estimatedEnd: null,
+    estimatedRemaining: null,
+    lastRunTime: null,
+    averageRunTime: null
+  },
   pairs: [],
   meta: {
     count: { total: 0, current: 0 },
@@ -102,8 +109,6 @@ const initialGregorianFilters = {
 export const EventsPairs: React.FC = () => {
   const store = useStore(initialState)
   const asyncManager = useAsyncManager()
-
-  const syncingRef = useRef(store.state.syncing)
 
   /* -------------------------------- State --------------------------------- */
   const [page, setPage] = useState<number>(1)
@@ -193,13 +198,6 @@ export const EventsPairs: React.FC = () => {
     setPage(1)
   }
 
-  /* -------------------------------- Refs  --------------------------------- */
-  // Temporarily remove these
-  // const lastFiltersRef = useRef<string>(JSON.stringify(filters))
-  // const lastPageRef = useRef<number>(page)
-  // const lastSizeRef = useRef<number>(size)
-  // const debounceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
   /* ------------------------------ Callbacks -------------------------------- */
   const fetchPairs = useCallback(() => {
     getPairs({
@@ -213,71 +211,38 @@ export const EventsPairs: React.FC = () => {
     })
   }, [asyncManager, store, page, size, filters])
 
-  const init = async () => {
-    await getFilterMeta({
-      asyncManager,
-      store
-    })
-    // Disabled to not start out by fetching.
-    // fetchPairs()
-  }
-
-  /* ------------------------------ Effects -------------------------------- */
-  // Disable on the fly filtering in favor of user-explit filtering on button push
-  // useEffect(() => {
-  //   if (syncingRef.current && !store.state.syncing) {
-  //     fetchPairs()
-  //   }
-  //   syncingRef.current = store.state.syncing
-  // }, [store.state.syncing])
-
-  // useEffect(() => {
-  //   const filtersString = JSON.stringify(filters)
-  //   const filtersChanged = filtersString !== lastFiltersRef.current
-
-  //   const pageChanged = page !== lastPageRef.current
-  //   const sizeChanged = size !== lastSizeRef.current
-
-  //   if (!filtersChanged && !pageChanged && !sizeChanged) return undefined
-
-  //   if (debounceTimeoutRef.current) {
-  //     clearTimeout(debounceTimeoutRef.current)
-  //   }
-
-  //   debounceTimeoutRef.current = setTimeout(() => {
-  //     lastFiltersRef.current = filtersString
-  //     lastPageRef.current = page
-  //     lastSizeRef.current = size
-  //     fetchPairs()
-  //   }, 300)
-
-  //   return () => {
-  //     if (debounceTimeoutRef.current) {
-  //       clearTimeout(debounceTimeoutRef.current)
-  //     }
-  //   }
-  // }, [filters, page, size, fetchPairs])
-
-  useEffect(() => {
-    init()
-  }, [])
-
   /* ---- Poll sync status while the backend is still working ---- */
   const pollSyncStatus = useCallback(async () => {
     await getSync({ asyncManager, store })
-  }, [fetchPairs])
+  }, [])
 
-  const handleSync = useCallback(async () => {
-    await postSync({ asyncManager, store })
-
+  const startSyncPoll = () => {
     const id = setInterval(async () => {
-      if (syncingRef.current) {
+      const syncingNow = store.state.syncing.syncing
+      if (syncingNow) {
         await pollSyncStatus()
       } else {
         clearInterval(id)
       }
     }, 15000)
+  }
+
+  const handleSync = useCallback(async () => {
+    await postSync({ asyncManager, store })
+    startSyncPoll()
   }, [pollSyncStatus])
+
+  const init = async () => {
+    await getFilterMeta({
+      asyncManager,
+      store
+    })
+    startSyncPoll()
+  }
+
+  useEffect(() => {
+    init()
+  }, [])
 
   /* ----------------------------- Pagination -------------------------------- */
   const totalPages = useMemo(() => {
@@ -301,6 +266,9 @@ export const EventsPairs: React.FC = () => {
   /* ------------------------ Icon Caster helper ----------------------------- */
   const castIcon = (icon: IconType) => icon as unknown as React.ElementType
 
+  // TODO: if syncing.syncing then we should show some meta data regarding the sync..
+  // like start time, estimated end time, estimated time remaining
+
   /* ------------------------------------------------------------------------ */
   /*                                 RENDER                                   */
   /* ------------------------------------------------------------------------ */
@@ -319,18 +287,55 @@ export const EventsPairs: React.FC = () => {
           <Button
             color={'black'}
             leftIcon={
-              store.state.syncing ? (
+              store.state.syncing.syncing ? (
                 <Icon as={castIcon(FiLoader)} boxSize={4} className="spin" />
               ) : (
                 <Icon as={castIcon(FiRefreshCw)} boxSize={4} />
               )
             }
             onClick={handleSync}
-            colorScheme={store.state.syncing ? 'orange' : 'brand'}
-            isDisabled={store.state.syncing}
+            colorScheme={store.state.syncing.syncing ? 'orange' : 'brand'}
+            isDisabled={store.state.syncing.syncing}
             alignSelf={{ base: 'flex-start', md: 'auto' }}>
-            {store.state.syncing ? 'Syncing…' : 'Sync Pairs'}
+            {store.state.syncing.syncing ? 'Syncing…' : 'Sync Pairs'}
           </Button>
+
+          {store.state.syncing.syncing && (
+            <Box mt={2} fontSize="sm" color="gray.600">
+              <Text>
+                Started:{' '}
+                {store.state.syncing.start
+                  ? new Date(store.state.syncing.start).toLocaleString()
+                  : '—'}
+              </Text>
+              <Text>
+                Est. End:{' '}
+                {store.state.syncing.estimatedEnd
+                  ? new Date(store.state.syncing.estimatedEnd).toLocaleString()
+                  : '—'}
+              </Text>
+              <Text>
+                Remaining:{' '}
+                {store.state.syncing.estimatedRemaining
+                  ? `${store.state.syncing.estimatedRemaining.minutes} min ${store.state.syncing.estimatedRemaining.seconds} sec`
+                  : '—'}
+              </Text>
+              <Text>
+                Last run time:{' '}
+                {store.state.syncing.lastRunTime
+                  ? `${Math.round(store.state.syncing.lastRunTime / 1000)} sec`
+                  : '—'}
+              </Text>
+              <Text>
+                Avg run time:{' '}
+                {store.state.syncing.averageRunTime
+                  ? `${Math.round(
+                      store.state.syncing.averageRunTime / 1000
+                    )} sec`
+                  : '—'}
+              </Text>
+            </Box>
+          )}
 
           <Button
             leftIcon={<Icon as={castIcon(FiFilter)} boxSize={4} />}
@@ -1032,13 +1037,16 @@ export const EventsPairs: React.FC = () => {
                       <Text
                         as="button"
                         onClick={(evt) => {
-                          evt.stopPropagation();
-                          openDrawerForMetric('half_days', p);
+                          evt.stopPropagation()
+                          openDrawerForMetric('half_days', p)
                         }}
                         display="inline"
                         textDecoration="underline"
                         cursor="pointer"
-                        _hover={{ textDecoration: 'underline', color: 'inherit' }}
+                        _hover={{
+                          textDecoration: 'underline',
+                          color: 'inherit'
+                        }}
                         _focus={{ outline: 'none' }}>
                         {p.calculations.half_days}
                       </Text>
@@ -1049,13 +1057,16 @@ export const EventsPairs: React.FC = () => {
                       <Text
                         as="button"
                         onClick={(evt) => {
-                          evt.stopPropagation();
-                          openDrawerForMetric('diff', p);
+                          evt.stopPropagation()
+                          openDrawerForMetric('diff', p)
                         }}
                         display="inline"
                         textDecoration="underline"
                         cursor="pointer"
-                        _hover={{ textDecoration: 'underline', color: 'inherit' }}
+                        _hover={{
+                          textDecoration: 'underline',
+                          color: 'inherit'
+                        }}
                         _focus={{ outline: 'none' }}>
                         {p.calculations.diff}
                       </Text>
@@ -1066,13 +1077,16 @@ export const EventsPairs: React.FC = () => {
                       <Text
                         as="button"
                         onClick={(evt) => {
-                          evt.stopPropagation();
-                          openDrawerForMetric('weeks', p);
+                          evt.stopPropagation()
+                          openDrawerForMetric('weeks', p)
                         }}
                         display="inline"
                         textDecoration="underline"
                         cursor="pointer"
-                        _hover={{ textDecoration: 'underline', color: 'inherit' }}
+                        _hover={{
+                          textDecoration: 'underline',
+                          color: 'inherit'
+                        }}
                         _focus={{ outline: 'none' }}>
                         {p.calculations.weeks.toFixed(4)}
                       </Text>
@@ -1083,13 +1097,16 @@ export const EventsPairs: React.FC = () => {
                       <Text
                         as="button"
                         onClick={(evt) => {
-                          evt.stopPropagation();
-                          openDrawerForMetric('revelation_years', p);
+                          evt.stopPropagation()
+                          openDrawerForMetric('revelation_years', p)
                         }}
                         display="inline"
                         textDecoration="underline"
                         cursor="pointer"
-                        _hover={{ textDecoration: 'underline', color: 'inherit' }}
+                        _hover={{
+                          textDecoration: 'underline',
+                          color: 'inherit'
+                        }}
                         _focus={{ outline: 'none' }}>
                         {p.calculations.revelation_years.toFixed(4)}
                       </Text>
@@ -1100,18 +1117,20 @@ export const EventsPairs: React.FC = () => {
                       <Text
                         as="button"
                         onClick={(evt) => {
-                          evt.stopPropagation();
-                          openDrawerForMetric('enochian_years', p);
+                          evt.stopPropagation()
+                          openDrawerForMetric('enochian_years', p)
                         }}
                         display="inline"
                         textDecoration="underline"
                         cursor="pointer"
-                        _hover={{ textDecoration: 'underline', color: 'inherit' }}
+                        _hover={{
+                          textDecoration: 'underline',
+                          color: 'inherit'
+                        }}
                         _focus={{ outline: 'none' }}>
                         {p.calculations.enochian_years.toFixed(4)}
                       </Text>
                     </Text>
-
 
                     {/* ➋ — Evenly Divisible */}
                     <Text mt={2} fontWeight="bold">
@@ -1370,14 +1389,20 @@ export const EventsPairs: React.FC = () => {
                                     py={0.5}
                                     borderRadius="full"
                                     borderWidth={
-                                      significantNumbers.includes(f) ? '2px' : '1px'
+                                      significantNumbers.includes(f)
+                                        ? '2px'
+                                        : '1px'
                                     }
                                     borderColor={
-                                      significantNumbers.includes(f) ? 'blue.400' : 'gray.300'
+                                      significantNumbers.includes(f)
+                                        ? 'blue.400'
+                                        : 'gray.300'
                                     }
                                     fontSize="sm"
                                     fontWeight={
-                                      significantNumbers.includes(f) ? 'bold' : 'normal'
+                                      significantNumbers.includes(f)
+                                        ? 'bold'
+                                        : 'normal'
                                     }>
                                     {f}
                                   </Box>

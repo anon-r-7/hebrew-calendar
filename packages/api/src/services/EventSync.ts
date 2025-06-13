@@ -3,15 +3,19 @@ import { logger } from '@api/utils/logger'
 
 /** Internal flag – never exported */
 let _running = false
+let _startTime: Date | null = null
+let _endTime: Date | null = null
+const _runTimes: number[] = [] // ms
 
 /** Public: is a sync job currently executing? */
 export const isRunning = (): boolean => _running
 
-/** Public: queue a sync.  Returns true if a job was started, false if one is already running. */
 export const enqueue = (): boolean => {
   if (_running) return false // already in progress
 
   _running = true
+  _startTime = new Date()
+  _endTime = null
   void _run() // fire & forget
   return true
 }
@@ -64,16 +68,54 @@ const _run = async (): Promise<void> => {
   } catch (err) {
     logger.error(`[sync] failed: ${err}`)
   } finally {
-    _running = false
-  }
-
-  // Refresh materialized view once after all inserts complete
-  try {
-    Models.sequelize.query(
+    await Models.sequelize.query(
       'REFRESH MATERIALIZED VIEW CONCURRENTLY events_pair_view;'
     )
-    logger.info('[sync] materialized view refreshed')
-  } catch (err) {
-    logger.error(`[sync] MV refresh failed: ${err}`)
+
+    _running = false
+    _endTime = new Date()
+
+    if (_startTime && _endTime) {
+      const durationMs = _endTime.getTime() - _startTime.getTime()
+      _runTimes.push(durationMs)
+
+      // Optional: limit size of history if you want
+      if (_runTimes.length > 100) _runTimes.shift()
+    }
+  }
+
+  logger.info('[sync] materialized view refreshed')
+}
+
+export const getStatus = () => {
+  const now = new Date()
+
+  let estimatedEnd: Date | null = null
+  let estimatedRemainingMs = null
+
+  if (_running && _startTime && _runTimes.length > 0) {
+    const avgRunTimeMs = _runTimes.reduce((a, b) => a + b, 0) / _runTimes.length
+
+    estimatedEnd = new Date(_startTime.getTime() + avgRunTimeMs)
+    estimatedRemainingMs = estimatedEnd.getTime() - now.getTime()
+
+    if (estimatedRemainingMs < 0) estimatedRemainingMs = 0
+  }
+
+  return {
+    syncing: _running,
+    start: _startTime,
+    estimatedEnd,
+    estimatedRemaining: estimatedRemainingMs
+      ? {
+          minutes: Math.floor(estimatedRemainingMs / 60000),
+          seconds: Math.floor((estimatedRemainingMs % 60000) / 1000)
+        }
+      : null,
+    lastRunTime: _runTimes.length > 0 ? _runTimes[_runTimes.length - 1] : null,
+    averageRunTime:
+      _runTimes.length > 0
+        ? _runTimes.reduce((a, b) => a + b, 0) / _runTimes.length
+        : null
   }
 }
