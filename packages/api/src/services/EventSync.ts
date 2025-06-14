@@ -1,59 +1,66 @@
 import Models from '@api/models'
 import { logger } from '@api/utils/logger'
 
-/** Internal flag – never exported */
+/** Internal state */
 let _running = false
 let _startTime: Date | null = null
-let _endTime: Date | null = null
-const _runTimes: number[] = [] // ms
+
+let _lastInsertPerItemMs: number | null = null
+let _lastRefreshMs: number | null = null
+
+let _lastPending: { start: Date; processedCount: number } | null = null
 
 /** Public: is a sync job currently executing? */
 export const isRunning = (): boolean => _running
 
-export const enqueue = (): boolean => {
-  if (_running) return false // already in progress
+/** Public: queue a sync. Returns true if started */
+export const enqueue = async (): Promise<boolean> => {
+  if (_running) return false
 
   _running = true
   _startTime = new Date()
-  _endTime = null
-  void _run() // fire & forget
+
+  const pendingCount = await estimatePendingCount()
+  _lastPending = { start: _startTime, processedCount: pendingCount }
+
+  void _run()
   return true
 }
 
-/* ------------------------------------------------------------------ */
-/* internal implementation                                            */
-/* ------------------------------------------------------------------ */
+/** Internal: estimate how many entries are left */
+const estimatePendingCount = async (): Promise<number> => {
+  return await Models.EventsEntry.count({ where: { processed: false } })
+}
+
+/** Internal: main sync function */
 const _run = async (): Promise<void> => {
   logger.info('[sync] starting')
-  try {
-    let processedCount = 0
-    let hasMore = true
+  const insertStart = Date.now()
+  let processedCount = 0
+  let hasMore = true
 
+  try {
     while (hasMore) {
       const didProcess = await Models.sequelize.transaction(async (t) => {
-        // 1. Get one unprocessed row with a FOR UPDATE lock, skip locked rows
         const entry = await Models.EventsEntry.findOne({
           where: { processed: false },
           lock: t.LOCK.UPDATE,
-          skipLocked: true, // Avoid blocking if another transaction holds it
+          skipLocked: true,
           transaction: t
         })
 
-        if (!entry) {
-          return false // no more entries left to process
-        }
+        if (!entry) return false
 
-        // 2. Insert event, letting the DB trigger do the fan-out
-        const eventPayload = {
-          day_index: entry.day_index,
-          source: 'user' as const,
-          system_meta: null,
-          source_row: entry.uuid
-        }
+        await Models.Events.create(
+          {
+            day_index: entry.day_index,
+            source: 'user' as const,
+            system_meta: null,
+            source_row: entry.uuid
+          },
+          { transaction: t }
+        )
 
-        await Models.Events.create(eventPayload, { transaction: t })
-
-        // 3. Mark entry as processed
         await entry.update({ processed: true }, { transaction: t })
 
         processedCount++
@@ -61,61 +68,74 @@ const _run = async (): Promise<void> => {
       })
 
       hasMore = didProcess
-      logger.info(`[sync] complete ${processedCount} events`)
     }
-
-    logger.info(`[sync] completed: ${processedCount} events processed`)
   } catch (err) {
     logger.error(`[sync] failed: ${err}`)
-  } finally {
+  }
+
+  const insertMs = Date.now() - insertStart
+
+  // Always refresh view, even if nothing was inserted
+  let refreshMs = 0
+  const refreshStart = Date.now()
+  try {
     await Models.sequelize.query(
       'REFRESH MATERIALIZED VIEW CONCURRENTLY events_pair_view;'
     )
+    refreshMs = Date.now() - refreshStart
+    logger.info('[sync] materialized view refreshed')
+  } catch (err) {
+    logger.error(`[sync] MV refresh failed: ${err}`)
+  }
 
-    _running = false
-    _endTime = new Date()
+  _running = false
 
-    if (_startTime && _endTime) {
-      const durationMs = _endTime.getTime() - _startTime.getTime()
-      _runTimes.push(durationMs)
+  // Store durations
+  if (processedCount > 0) {
+    _lastInsertPerItemMs = insertMs / processedCount
+  }
+  _lastRefreshMs = refreshMs
 
-      // Optional: limit size of history if you want
-      if (_runTimes.length > 100) _runTimes.shift()
+  logger.info(
+    `[sync] completed: processed=${processedCount}, insertMs=${insertMs}, refreshMs=${refreshMs}`
+  )
+}
+
+/** Public: get current sync status and estimated times */
+export const getStatus = () => {
+  if (!_running || !_startTime || !_lastPending) {
+    return {
+      syncing: _running,
+      start: _startTime,
+      estimatedEnd: null,
+      estimatedRemaining: null
     }
   }
 
-  logger.info('[sync] materialized view refreshed')
-}
+  const now = Date.now()
+  const { start, processedCount } = _lastPending
 
-export const getStatus = () => {
-  const now = new Date()
+  const insertEstimate =
+    _lastInsertPerItemMs && processedCount > 0
+      ? _lastInsertPerItemMs * processedCount
+      : 0
 
-  let estimatedEnd: Date | null = null
-  let estimatedRemainingMs = null
-
-  if (_running && _startTime && _runTimes.length > 0) {
-    const avgRunTimeMs = _runTimes.reduce((a, b) => a + b, 0) / _runTimes.length
-
-    estimatedEnd = new Date(_startTime.getTime() + avgRunTimeMs)
-    estimatedRemainingMs = estimatedEnd.getTime() - now.getTime()
-
-    if (estimatedRemainingMs < 0) estimatedRemainingMs = 0
-  }
+  const refreshEstimate = _lastRefreshMs ?? 0
+  const totalEstimate = insertEstimate + refreshEstimate
+  const estimatedEnd = new Date(start.getTime() + totalEstimate)
+  const remainingMs = Math.max(0, estimatedEnd.getTime() - now)
 
   return {
-    syncing: _running,
-    start: _startTime,
+    syncing: true,
+    start,
     estimatedEnd,
-    estimatedRemaining: estimatedRemainingMs
-      ? {
-          minutes: Math.floor(estimatedRemainingMs / 60000),
-          seconds: Math.floor((estimatedRemainingMs % 60000) / 1000)
-        }
-      : null,
-    lastRunTime: _runTimes.length > 0 ? _runTimes[_runTimes.length - 1] : null,
-    averageRunTime:
-      _runTimes.length > 0
-        ? _runTimes.reduce((a, b) => a + b, 0) / _runTimes.length
-        : null
+    estimatedTotal: {
+      minutes: Math.floor(totalEstimate / 60000),
+      seconds: Math.floor((totalEstimate % 60000) / 1000)
+    },
+    estimatedRemaining: {
+      minutes: Math.floor(remainingMs / 60000),
+      seconds: Math.floor((remainingMs % 60000) / 1000)
+    }
   }
 }

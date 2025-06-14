@@ -71,9 +71,8 @@ const initialState: InitialState = {
     syncing: false,
     start: null,
     estimatedEnd: null,
-    estimatedRemaining: null,
-    lastRunTime: null,
-    averageRunTime: null
+    estimatedTotal: null,
+    estimatedRemaining: null
   },
   pairs: [],
   meta: {
@@ -274,9 +273,6 @@ export const EventsPairs: React.FC = () => {
   /* ------------------------ Icon Caster helper ----------------------------- */
   const castIcon = (icon: IconType) => icon as unknown as React.ElementType
 
-  // TODO: if syncing.syncing then we should show some meta data regarding the sync..
-  // like start time, estimated end time, estimated time remaining
-
   /* ------------------------------------------------------------------------ */
   /*                                 RENDER                                   */
   /* ------------------------------------------------------------------------ */
@@ -320,9 +316,7 @@ export const EventsPairs: React.FC = () => {
               </Button>
             ) : null}
 
-            <Collapse
-              in={showSyncDetails && store.state.syncing.syncing}
-              animateOpacity>
+            <Collapse in={showSyncDetails && store.state.syncing.syncing} animateOpacity>
               <Box mt={3} fontSize="sm" color="gray.600">
                 <Text>
                   Started:{' '}
@@ -333,9 +327,13 @@ export const EventsPairs: React.FC = () => {
                 <Text>
                   Est. End:{' '}
                   {store.state.syncing.estimatedEnd
-                    ? new Date(
-                        store.state.syncing.estimatedEnd
-                      ).toLocaleString()
+                    ? new Date(store.state.syncing.estimatedEnd).toLocaleString()
+                    : '—'}
+                </Text>
+                <Text>
+                  Total est. duration:{' '}
+                  {store.state.syncing.estimatedTotal
+                    ? `${store.state.syncing.estimatedTotal.minutes} min ${store.state.syncing.estimatedTotal.seconds} sec`
                     : '—'}
                 </Text>
                 <Text>
@@ -344,26 +342,9 @@ export const EventsPairs: React.FC = () => {
                     ? `${store.state.syncing.estimatedRemaining.minutes} min ${store.state.syncing.estimatedRemaining.seconds} sec`
                     : '—'}
                 </Text>
-                <Text>
-                  Last run time:{' '}
-                  {store.state.syncing.lastRunTime
-                    ? `${(store.state.syncing.lastRunTime / 1000 / 60).toFixed(
-                        2
-                      )} min`
-                    : '—'}
-                </Text>
-                <Text>
-                  Avg run time:{' '}
-                  {store.state.syncing.averageRunTime
-                    ? `${(
-                        store.state.syncing.averageRunTime /
-                        1000 /
-                        60
-                      ).toFixed(2)} min`
-                    : '—'}
-                </Text>
               </Box>
             </Collapse>
+
           </Box>
 
           <Button

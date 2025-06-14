@@ -75,9 +75,8 @@ export interface InitialState {
     syncing: boolean
     start: Date | null
     estimatedEnd: Date | null
-    estimatedRemaining: number | null
-    lastRunTime: number | null
-    averageRunTime: number | null
+    estimatedTotal?: { minutes: number; seconds: number } | null
+    estimatedRemaining?: { minutes: number; seconds: number } | null
   }
   pairs: Pair[]
   meta: Meta
