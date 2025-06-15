@@ -73,8 +73,8 @@ async function refreshMaterializedView() {
 
       try {
         for (const cmd of [
-          `SET work_mem = '512MB'`,
-          `SET maintenance_work_mem = '4GB'`,
+          `SET work_mem = '128MB'`,
+          `SET maintenance_work_mem = '512MB'`,
           `SET jit = off`
         ])
           await Models.sequelize.query(cmd)
