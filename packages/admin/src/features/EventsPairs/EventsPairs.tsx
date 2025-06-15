@@ -281,6 +281,11 @@ export const EventsPairs: React.FC = () => {
     })
     startSyncPoll()
   }
+
+  useEffect(() => {
+    if (mounted) fetchPairs()
+  }, [mounted])
+
   useEffect(() => {
     init()
   }, [])
@@ -943,7 +948,11 @@ export const EventsPairs: React.FC = () => {
             <HStack mt={4} spacing={4}>
               <Button
                 onClick={() => {
-                  fetchPairs()
+                  if (!mounted) {
+                    setMounted(true)
+                  } else {
+                    fetchPairs()
+                  }
                   setShowFilters(false)
                 }}>
                 Search

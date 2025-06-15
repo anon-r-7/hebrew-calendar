@@ -183,7 +183,7 @@ export const listWithFilters = async (q: EventPairsParams) => {
     const ey_to = q.enochian_years_to || q.enochian_years_from
 
     where.push(
-      'enochian_years BETWEEN :enochian_years_from AND :enochian_years_to'
+      'enoch_years BETWEEN :enochian_years_from AND :enochian_years_to'
     )
     replacements.enochian_years_from = Number(ey_from)
     replacements.enochian_years_to = Number(ey_to)
