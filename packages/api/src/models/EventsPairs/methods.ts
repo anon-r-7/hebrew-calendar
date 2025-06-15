@@ -129,9 +129,32 @@ export const listWithFilters = async (q: EventPairsParams) => {
   if (q.exact_enoch_years === 'true') where.push('exact_enoch_years = true')
   if (q.exact_weeks === 'true') where.push('exact_weeks = true')
 
-  if (q.enochian_years) {
-    where.push('enoch_years = :ey')
-    replacements.ey = Number(q.enochian_years)
+  if (q.days) {
+    where.push('days = :d')
+    replacements.d = Number(q.days)
+  }
+
+  if (q.days_from || q.days_to) {
+    const days_from = q.days_from || q.days_to
+    const days_to = q.days_to || q.days_from
+
+    where.push('days BETWEEN :days_from AND :days_to')
+    replacements.days_from = Number(days_from)
+    replacements.days_to = Number(days_to)
+  }
+
+  if (q.weeks) {
+    where.push('weeks = :w')
+    replacements.w = Number(q.weeks)
+  }
+
+  if (q.weeks_from || q.weeks_to) {
+    const weeks_from = q.weeks_from || q.weeks_to
+    const weeks_to = q.weeks_to || q.weeks_from
+
+    where.push('weeks BETWEEN :weeks_from AND :weeks_to')
+    replacements.weeks_from = Number(weeks_from)
+    replacements.weeks_to = Number(weeks_to)
   }
 
   if (q.revelation_years) {
@@ -139,9 +162,31 @@ export const listWithFilters = async (q: EventPairsParams) => {
     replacements.ry = Number(q.revelation_years)
   }
 
-  if (q.weeks) {
-    where.push('weeks = :w')
-    replacements.w = Number(q.weeks)
+  if (q.revelation_years_from || q.revelation_years_to) {
+    const ry_from = q.revelation_years_from || q.revelation_years_to
+    const ry_to = q.revelation_years_to || q.revelation_years_from
+
+    where.push(
+      'rev_years BETWEEN :revelation_years_from AND :revelation_years_to'
+    )
+    replacements.revelation_years_from = Number(ry_from)
+    replacements.revelation_years_to = Number(ry_to)
+  }
+
+  if (q.enochian_years) {
+    where.push('enoch_years = :ey')
+    replacements.ey = Number(q.enochian_years)
+  }
+
+  if (q.enochian_years_from || q.enochian_years_to) {
+    const ey_from = q.enochian_years_from || q.enochian_years_to
+    const ey_to = q.enochian_years_to || q.enochian_years_from
+
+    where.push(
+      'enochian_years BETWEEN :enochian_years_from AND :enochian_years_to'
+    )
+    replacements.enochian_years_from = Number(ey_from)
+    replacements.enochian_years_to = Number(ey_to)
   }
 
   if (q.favorite === 'true') {

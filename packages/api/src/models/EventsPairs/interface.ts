@@ -12,9 +12,22 @@ export interface EventPairsParams {
   exact_rev_years?: string
   exact_enoch_years?: string
   exact_weeks?: string
-  enochian_years?: string | number
-  revelation_years?: string | number
+
+  days?: string | number
+  days_from?: string | number
+  days_to?: string | number
+
   weeks?: string | number
+  weeks_from?: string | number
+  weeks_to?: string | number
+
+  enochian_years?: string | number
+  enochian_years_from?: string | number
+  enochian_years_to?: string | number
+
+  revelation_years?: string | number
+  revelation_years_from?: string | number
+  revelation_years_to?: string | number
 
   // Date Props
   name?: string

@@ -30,6 +30,7 @@ export interface GetPairsParams {
   order?: 'diff' | 'diff_desc' | 'gregorian' | 'gregorian_desc'
   events_pairs_uuid?: string
   favorite?: boolean
+  days?: string
   weeks?: string
   revelation_years?: string
   enochian_years?: string

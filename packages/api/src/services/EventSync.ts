@@ -23,16 +23,12 @@ async function refreshMaterializedView() {
     log('---- Starting swap-refresh of events_pair_view ----')
 
     // Set performance parameters
-    // const perfTuning = [
-    //   `SET work_mem = '512MB'`,
-    //   `SET maintenance_work_mem = '4GB'`,
-    //   `SET parallel_setup_cost = 100`,
-    //   `SET parallel_tuple_cost = 0.01`,
-    //   `SET max_parallel_workers = 8`,
-    //   `SET max_parallel_workers_per_gather = 4`,
-    //   `SET jit = off`
-    // ]
-    // for (const cmd of perfTuning) await Models.sequelize.query(cmd)
+    const perfTuning = [
+      `SET work_mem = '128MB'`,
+      `SET maintenance_work_mem = '512MB'`,
+      `SET jit = off`
+    ]
+    for (const cmd of perfTuning) await Models.sequelize.query(cmd)
 
     // 1. Get view definition
     const viewResult = await query(`

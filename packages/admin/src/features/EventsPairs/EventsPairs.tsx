@@ -114,6 +114,7 @@ export const EventsPairs: React.FC = () => {
   /* -------------------------------- State --------------------------------- */
   const [page, setPage] = useState<number>(1)
   const [size, setSize] = useState<number>(PAGE_SIZE_OPTIONS[0])
+  const [mounted, setMounted] = useState(false)
 
   const [showFilters, setShowFilters] = useState(true)
   const [showSyncDetails, setShowSyncDetails] = useState(false)
@@ -166,9 +167,22 @@ export const EventsPairs: React.FC = () => {
     order: 'gregorian_desc',
 
     // ─ numeric
+    days: '',
+    days_from: '',
+    days_to: '',
+
     weeks: '',
+    weeks_from: '',
+    weeks_to: '',
+
     revelation_years: '',
+    revelation_years_from: '',
+    revelation_years_to: '',
+
     enochian_years: '',
+    enochian_years_from: '',
+    enochian_years_to: '',
+
     exact_weeks: undefined,
     exact_rev_years: undefined,
     exact_enoch_years: undefined,
@@ -200,8 +214,32 @@ export const EventsPairs: React.FC = () => {
     setPage(1)
   }
 
+  /* -------------------------------- Diff Ranges Helpers --------------------------------- */
+  const [rangeModes, setRangeModes] = useState({
+    days: 'exact',
+    weeks: 'exact',
+    revelation_years: 'exact',
+    enochian_years: 'exact'
+  })
+
+  const toggleRangeMode = (field: keyof typeof rangeModes) => {
+    setRangeModes((prev) => ({
+      ...prev,
+      [field]: prev[field] === 'exact' ? 'range' : 'exact'
+    }))
+
+    setFilters((prev) => ({
+      ...prev,
+      [field]: '',
+      [`${field}_from`]: '',
+      [`${field}_to`]: ''
+    }))
+  }
+
   /* ------------------------------ Callbacks -------------------------------- */
   const fetchPairs = useCallback(() => {
+    if (!mounted) setMounted(true)
+
     getPairs({
       asyncManager,
       store,
@@ -246,6 +284,10 @@ export const EventsPairs: React.FC = () => {
   useEffect(() => {
     init()
   }, [])
+
+  useEffect(() => {
+    if (mounted) fetchPairs()
+  }, [page, size])
 
   useEffect(() => {
     syncingRef.current = store.state.syncing.syncing
@@ -368,7 +410,7 @@ export const EventsPairs: React.FC = () => {
             borderRadius="md"
             bg="brand.surface">
             <Stack spacing={6}>
-              {/* ➊ — Quick search & flags */}
+              {/* ➊ — Name, tags, sort */}
               <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
                 <Input
                   placeholder="Name contains…"
@@ -392,283 +434,9 @@ export const EventsPairs: React.FC = () => {
                   <option value="diff">Smallest diff</option>
                   <option value="diff_desc">Largest diff</option>
                 </ChakraSelect>
-
-                <Checkbox
-                  isChecked={!!filters.favorite}
-                  onChange={(e) =>
-                    handleFilterChange(
-                      'favorite',
-                      e.target.checked ? true : undefined
-                    )
-                  }>
-                  Favorites only
-                </Checkbox>
-
-                <Checkbox
-                  isChecked={!!filters.require_user_source}
-                  onChange={(e) =>
-                    handleFilterChange(
-                      'require_user_source',
-                      e.target.checked ? true : undefined
-                    )
-                  }>
-                  Only user events
-                </Checkbox>
-
-                <div />
-
-                <Checkbox
-                  isChecked={!!filters.exclude_before_feasts}
-                  onChange={(e) =>
-                    handleFilterChange(
-                      'exclude_before_feasts',
-                      e.target.checked ? true : undefined
-                    )
-                  }>
-                  Exclude “before” feasts
-                </Checkbox>
-
-                <Checkbox
-                  isChecked={!!filters.exclude_after_feasts}
-                  onChange={(e) =>
-                    handleFilterChange(
-                      'exclude_after_feasts',
-                      e.target.checked ? true : undefined
-                    )
-                  }>
-                  Exclude “after” feasts
-                </Checkbox>
-
-                <div />
-
-                <Checkbox
-                  isChecked={!!filters.exact_weeks}
-                  onChange={(e) =>
-                    handleFilterChange(
-                      'exact_weeks',
-                      e.target.checked ? true : undefined
-                    )
-                  }>
-                  Exact weeks
-                </Checkbox>
-
-                <Checkbox
-                  isChecked={!!filters.exact_rev_years}
-                  onChange={(e) =>
-                    handleFilterChange(
-                      'exact_rev_years',
-                      e.target.checked ? true : undefined
-                    )
-                  }>
-                  Exact revelation years
-                </Checkbox>
-
-                <Checkbox
-                  isChecked={!!filters.exact_enoch_years}
-                  onChange={(e) =>
-                    handleFilterChange(
-                      'exact_enoch_years',
-                      e.target.checked ? true : undefined
-                    )
-                  }>
-                  Exact enochian years
-                </Checkbox>
               </SimpleGrid>
 
-              {/* ➋ — Numeric + exact flags */}
-              <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
-                <NumberInput
-                  value={filters.weeks ?? ''}
-                  onChange={(valueStr) => {
-                    handleFilterChange('weeks', valueStr === '' ? '' : valueStr)
-                  }}>
-                  <NumberInputField placeholder="Weeks =" />
-                </NumberInput>
-
-                <NumberInput
-                  value={filters.revelation_years ?? ''}
-                  onChange={(valueStr) => {
-                    handleFilterChange(
-                      'revelation_years',
-                      valueStr === '' ? '' : valueStr
-                    )
-                  }}>
-                  <NumberInputField placeholder="Revelation years =" />
-                </NumberInput>
-
-                <NumberInput
-                  value={filters.enochian_years ?? ''}
-                  onChange={(valueStr) => {
-                    handleFilterChange(
-                      'enochian_years',
-                      valueStr === '' ? '' : valueStr
-                    )
-                  }}>
-                  <NumberInputField placeholder="Enochian years =" />
-                </NumberInput>
-              </SimpleGrid>
-
-              {/* ➌ — Gregorian filter (mutually exclusive) */}
-              <Box>
-                <Text mb={2} fontWeight="bold">
-                  Gregorian date filter
-                </Text>
-
-                {/* radio chooses the mode */}
-                <RadioGroup
-                  value={gregorianSelection}
-                  onChange={(value) => {
-                    setFilters((prev) => ({
-                      ...prev,
-                      gregorian: '',
-                      gregorian_from: '',
-                      gregorian_to: '',
-                      gregorian_before: '',
-                      gregorian_after: ''
-                    }))
-                    setPage(1)
-                    setGregorianFilters(initialGregorianFilters)
-                    setGregorianSelection(value)
-                  }}>
-                  <HStack spacing={8}>
-                    <Radio value="exact">Exact date</Radio>
-                    <Radio value="range">Range</Radio>
-                    <Radio value="before">Before</Radio>
-                    <Radio value="after">After</Radio>
-                  </HStack>
-                </RadioGroup>
-
-                {/* source selector */}
-                <HStack mt={2} spacing={4}>
-                  <ChakraSelect
-                    w="300px"
-                    value={gregorianSource}
-                    onChange={(e) => setGregorianSource(e.target.value)}>
-                    <option value="user">user</option>
-                    <option value="system">system</option>
-                  </ChakraSelect>
-
-                  {/* date inputs, rendered conditionally by mode */}
-                  {gregorianSelection === 'exact' && (
-                    <Input
-                      type="text"
-                      placeholder="YYYY-MM-DD [BC]"
-                      value={gregorianFilters.gregorian}
-                      onChange={(e) =>
-                        updateGregorianFilter('gregorian', e.target.value)
-                      }
-                      isInvalid={
-                        gregorianFilters.gregorian &&
-                        gregorianFilters.valid_gregorian === false
-                      }
-                    />
-                  )}
-
-                  {gregorianSelection === 'range' && (
-                    <>
-                      <Input
-                        type="text"
-                        placeholder="From"
-                        value={gregorianFilters.gregorian_from}
-                        onChange={(e) =>
-                          updateGregorianFilter(
-                            'gregorian_from',
-                            e.target.value
-                          )
-                        }
-                        isInvalid={
-                          gregorianFilters.gregorian_from &&
-                          gregorianFilters.valid_gregorian_from === false
-                        }
-                      />
-                      <Input
-                        type="text"
-                        placeholder="To"
-                        value={gregorianFilters.gregorian_to}
-                        onChange={(e) =>
-                          updateGregorianFilter('gregorian_to', e.target.value)
-                        }
-                        isInvalid={
-                          gregorianFilters.gregorian_to &&
-                          gregorianFilters.valid_gregorian_to === false
-                        }
-                      />
-                    </>
-                  )}
-
-                  {gregorianSelection === 'before' && (
-                    <Input
-                      type="text"
-                      placeholder="≤ Date"
-                      value={gregorianFilters.gregorian_before}
-                      onChange={(e) =>
-                        updateGregorianFilter(
-                          'gregorian_before',
-                          e.target.value
-                        )
-                      }
-                      isInvalid={
-                        gregorianFilters.gregorian_before &&
-                        gregorianFilters.valid_gregorian_before === false
-                      }
-                    />
-                  )}
-
-                  {gregorianSelection === 'after' && (
-                    <Input
-                      type="text"
-                      placeholder="≥ Date"
-                      value={gregorianFilters.gregorian_after}
-                      onChange={(e) =>
-                        updateGregorianFilter('gregorian_after', e.target.value)
-                      }
-                      isInvalid={
-                        gregorianFilters.gregorian_after &&
-                        gregorianFilters.valid_gregorian_after === false
-                      }
-                    />
-                  )}
-                  <Button
-                    color="brand.primary"
-                    onClick={() => {
-                      const payload: any = { gregorian_source: gregorianSource }
-
-                      if (gregorianSelection === 'exact') {
-                        payload.gregorian = gregorianFilters.gregorian
-                      } else if (gregorianSelection === 'range') {
-                        payload.gregorian_from = gregorianFilters.gregorian_from
-                        payload.gregorian_to = gregorianFilters.gregorian_to
-                      } else if (gregorianSelection === 'before') {
-                        payload.gregorian_before =
-                          gregorianFilters.gregorian_before
-                      } else if (gregorianSelection === 'after') {
-                        payload.gregorian_after =
-                          gregorianFilters.gregorian_after
-                      }
-
-                      setFilters((prev) => ({
-                        ...prev,
-                        ...payload
-                      }))
-                      setPage(1)
-                    }}
-                    isDisabled={
-                      (gregorianSelection === 'exact' &&
-                        !gregorianFilters.valid_gregorian) ||
-                      (gregorianSelection === 'range' &&
-                        (!gregorianFilters.valid_gregorian_from ||
-                          !gregorianFilters.valid_gregorian_to)) ||
-                      (gregorianSelection === 'before' &&
-                        !gregorianFilters.valid_gregorian_before) ||
-                      (gregorianSelection === 'after' &&
-                        !gregorianFilters.valid_gregorian_after)
-                    }>
-                    Set Dates
-                  </Button>
-                </HStack>
-              </Box>
-
-              {/* ➍ — ID / UUID filters */}
+              {/* ➍ — UUIDs */}
               <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
                 {/*<Input
                   placeholder="Pair UUID"
@@ -728,6 +496,449 @@ export const EventsPairs: React.FC = () => {
                   ))}
                 </ChakraSelect>
               </SimpleGrid>
+
+              {/* ➋ — Days, weeks, years */}
+              <SimpleGrid columns={{ base: 1, md: 4 }} spacing={4}>
+                {/* Days Filter */}
+                <Box>
+                  <Flex justify="space-between" mb={1}>
+                    <Text fontWeight="medium">Days</Text>
+                    <Button
+                      size="xs"
+                      variant="link"
+                      onClick={() => toggleRangeMode('days')}>
+                      {rangeModes.days === 'exact' ? 'Range' : 'Exact'}
+                    </Button>
+                  </Flex>
+                  {rangeModes.days === 'exact' ? (
+                    <NumberInput
+                      value={filters.days ?? ''}
+                      onChange={(valStr) =>
+                        handleFilterChange('days', valStr === '' ? '' : valStr)
+                      }>
+                      <NumberInputField placeholder="Days =" />
+                    </NumberInput>
+                  ) : (
+                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={2}>
+                      <NumberInput
+                        value={filters.days_from ?? ''}
+                        onChange={(valStr) =>
+                          handleFilterChange(
+                            'days_from',
+                            valStr === '' ? '' : valStr
+                          )
+                        }>
+                        <NumberInputField placeholder="From" />
+                      </NumberInput>
+                      <NumberInput
+                        value={filters.days_to ?? ''}
+                        onChange={(valStr) =>
+                          handleFilterChange(
+                            'days_to',
+                            valStr === '' ? '' : valStr
+                          )
+                        }>
+                        <NumberInputField placeholder="To" />
+                      </NumberInput>
+                    </SimpleGrid>
+                  )}
+                </Box>
+
+                {/* Weeks Filter */}
+                <Box>
+                  <Flex justify="space-between" mb={1}>
+                    <Text fontWeight="medium">Weeks</Text>
+                    <Button
+                      size="xs"
+                      variant="link"
+                      onClick={() => toggleRangeMode('weeks')}>
+                      {rangeModes.weeks === 'exact' ? 'Range' : 'Exact'}
+                    </Button>
+                  </Flex>
+                  {rangeModes.weeks === 'exact' ? (
+                    <NumberInput
+                      value={filters.weeks ?? ''}
+                      onChange={(valStr) =>
+                        handleFilterChange('weeks', valStr === '' ? '' : valStr)
+                      }>
+                      <NumberInputField placeholder="Weeks =" />
+                    </NumberInput>
+                  ) : (
+                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={2}>
+                      <NumberInput
+                        value={filters.weeks_from ?? ''}
+                        onChange={(valStr) =>
+                          handleFilterChange(
+                            'weeks_from',
+                            valStr === '' ? '' : valStr
+                          )
+                        }>
+                        <NumberInputField placeholder="From" />
+                      </NumberInput>
+                      <NumberInput
+                        value={filters.weeks_to ?? ''}
+                        onChange={(valStr) =>
+                          handleFilterChange(
+                            'weeks_to',
+                            valStr === '' ? '' : valStr
+                          )
+                        }>
+                        <NumberInputField placeholder="To" />
+                      </NumberInput>
+                    </SimpleGrid>
+                  )}
+                </Box>
+
+                {/* Revelation Years Filter */}
+                <Box>
+                  <Flex justify="space-between" mb={1}>
+                    <Text fontWeight="medium">Revelation Years</Text>
+                    <Button
+                      size="xs"
+                      variant="link"
+                      onClick={() => toggleRangeMode('revelation_years')}>
+                      {rangeModes.revelation_years === 'exact'
+                        ? 'Range'
+                        : 'Exact'}
+                    </Button>
+                  </Flex>
+                  {rangeModes.revelation_years === 'exact' ? (
+                    <NumberInput
+                      value={filters.revelation_years ?? ''}
+                      onChange={(valStr) =>
+                        handleFilterChange(
+                          'revelation_years',
+                          valStr === '' ? '' : valStr
+                        )
+                      }>
+                      <NumberInputField placeholder="Revelation years =" />
+                    </NumberInput>
+                  ) : (
+                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={2}>
+                      <NumberInput
+                        value={filters.revelation_years_from ?? ''}
+                        onChange={(valStr) =>
+                          handleFilterChange(
+                            'revelation_years_from',
+                            valStr === '' ? '' : valStr
+                          )
+                        }>
+                        <NumberInputField placeholder="From" />
+                      </NumberInput>
+                      <NumberInput
+                        value={filters.revelation_years_to ?? ''}
+                        onChange={(valStr) =>
+                          handleFilterChange(
+                            'revelation_years_to',
+                            valStr === '' ? '' : valStr
+                          )
+                        }>
+                        <NumberInputField placeholder="To" />
+                      </NumberInput>
+                    </SimpleGrid>
+                  )}
+                </Box>
+
+                {/* Enochian Years Filter */}
+                <Box>
+                  <Flex justify="space-between" mb={1}>
+                    <Text fontWeight="medium">Enochian Years</Text>
+                    <Button
+                      size="xs"
+                      variant="link"
+                      onClick={() => toggleRangeMode('enochian_years')}>
+                      {rangeModes.enochian_years === 'exact'
+                        ? 'Range'
+                        : 'Exact'}
+                    </Button>
+                  </Flex>
+                  {rangeModes.enochian_years === 'exact' ? (
+                    <NumberInput
+                      value={filters.enochian_years ?? ''}
+                      onChange={(valStr) =>
+                        handleFilterChange(
+                          'enochian_years',
+                          valStr === '' ? '' : valStr
+                        )
+                      }>
+                      <NumberInputField placeholder="Enochian years =" />
+                    </NumberInput>
+                  ) : (
+                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={2}>
+                      <NumberInput
+                        value={filters.enochian_years_from ?? ''}
+                        onChange={(valStr) =>
+                          handleFilterChange(
+                            'enochian_years_from',
+                            valStr === '' ? '' : valStr
+                          )
+                        }>
+                        <NumberInputField placeholder="From" />
+                      </NumberInput>
+                      <NumberInput
+                        value={filters.enochian_years_to ?? ''}
+                        onChange={(valStr) =>
+                          handleFilterChange(
+                            'enochian_years_to',
+                            valStr === '' ? '' : valStr
+                          )
+                        }>
+                        <NumberInputField placeholder="To" />
+                      </NumberInput>
+                    </SimpleGrid>
+                  )}
+                </Box>
+              </SimpleGrid>
+
+              {/* ➍ — Include / Exclude */}
+              <SimpleGrid columns={{ base: 1, md: 4 }} spacing={4}>
+                <div/>
+
+                <Checkbox
+                  isChecked={!!filters.exact_weeks}
+                  onChange={(e) =>
+                    handleFilterChange(
+                      'exact_weeks',
+                      e.target.checked ? true : undefined
+                    )
+                  }>
+                  Exact weeks
+                </Checkbox>
+
+                <Checkbox
+                  isChecked={!!filters.exact_rev_years}
+                  onChange={(e) =>
+                    handleFilterChange(
+                      'exact_rev_years',
+                      e.target.checked ? true : undefined
+                    )
+                  }>
+                  Exact revelation years
+                </Checkbox>
+
+                <Checkbox
+                  isChecked={!!filters.exact_enoch_years}
+                  onChange={(e) =>
+                    handleFilterChange(
+                      'exact_enoch_years',
+                      e.target.checked ? true : undefined
+                    )
+                  }>
+                  Exact enochian years
+                </Checkbox>
+              </SimpleGrid>
+
+
+              {/* ➍ — Include / Exclude */}
+              <SimpleGrid columns={{ base: 1, md: 4 }} spacing={4}>
+                <Checkbox
+                  isChecked={!!filters.favorite}
+                  onChange={(e) =>
+                    handleFilterChange(
+                      'favorite',
+                      e.target.checked ? true : undefined
+                    )
+                  }>
+                  Favorites only
+                </Checkbox>
+
+                <Checkbox
+                  isChecked={!!filters.require_user_source}
+                  onChange={(e) =>
+                    handleFilterChange(
+                      'require_user_source',
+                      e.target.checked ? true : undefined
+                    )
+                  }>
+                  Only user events
+                </Checkbox>
+
+                <Checkbox
+                  isChecked={!!filters.exclude_before_feasts}
+                  onChange={(e) =>
+                    handleFilterChange(
+                      'exclude_before_feasts',
+                      e.target.checked ? true : undefined
+                    )
+                  }>
+                  Exclude “before” feasts
+                </Checkbox>
+
+                <Checkbox
+                  isChecked={!!filters.exclude_after_feasts}
+                  onChange={(e) =>
+                    handleFilterChange(
+                      'exclude_after_feasts',
+                      e.target.checked ? true : undefined
+                    )
+                  }>
+                  Exclude “after” feasts
+                </Checkbox>
+              </SimpleGrid>
+
+              {/* ➌ — Gregorian filter (mutually exclusive) */}
+              <Box>
+                <Text mb={2} fontWeight="bold">
+                  Gregorian date filter
+                </Text>
+
+                {/* radio chooses the mode */}
+                <RadioGroup
+                  value={gregorianSelection}
+                  onChange={(value) => {
+                    setFilters((prev) => ({
+                      ...prev,
+                      gregorian: '',
+                      gregorian_from: '',
+                      gregorian_to: '',
+                      gregorian_before: '',
+                      gregorian_after: ''
+                    }))
+                    setPage(1)
+                    setGregorianFilters(initialGregorianFilters)
+                    setGregorianSelection(value)
+                  }}>
+                  <HStack spacing={8}>
+                    <Radio value="exact">Exact date</Radio>
+                    <Radio value="range">Range</Radio>
+                    <Radio value="before">Before</Radio>
+                    <Radio value="after">After</Radio>
+                  </HStack>
+                </RadioGroup>
+
+                {/* source selector */}
+                <HStack mt={2} spacing={4}>
+                  <ChakraSelect
+                    w="125px"
+                    value={gregorianSource}
+                    onChange={(e) => setGregorianSource(e.target.value)}>
+                    <option value="user">user</option>
+                    <option value="system">system</option>
+                  </ChakraSelect>
+
+                  {/* date inputs, rendered conditionally by mode */}
+                  {gregorianSelection === 'exact' && (
+                    <Input
+                      type="text"
+                      placeholder="YYYY-MM-DD [BC]"
+                      maxW={200}
+                      value={gregorianFilters.gregorian}
+                      onChange={(e) =>
+                        updateGregorianFilter('gregorian', e.target.value)
+                      }
+                      isInvalid={
+                        gregorianFilters.gregorian &&
+                        gregorianFilters.valid_gregorian === false
+                      }
+                    />
+                  )}
+
+                  {gregorianSelection === 'range' && (
+                    <>
+                      <Input
+                        type="text"
+                        placeholder="From"
+                        maxW={200}
+                        value={gregorianFilters.gregorian_from}
+                        onChange={(e) =>
+                          updateGregorianFilter(
+                            'gregorian_from',
+                            e.target.value
+                          )
+                        }
+                        isInvalid={
+                          gregorianFilters.gregorian_from &&
+                          gregorianFilters.valid_gregorian_from === false
+                        }
+                      />
+                      <Input
+                        type="text"
+                        placeholder="To"
+                        maxW={200}
+                        value={gregorianFilters.gregorian_to}
+                        onChange={(e) =>
+                          updateGregorianFilter('gregorian_to', e.target.value)
+                        }
+                        isInvalid={
+                          gregorianFilters.gregorian_to &&
+                          gregorianFilters.valid_gregorian_to === false
+                        }
+                      />
+                    </>
+                  )}
+
+                  {gregorianSelection === 'before' && (
+                    <Input
+                      type="text"
+                      placeholder="≤ Date"
+                      maxW={200}
+                      value={gregorianFilters.gregorian_before}
+                      onChange={(e) =>
+                        updateGregorianFilter(
+                          'gregorian_before',
+                          e.target.value
+                        )
+                      }
+                      isInvalid={
+                        gregorianFilters.gregorian_before &&
+                        gregorianFilters.valid_gregorian_before === false
+                      }
+                    />
+                  )}
+
+                  {gregorianSelection === 'after' && (
+                    <Input
+                      type="text"
+                      placeholder="≥ Date"
+                      maxW={200}
+                      value={gregorianFilters.gregorian_after}
+                      onChange={(e) =>
+                        updateGregorianFilter('gregorian_after', e.target.value)
+                      }
+                      isInvalid={
+                        gregorianFilters.gregorian_after &&
+                        gregorianFilters.valid_gregorian_after === false
+                      }
+                    />
+                  )}
+                  <Button
+                    color="brand.primary"
+                    onClick={() => {
+                      const payload: any = { gregorian_source: gregorianSource }
+
+                      if (gregorianSelection === 'exact') {
+                        payload.gregorian = gregorianFilters.gregorian
+                      } else if (gregorianSelection === 'range') {
+                        payload.gregorian_from = gregorianFilters.gregorian_from
+                        payload.gregyyyyorian_to = gregorianFilters.gregorian_to
+                      } else if (gregorianSelection === 'before') {
+                        payload.gregorian_before =
+                          gregorianFilters.gregorian_before
+                      } else if (gregorianSelection === 'after') {
+                        payload.gregorian_after =
+                          gregorianFilters.gregorian_after
+                      }
+
+                      setFilters((prev) => ({
+                        ...prev,
+                        ...payload
+                      }))
+                    }}
+                    isDisabled={
+                      (gregorianSelection === 'exact' &&
+                        !gregorianFilters.valid_gregorian) ||
+                      (gregorianSelection === 'range' &&
+                        (!gregorianFilters.valid_gregorian_from ||
+                          !gregorianFilters.valid_gregorian_to)) ||
+                      (gregorianSelection === 'before' &&
+                        !gregorianFilters.valid_gregorian_before) ||
+                      (gregorianSelection === 'after' &&
+                        !gregorianFilters.valid_gregorian_after)
+                    }>
+                    Set Dates
+                  </Button>
+                </HStack>
+              </Box>
             </Stack>
             <HStack mt={4} spacing={4}>
               <Button
