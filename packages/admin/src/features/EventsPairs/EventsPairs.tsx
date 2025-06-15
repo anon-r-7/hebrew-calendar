@@ -316,7 +316,9 @@ export const EventsPairs: React.FC = () => {
               </Button>
             ) : null}
 
-            <Collapse in={showSyncDetails && store.state.syncing.syncing} animateOpacity>
+            <Collapse
+              in={showSyncDetails && store.state.syncing.syncing}
+              animateOpacity>
               <Box mt={3} fontSize="sm" color="gray.600">
                 <Text>
                   Started:{' '}
@@ -327,7 +329,9 @@ export const EventsPairs: React.FC = () => {
                 <Text>
                   Est. End:{' '}
                   {store.state.syncing.estimatedEnd
-                    ? new Date(store.state.syncing.estimatedEnd).toLocaleString()
+                    ? new Date(
+                        store.state.syncing.estimatedEnd
+                      ).toLocaleString()
                     : '—'}
                 </Text>
                 <Text>
@@ -344,7 +348,6 @@ export const EventsPairs: React.FC = () => {
                 </Text>
               </Box>
             </Collapse>
-
           </Box>
 
           <Button
