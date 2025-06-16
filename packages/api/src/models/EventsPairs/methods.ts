@@ -130,7 +130,7 @@ export const listWithFilters = async (q: EventPairsParams) => {
   if (q.exact_weeks === 'true') where.push('exact_weeks = true')
 
   if (q.days) {
-    where.push('diff = :d')
+    where.push('ep.diff = :d')
     replacements.d = Number(q.days)
   }
 
@@ -138,7 +138,7 @@ export const listWithFilters = async (q: EventPairsParams) => {
     const days_from = q.days_from || q.days_to
     const days_to = q.days_to || q.days_from
 
-    where.push('diff BETWEEN :days_from AND :days_to')
+    where.push('ep.diff BETWEEN :days_from AND :days_to')
     replacements.days_from = Number(days_from)
     replacements.days_to = Number(days_to)
   }
