@@ -536,7 +536,7 @@ export const CalendarGrid = ({ dates, type }) => {
           maxW={theme.sizes.container.xl}
           mb={0}>
           {week.map((day, j) => {
-            const isToday = today === day.gregorian
+            const isToday = day && today === day.gregorian
 
             return (
               <Box
