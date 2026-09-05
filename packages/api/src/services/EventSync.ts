@@ -1,6 +1,7 @@
 import Models from '@api/models'
 import { logger } from '@api/utils/logger'
 import { QueryTypes } from 'sequelize'
+import { SYSTEM_EVENT_SHORT_NAMES } from '@api/constants/systemEvents'
 
 /** Internal state */
 let _running = false
@@ -58,10 +59,14 @@ async function refreshMaterializedView() {
       const create_index_sql = row['create_index_sql']
       if (!create_index_sql) continue
 
+      // "CREATE [UNIQUE] INDEX <name> ON public.events_pair_view ..." →
+      // build it CONCURRENTLY, as <name>__staging, on the staging view.
       const concurrentSQL = create_index_sql
-        .replace(/^CREATE INDEX /, 'CREATE INDEX CONCURRENTLY ')
-        .replace(/^CREATE UNIQUE INDEX /, 'CREATE UNIQUE INDEX CONCURRENTLY ')
-        .replace('epv', `epv__staging`)
+        .replace(
+          /^CREATE (UNIQUE )?INDEX (\S+) ON /,
+          (_m, unique, name) =>
+            `CREATE ${unique ?? ''}INDEX CONCURRENTLY ${name}__staging ON `
+        )
         .replace(
           /ON public\.events_pair_view /,
           'ON public.events_pair_view__staging '
@@ -104,11 +109,11 @@ async function refreshMaterializedView() {
       SELECT indexname
       FROM pg_indexes
       WHERE tablename = 'events_pair_view'
-        AND indexname LIKE 'epv__staging_%'
+        AND indexname LIKE '%\\_\\_staging'
     `)) as { indexname: string }[]
 
     for (const { indexname } of renameIndexRows) {
-      const newName = indexname.replace(`epv__staging`, 'epv')
+      const newName = indexname.replace(/__staging$/, '')
 
       // Drop any conflicting index first
       try {
@@ -141,17 +146,101 @@ async function refreshMaterializedView() {
   }
 }
 
-/** Public: queue a sync. Returns true if started */
+/**
+ * Insert any missing "system" rows into `events` for every hebrew_event_dates
+ * row whose event is in SYSTEM_EVENT_SHORT_NAMES. Mirrors the rules of the
+ * original backfill (20250527120000-event-pairs):
+ *   - single-day events (event_day IS NULL) get BEFORE / TARGET / AFTER rows
+ *   - multi-day events get BEFORE on day 1, TARGET every day, AFTER on the
+ *     last day (matzot: 7, sukkot / chanukkah: 8)
+ * The fan-out trigger on `events` pairs each new system row with every user
+ * event, so no explicit events_pairs work is needed here.
+ * Returns the number of `events` rows inserted.
+ */
+export const syncSystemEvents = async (): Promise<number> => {
+  const [, meta] = await Models.sequelize.query(
+    `
+    INSERT INTO events (day_index, source, system_meta, source_row)
+    WITH selected_hebrew_event_dates AS (
+      SELECT
+        hed.uuid      AS hed_id,
+        hd.day_index  AS target_day_index,
+        he.short_name,
+        hed.event_day
+      FROM hebrew_event_dates hed
+      JOIN hebrew_dates  hd ON hd.uuid = hed.hebrew_date
+      JOIN hebrew_events he ON he.uuid = hed.hebrew_event
+      WHERE he.short_name IN (:short_names)
+    ),
+    candidates AS (
+      /* ---- BEFORE (single-day events, or first day of multi-day) ---- */
+      SELECT
+        target_day_index - 1                  AS day_index,
+        'before'::enum_events_system_meta     AS system_meta,
+        hed_id                                AS source_row
+      FROM selected_hebrew_event_dates
+      WHERE event_day IS NULL OR event_day = 1
+
+      UNION ALL
+
+      /* ---- TARGET (always) ---- */
+      SELECT
+        target_day_index,
+        NULL::enum_events_system_meta,
+        hed_id
+      FROM selected_hebrew_event_dates
+
+      UNION ALL
+
+      /* ---- AFTER (single-day events, or last day of multi-day) ---- */
+      SELECT
+        target_day_index + 1,
+        'after'::enum_events_system_meta,
+        hed_id
+      FROM selected_hebrew_event_dates
+      WHERE
+        event_day IS NULL
+        OR (short_name = 'matzot' AND event_day = 7)
+        OR (short_name IN ('sukkot', 'chanukkah') AND event_day = 8)
+    )
+    SELECT
+      c.day_index,
+      'system'::enum_events_source,
+      c.system_meta,
+      c.source_row
+    FROM candidates c
+    /* The unique constraint treats NULL system_meta as distinct, so an
+       ON CONFLICT clause alone would re-insert every TARGET row each run. */
+    WHERE NOT EXISTS (
+      SELECT 1
+      FROM events e
+      WHERE e.source = 'system'
+        AND e.source_row = c.source_row
+        AND e.system_meta IS NOT DISTINCT FROM c.system_meta
+    )
+    ON CONFLICT ON CONSTRAINT events_source_row_meta_unique DO NOTHING;
+    `,
+    { replacements: { short_names: [...SYSTEM_EVENT_SHORT_NAMES] } }
+  )
+
+  // Sequelize returns the affected row count either directly (INSERT
+  // statements) or as `rowCount` on the raw pg result.
+  if (typeof meta === 'number') return meta
+  return Number((meta as { rowCount?: number })?.rowCount ?? 0)
+}
+
+export interface SyncResult {
+  systemInserted: number
+  processedCount: number
+  insertMs: number
+  refreshMs: number
+  errors: string[]
+}
+
+/** Public: queue a sync (fire-and-forget). Returns true if started */
 export const enqueue = async (): Promise<boolean> => {
   if (_running) return false
-
-  _running = true
-  _startTime = new Date()
-
-  const pendingCount = await estimatePendingCount()
-  _lastPending = { start: _startTime, processedCount: pendingCount }
-
-  void _run()
+  void runSync()
   return true
 }
 
@@ -160,12 +249,44 @@ const estimatePendingCount = async (): Promise<number> => {
   return await Models.EventsEntry.count({ where: { processed: false } })
 }
 
-/** Internal: main sync function */
-const _run = async (): Promise<void> => {
+/**
+ * Public: run a full sync and wait for it to finish.
+ *   1. insert missing system events (fans out pairs via trigger)
+ *   2. process unprocessed user entries (fans out pairs via trigger)
+ *   3. rebuild the events_pair_view materialized view
+ * Resolves with a summary; never rejects (errors are collected in `errors`).
+ */
+export const runSync = async (): Promise<SyncResult> => {
+  if (_running) {
+    throw new Error('[sync] already running')
+  }
+  _running = true
+  _startTime = new Date()
+
+  const errors: string[] = []
+  let systemInserted = 0
+
+  try {
+    const pendingCount = await estimatePendingCount()
+    _lastPending = { start: _startTime, processedCount: pendingCount }
+  } catch (err) {
+    logger.error(`[sync] could not estimate pending entries: ${err}`)
+    _lastPending = { start: _startTime, processedCount: 0 }
+  }
+
   logger.info('[sync] starting')
   const insertStart = Date.now()
   let processedCount = 0
   let hasMore = true
+
+  try {
+    logger.info('[sync] syncing system events')
+    systemInserted = await syncSystemEvents()
+    logger.info(`[sync] system events inserted=${systemInserted}`)
+  } catch (err) {
+    logger.error(`[sync] system events failed: ${err}`)
+    errors.push(`system events: ${err}`)
+  }
 
   try {
     while (hasMore) {
@@ -199,6 +320,7 @@ const _run = async (): Promise<void> => {
     }
   } catch (err) {
     logger.error(`[sync] failed: ${err}`)
+    errors.push(`user entries: ${err}`)
   }
 
   const insertMs = Date.now() - insertStart
@@ -229,6 +351,7 @@ const _run = async (): Promise<void> => {
     logger.info('[sync] materialized view refreshed')
   } catch (err) {
     logger.error(`[sync] MV refresh failed: ${err}`)
+    errors.push(`materialized view refresh: ${err}`)
   }
 
   _running = false
@@ -240,8 +363,10 @@ const _run = async (): Promise<void> => {
   _lastRefreshMs = refreshMs
 
   logger.info(
-    `[sync] completed: processed=${processedCount}, insertMs=${insertMs}, refreshMs=${refreshMs}`
+    `[sync] completed: systemInserted=${systemInserted}, processed=${processedCount}, insertMs=${insertMs}, refreshMs=${refreshMs}, errors=${errors.length}`
   )
+
+  return { systemInserted, processedCount, insertMs, refreshMs, errors }
 }
 
 /** Public: get current sync status and estimated times */

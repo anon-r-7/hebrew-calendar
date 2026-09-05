@@ -2,6 +2,7 @@
 **build
 **node_modules
 .envrc
+.envrc.prod
 **.DS_Store
 k8s-hebrew-feasts-kubeconfig.yaml
 **logs**

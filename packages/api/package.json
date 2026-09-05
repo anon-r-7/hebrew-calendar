@@ -9,6 +9,7 @@
     "start": "nodemon -r tsconfig-paths/register --exec \"node --max-old-space-size=4096 -r ts-node/register\" src/index.ts",
     "start:prod": "yarn build && yarn start",
     "serve": "node --max-old-space-size=4096 dist/index.js",
+    "resync": "node --max-old-space-size=4096 -r tsconfig-paths/register -r ts-node/register src/scripts/resync.ts",
     "db:migrate": "npx sequelize-cli db:migrate",
     "db:migrate:undo": "npx sequelize-cli db:migrate:undo:all",
     "db:migrate:undo:last": "npx sequelize-cli db:migrate:undo",

@@ -25,6 +25,7 @@ try {
     process.env.POSTGRES_PASSWORD!,
     {
       host: process.env.DB_ENDPOINT,
+      port: Number(process.env.DB_PORT || 5432),
       dialect: 'postgres',
       timezone: '-5:00',
       // eslint-disable-next-line

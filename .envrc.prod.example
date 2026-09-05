@@ -1,0 +1,13 @@
+# Copy to .envrc.prod (gitignored) and fill in. Used by resync-prod.sh.
+export SSH_HOST=1.2.3.4
+export SSH_USER=deploy
+export SSH_KEY=$HOME/.ssh/id_rsa
+# Where Postgres listens as seen from the SSH host
+export REMOTE_DB_HOST=localhost
+export REMOTE_DB_PORT=5432
+# Local port for the tunnel (avoid 5432 if you run Postgres locally)
+export LOCAL_PORT=15432
+
+export POSTGRES_DB=hebrew_calendar
+export POSTGRES_USER=hebrew-calendar
+export POSTGRES_PASSWORD=changeme

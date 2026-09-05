@@ -1,5 +1,6 @@
 export TZ=UTC
 export DB_ENDPOINT=db
+export DB_PORT=5432
 export POSTGRES_DB=hebrew_feasts
 export POSTGRES_USER=postgres
 export POSTGRES_PASSWORD=postgres
