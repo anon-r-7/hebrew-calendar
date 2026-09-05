@@ -2,7 +2,8 @@
 # Run the event sync (system events + user entries + events_pair_view rebuild)
 # from this machine against the production database, over an SSH tunnel.
 #
-#   ./resync-prod.sh
+#   ./resync-prod.sh                          # system events + user entries only
+#   ./resync-prod.sh --pairs --create-view    # also rebuild pairs and the view (heavy)
 #
 # Reads connection details from .envrc.prod (gitignored; see .envrc.prod.example).
 # The API host is too small to run the sync itself, so this does the
@@ -57,4 +58,4 @@ export DB_PORT="$LOCAL_PORT"
 export POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD
 
 echo "Running sync against ${POSTGRES_DB} (this can take a long time)..."
-yarn workspace hebrew-feasts-api resync
+yarn workspace hebrew-feasts-api resync "$@"

@@ -1,7 +1,9 @@
 /**
- * Run a full event sync from the command line and exit.
+ * Run an event sync from the command line and exit.
  *
- *   yarn resync
+ *   yarn resync                    # system events + user entries; refresh view if it exists
+ *   yarn resync --pairs            # also backfill missing events_pairs rows (heavy)
+ *   yarn resync --create-view      # also create events_pair_view if it is missing (heavy)
  *
  * Uses the same DB env vars as the API (DB_ENDPOINT, DB_PORT, POSTGRES_DB,
  * POSTGRES_USER, POSTGRES_PASSWORD). Intended for running the sync from a
@@ -20,8 +22,15 @@ const main = async () => {
     }:${process.env.DB_PORT || 5432}`
   )
 
+  const args = process.argv.slice(2)
+  const options = {
+    pairs: args.includes('--pairs'),
+    createView: args.includes('--create-view')
+  }
+  logger.info(`[resync] options ${JSON.stringify(options)}`)
+
   const started = Date.now()
-  const result = await runSync()
+  const result = await runSync(options)
   const totalSec = Math.round((Date.now() - started) / 1000)
 
   console.log(
@@ -29,6 +38,8 @@ const main = async () => {
       {
         systemInserted: result.systemInserted,
         userProcessed: result.processedCount,
+        pairsBackfilled: result.pairsBackfilled,
+        viewCreated: result.viewCreated,
         insertMs: result.insertMs,
         refreshMs: result.refreshMs,
         totalSec,

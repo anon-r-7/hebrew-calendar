@@ -1,7 +1,19 @@
+import fs from 'fs'
+import path from 'path'
 import Models from '@api/models'
 import { logger } from '@api/utils/logger'
 import { QueryTypes } from 'sequelize'
 import { SYSTEM_EVENT_SHORT_NAMES } from '@api/constants/systemEvents'
+
+/** Canonical CREATE MATERIALIZED VIEW + indexes (works from src/ and dist/) */
+const VIEW_SQL_PATH = path.resolve(
+  __dirname,
+  '..',
+  '..',
+  'db',
+  'sql',
+  'events_pair_view.sql'
+)
 
 /** Internal state */
 let _running = false
@@ -14,6 +26,99 @@ let _lastPending: { start: Date; processedCount: number } | null = null
 
 /** Public: is a sync job currently executing? */
 export const isRunning = (): boolean => _running
+
+const affectedRows = (meta: unknown): number => {
+  // Sequelize returns the affected row count either directly (INSERT
+  // statements) or as `rowCount` on the raw pg result.
+  if (typeof meta === 'number') return meta
+  return Number((meta as { rowCount?: number })?.rowCount ?? 0)
+}
+
+/** Does the events_pair_view materialized view exist? */
+const materializedViewExists = async (): Promise<boolean> => {
+  const rows = (await Models.sequelize.query(
+    `SELECT 1 FROM pg_matviews WHERE schemaname = 'public' AND matviewname = 'events_pair_view'`,
+    { type: QueryTypes.SELECT }
+  )) as unknown[]
+  return rows.length > 0
+}
+
+/**
+ * Create events_pair_view (populated) and its indexes from the canonical
+ * SQL file. Only used when the view is missing entirely.
+ */
+const createMaterializedView = async (): Promise<void> => {
+  const sql = fs.readFileSync(VIEW_SQL_PATH, 'utf8')
+  const statements = sql
+    .split(/;\s*\n/)
+    .map((stmt) =>
+      stmt
+        .split('\n')
+        .filter((line) => !line.trim().startsWith('--'))
+        .join('\n')
+        .trim()
+    )
+    .filter(Boolean)
+
+  for (const cmd of [
+    `SET work_mem = '128MB'`,
+    `SET maintenance_work_mem = '512MB'`,
+    `SET jit = off`
+  ])
+    await Models.sequelize.query(cmd)
+
+  for (const stmt of statements) {
+    logger.info(`[sync] ${stmt.split('\n')[0].slice(0, 90)}`)
+    await Models.sequelize.query(stmt)
+  }
+  await Models.sequelize.query(`VACUUM ANALYZE public.events_pair_view`)
+}
+
+/**
+ * Make sure every user event is paired with every other event. The fan-out
+ * trigger handles rows as they are inserted, but pairs can be missing if
+ * events_pairs was truncated or the trigger did not cover a case at the
+ * time. Cheap when nothing is missing (three counts); otherwise one
+ * INSERT ... ON CONFLICT DO NOTHING.
+ * Returns the number of pairs inserted.
+ */
+export const backfillPairs = async (): Promise<number> => {
+  const [counts] = (await Models.sequelize.query(
+    `
+    SELECT
+      (SELECT count(*) FROM events)                       AS total,
+      (SELECT count(*) FROM events WHERE source = 'user') AS users,
+      (SELECT count(*) FROM events_pairs)                 AS pairs
+    `,
+    { type: QueryTypes.SELECT }
+  )) as { total: string; users: string; pairs: string }[]
+
+  const total = Number(counts.total)
+  const users = Number(counts.users)
+  const pairs = Number(counts.pairs)
+  const expected = users * (total - users) + (users * (users - 1)) / 2
+
+  logger.info(
+    `[sync] pairs check: users=${users}, events=${total}, pairs=${pairs}, expected=${expected}`
+  )
+  if (pairs >= expected) return 0
+
+  const [, meta] = await Models.sequelize.query(`
+    INSERT INTO events_pairs (a, b, diff, favorite)
+    SELECT
+      LEAST(u.uuid, e.uuid),
+      GREATEST(u.uuid, e.uuid),
+      ABS(u.day_index - e.day_index) + 1,
+      false
+    FROM events u
+    JOIN events e
+      ON e.uuid <> u.uuid
+     AND (e.source <> 'user' OR e.uuid > u.uuid)   -- user/user pairs once
+    WHERE u.source = 'user'
+    ON CONFLICT DO NOTHING;
+  `)
+  return affectedRows(meta)
+}
 
 async function refreshMaterializedView() {
   const log = console.log
@@ -223,24 +328,31 @@ export const syncSystemEvents = async (): Promise<number> => {
     { replacements: { short_names: [...SYSTEM_EVENT_SHORT_NAMES] } }
   )
 
-  // Sequelize returns the affected row count either directly (INSERT
-  // statements) or as `rowCount` on the raw pg result.
-  if (typeof meta === 'number') return meta
-  return Number((meta as { rowCount?: number })?.rowCount ?? 0)
+  return affectedRows(meta)
+}
+
+export interface SyncOptions {
+  /** Backfill missing events_pairs rows (heavy: users × events). Default false. */
+  pairs?: boolean
+  /** Create events_pair_view from the canonical SQL if it is missing. Default false.
+   *  An existing view is always refreshed regardless of this flag. */
+  createView?: boolean
 }
 
 export interface SyncResult {
   systemInserted: number
   processedCount: number
+  pairsBackfilled: number
+  viewCreated: boolean
   insertMs: number
   refreshMs: number
   errors: string[]
 }
 
 /** Public: queue a sync (fire-and-forget). Returns true if started */
-export const enqueue = async (): Promise<boolean> => {
+export const enqueue = async (options: SyncOptions = {}): Promise<boolean> => {
   if (_running) return false
-  void runSync()
+  void runSync(options)
   return true
 }
 
@@ -253,10 +365,14 @@ const estimatePendingCount = async (): Promise<number> => {
  * Public: run a full sync and wait for it to finish.
  *   1. insert missing system events (fans out pairs via trigger)
  *   2. process unprocessed user entries (fans out pairs via trigger)
- *   3. rebuild the events_pair_view materialized view
+ *   3. (opt-in) backfill any missing pairs
+ *   4. rebuild the events_pair_view materialized view if it exists;
+ *      (opt-in) create it from the canonical SQL if it is missing
  * Resolves with a summary; never rejects (errors are collected in `errors`).
  */
-export const runSync = async (): Promise<SyncResult> => {
+export const runSync = async (
+  options: SyncOptions = {}
+): Promise<SyncResult> => {
   if (_running) {
     throw new Error('[sync] already running')
   }
@@ -265,6 +381,8 @@ export const runSync = async (): Promise<SyncResult> => {
 
   const errors: string[] = []
   let systemInserted = 0
+  let pairsBackfilled = 0
+  let viewCreated = false
 
   try {
     const pendingCount = await estimatePendingCount()
@@ -323,6 +441,19 @@ export const runSync = async (): Promise<SyncResult> => {
     errors.push(`user entries: ${err}`)
   }
 
+  if (options.pairs) {
+    try {
+      logger.info('[sync] checking pairs')
+      pairsBackfilled = await backfillPairs()
+      logger.info(`[sync] pairs backfilled=${pairsBackfilled}`)
+    } catch (err) {
+      logger.error(`[sync] pairs backfill failed: ${err}`)
+      errors.push(`pairs backfill: ${err}`)
+    }
+  } else {
+    logger.info('[sync] pairs backfill skipped (pass pairs=true to enable)')
+  }
+
   const insertMs = Date.now() - insertStart
 
   // Always refresh view, even if nothing was inserted
@@ -345,10 +476,21 @@ export const runSync = async (): Promise<SyncResult> => {
     //   // `, { transaction: t });
     // });
 
-    await refreshMaterializedView()
+    if (await materializedViewExists()) {
+      await refreshMaterializedView()
+      logger.info('[sync] materialized view refreshed')
+    } else if (options.createView) {
+      logger.info('[sync] materialized view missing, creating it')
+      await createMaterializedView()
+      viewCreated = true
+      logger.info('[sync] materialized view created')
+    } else {
+      logger.info(
+        '[sync] materialized view missing, skipped (pass createView=true to build it)'
+      )
+    }
 
     refreshMs = Date.now() - refreshStart
-    logger.info('[sync] materialized view refreshed')
   } catch (err) {
     logger.error(`[sync] MV refresh failed: ${err}`)
     errors.push(`materialized view refresh: ${err}`)
@@ -363,10 +505,18 @@ export const runSync = async (): Promise<SyncResult> => {
   _lastRefreshMs = refreshMs
 
   logger.info(
-    `[sync] completed: systemInserted=${systemInserted}, processed=${processedCount}, insertMs=${insertMs}, refreshMs=${refreshMs}, errors=${errors.length}`
+    `[sync] completed: systemInserted=${systemInserted}, processed=${processedCount}, pairsBackfilled=${pairsBackfilled}, viewCreated=${viewCreated}, insertMs=${insertMs}, refreshMs=${refreshMs}, errors=${errors.length}`
   )
 
-  return { systemInserted, processedCount, insertMs, refreshMs, errors }
+  return {
+    systemInserted,
+    processedCount,
+    pairsBackfilled,
+    viewCreated,
+    insertMs,
+    refreshMs,
+    errors
+  }
 }
 
 /** Public: get current sync status and estimated times */
