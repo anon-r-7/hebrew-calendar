@@ -110,6 +110,20 @@ const getEventDetails = (event) => {
         english: '9th of Av',
         meaning: ''
       }
+    case 'shabbat_shmita':
+      return {
+        hebrew: 'שבת שמיטה',
+        pronunciation: 'sha-baht shmee-tah',
+        english: 'Sabbatical Year',
+        meaning: ''
+      }
+    case 'shabbat_yovel':
+      return {
+        hebrew: 'שבת יובל',
+        pronunciation: 'sha-baht yo-vel',
+        english: 'Jubilee Year',
+        meaning: ''
+      }
     default:
       return {}
   }
