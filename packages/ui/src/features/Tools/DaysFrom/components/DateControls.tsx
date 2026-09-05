@@ -123,9 +123,9 @@ export const DateControls = ({ apiControls, setApiControls }) => {
               max={
                 apiControls.type === 'gregorian'
                   ? apiControls.era === 'ad'
-                    ? 2075
+                    ? 4200
                     : 4004
-                  : 5836
+                  : 7960
               }
               min={apiControls.type === 'gregorian' ? 1 : 1}
               w={{ base: '100%', md: '140px' }}

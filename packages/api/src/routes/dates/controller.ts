@@ -220,8 +220,8 @@ class DatesController {
         const invalid = !(
           year &&
           ((type !== 'hebrew' &&
-            (year >= 1 || (era === 'ad' ? year <= 2075 : year <= 4004))) ||
-            (type === 'hebrew' && (year >= 1 || year <= 5836)))
+            (year >= 1 || (era === 'ad' ? year <= 4200 : year <= 4004))) ||
+            (type === 'hebrew' && (year >= 1 || year <= 7960)))
         )
 
         if (invalid) {

@@ -66,9 +66,9 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
             max={
               apiControls.type === 'gregorian'
                 ? apiControls.era === 'ad'
-                  ? 2075
+                  ? 4200
                   : 4004
-                : 5836
+                : 7960
             }
             min={apiControls.type === 'gregorian' ? 1 : 1}
             w={{
