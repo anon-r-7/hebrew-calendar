@@ -44,12 +44,14 @@ export const DaysBetweenLanding = () => {
 
       <Flex direction="column" align="center" justify="center">
         <Flex
-          direction={{ base: 'row', md: 'row' }}
-          justify="space-around"
+          direction="row"
+          wrap="wrap"
+          justify="center"
           align="center"
+          gap={{ base: 3, md: 6 }}
           m={12}
           w="full"
-          maxW={{ base: 400 }}>
+          maxW={{ base: '100%', md: 760 }}>
           <a href="/calendar">
             <Text fontSize="md" color="brand.grey">
               Calendar
