@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A source-graded timeline of biblical chronology from Creation to the apostles, on the Ussher / Anno Mundi frame, mapped to the Hebrew calendar.">
+<link rel="icon" href="/favicon.ico">
+<title>Anno Mundi Timeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* ============================ TOKENS ============================ */
+:root{
+  --ground:#f5f4f0; --ground-2:#eceae3; --surface:#ffffff; --surface-2:#faf9f5;
+  --ink:#24211b; --ink-soft:#5f5849; --ink-faint:#968f7e;
+  --hair:#e6e2d8; --hair-soft:#eeebe3;
+  --gold:#9a7410; --gold-line:#c19a2b; --gold-soft:#efe7cd;
+  --accent:#a83a29;
+  --shadow:0 1px 2px rgba(30,26,16,.05), 0 8px 22px rgba(30,26,16,.07);
+  --shadow-lift:0 2px 6px rgba(30,26,16,.08), 0 18px 44px rgba(30,26,16,.13);
+  /* confidence tiers (light) */
+  --t-anchor:#9c7410; --t-locked:#2c7756; --t-given:#2f5aa0; --t-historical:#626879;
+  --t-derived:#a86e19; --t-traditional:#67479c; --t-interpretive:#a83a29;
+  --track:150px; --headw:250px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ground:#0d1020; --ground-2:#141833; --surface:#181c30; --surface-2:#1e2440;
+  --ink:#ece5d3; --ink-soft:#a7a08d; --ink-faint:#7c7666;
+  --hair:#282d47; --hair-soft:#222741;
+  --gold:#dbb856; --gold-line:#c7a340; --gold-soft:#5a4d24;
+  --accent:#e07a5f;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.45);
+  --shadow-lift:0 2px 8px rgba(0,0,0,.5), 0 22px 50px rgba(0,0,0,.6);
+  --t-anchor:#e0c063; --t-locked:#5cbd93; --t-given:#78a2e6; --t-historical:#9aa2b6;
+  --t-derived:#e2a94e; --t-traditional:#b492e8; --t-interpretive:#e07a5f;
+}}
+:root[data-theme="dark"]{
+  --ground:#0d1020; --ground-2:#141833; --surface:#181c30; --surface-2:#1e2440;
+  --ink:#ece5d3; --ink-soft:#a7a08d; --ink-faint:#7c7666;
+  --hair:#282d47; --hair-soft:#222741;
+  --gold:#dbb856; --gold-line:#c7a340; --gold-soft:#5a4d24;
+  --accent:#e07a5f;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 30px rgba(0,0,0,.45);
+  --shadow-lift:0 2px 8px rgba(0,0,0,.5), 0 22px 50px rgba(0,0,0,.6);
+  --t-anchor:#e0c063; --t-locked:#5cbd93; --t-given:#78a2e6; --t-historical:#9aa2b6;
+  --t-derived:#e2a94e; --t-traditional:#b492e8; --t-interpretive:#e07a5f;
+}
+
+/* ============================ BASE ============================ */
+*{ box-sizing:border-box; }
+body{ background:var(--ground); color:var(--ink);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  line-height:1.55; -webkit-font-smoothing:antialiased; }
+.page{ max-width:100%; }
+.mono{ font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace; font-variant-numeric:tabular-nums; }
+h1,h2,h3,.disp{ font-family:"Fraunces","Fraunces 144",Georgia,serif; font-weight:600; text-wrap:balance; }
+a{ color:inherit; }
+::selection{ background:var(--gold-soft); color:var(--ink); }
+
+/* ============================ HERO ============================ */
+.hero{ padding:clamp(30px,6vw,74px) clamp(20px,5vw,64px) clamp(20px,3vw,32px);
+  border-bottom:1px solid var(--hair);
+  background:
+    radial-gradient(120% 130% at 84% -20%, color-mix(in oklab, var(--gold-soft) 55%, transparent), transparent 58%),
+    linear-gradient(var(--ground), var(--ground)); }
+.eyebrow{ font-size:11.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--gold);
+  font-weight:600; margin:0 0 18px; }
+.eyebrow .sep{ opacity:.5; padding:0 .55em; }
+.hero h1{ font-size:clamp(38px,7.2vw,86px); line-height:.98; letter-spacing:-.01em; margin:0;
+  font-weight:600; max-width:16ch; }
+.hero h1 em{ font-style:italic; font-weight:500; color:var(--gold); }
+.lead{ margin:22px 0 0; max-width:64ch; font-size:clamp(15px,1.5vw,18px); color:var(--ink-soft); }
+.lead b{ color:var(--ink); font-weight:600; }
+.stats{ list-style:none; display:flex; flex-wrap:wrap; gap:0; margin:30px 0 0; padding:0; }
+.stats li{ padding:2px 26px 2px 0; margin-right:26px; border-right:1px solid var(--hair); }
+.stats li:last-child{ border-right:0; }
+.stats .n{ font-size:26px; font-weight:600; display:block; letter-spacing:-.01em; }
+.stats .k{ font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-faint); }
+
+/* ============================ CONTROLS ============================ */
+.controls{ position:sticky; top:0; z-index:40; background:color-mix(in oklab, var(--ground) 88%, transparent);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--hair); }
+.controls-row{ display:flex; align-items:center; gap:12px 14px; flex-wrap:wrap;
+  padding:12px clamp(16px,4vw,44px); }
+.controls-row.two{ padding-top:0; border-top:0; }
+.wordmark{ font-family:"Fraunces",serif; font-weight:600; font-size:16px; color:var(--ink);
+  letter-spacing:.01em; display:inline-flex; align-items:baseline; gap:10px; }
+.wm-sub{ font-family:"IBM Plex Mono",monospace; font-size:10.5px; font-weight:400;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--gold); }
+@media (max-width:620px){ .wm-sub{ display:none; } }
+.chips{ display:flex; flex-wrap:wrap; gap:7px; align-items:center; }
+.chip{ display:inline-flex; align-items:center; gap:7px; cursor:pointer;
+  font:inherit; font-size:12.5px; color:var(--ink-soft);
+  background:var(--surface); border:1px solid var(--hair); border-radius:999px;
+  padding:5px 11px 5px 9px; transition:.16s ease; user-select:none; }
+.chip:hover{ border-color:var(--ink-faint); color:var(--ink); }
+.chip .mk{ width:11px; height:11px; border-radius:50%; background:var(--c,currentColor);
+  border:1.5px solid var(--c,currentColor); flex:none; }
+.chip.hollow .mk{ background:transparent; }
+.chip[aria-pressed="false"]{ opacity:.34; }
+.chip .ct{ font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink-faint); }
+.btn{ font:inherit; font-size:12.5px; font-weight:500; cursor:pointer; color:var(--ink);
+  background:var(--surface); border:1px solid var(--hair); border-radius:999px; padding:6px 14px;
+  transition:.16s ease; }
+.btn:hover{ border-color:var(--ink-faint); }
+.btn.on{ background:var(--ink); color:var(--ground); border-color:var(--ink); }
+.spacer{ flex:1 1 auto; }
+.search{ font:inherit; font-size:13px; color:var(--ink); background:var(--surface);
+  border:1px solid var(--hair); border-radius:999px; padding:6px 14px; width:min(230px,42vw); }
+.search::placeholder{ color:var(--ink-faint); }
+.search:focus-visible,.btn:focus-visible,.chip:focus-visible,.stage:focus-visible,.pill:focus-visible,.icon-btn:focus-visible{
+  outline:2px solid var(--gold); outline-offset:2px; }
+.count{ font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--ink-faint);
+  letter-spacing:.02em; white-space:nowrap; }
+.icon-btn{ font:inherit; cursor:pointer; background:var(--surface); border:1px solid var(--hair);
+  border-radius:50%; width:34px; height:34px; display:grid; place-items:center; color:var(--ink);
+  font-size:15px; transition:.16s ease; }
+.icon-btn:hover{ border-color:var(--ink-faint); }
+.eranav{ display:flex; gap:6px; overflow-x:auto; padding:0 clamp(16px,4vw,44px) 11px;
+  scrollbar-width:none; }
+.eranav::-webkit-scrollbar{ display:none; }
+.pill{ font:inherit; font-size:12px; white-space:nowrap; cursor:pointer; color:var(--ink-soft);
+  background:transparent; border:1px solid var(--hair); border-radius:999px; padding:4px 12px;
+  transition:.16s ease; display:inline-flex; gap:7px; align-items:baseline; }
+.pill:hover{ color:var(--ink); border-color:var(--ink-faint); }
+.pill .rn{ font-family:"Fraunces",serif; color:var(--gold); font-weight:600; }
+.pill.active{ background:var(--surface-2); border-color:var(--gold); color:var(--ink); }
+.legend-note{ font-size:12px; color:var(--ink-faint); padding:0 clamp(16px,4vw,44px) 11px;
+  display:flex; gap:20px; flex-wrap:wrap; }
+.legend-note .g{ display:inline-flex; align-items:center; gap:8px; }
+.legend-note .mk{ width:11px; height:11px; border-radius:50%; border:1.5px solid var(--ink-faint); flex:none; }
+.legend-note .mk.solid{ background:var(--ink-faint); }
+
+/* ============================ STAGE / RAIL ============================ */
+.stagewrap{ position:relative; }
+.stage{ position:relative; }
+.rail{ position:relative; }
+.rail::before{ content:""; position:absolute; z-index:0; background:var(--gold-line); opacity:.42; }
+.era{ position:relative; }
+.era-head{ position:relative; z-index:2; background:var(--ground); }
+.rn-big{ font-family:"Fraunces",serif; font-weight:600; color:var(--gold); line-height:.8;
+  letter-spacing:-.02em; }
+.era-name{ font-family:"Fraunces",serif; font-weight:600; color:var(--ink); letter-spacing:-.01em; }
+.era-blurb{ color:var(--ink-soft); }
+.era-meta{ font-family:"IBM Plex Mono",monospace; color:var(--ink-faint); font-size:11px;
+  letter-spacing:.02em; }
+.era-meta b{ color:var(--gold); font-weight:600; }
+
+.node{ position:relative; }
+.dot{ position:relative; z-index:2; width:13px; height:13px; border-radius:50%;
+  background:var(--c); border:2px solid var(--c);
+  box-shadow:0 0 0 4px var(--ground); }
+.node.hollow .dot{ background:var(--ground); }
+.node.interp .dot{ border-style:dashed; }
+.card{ position:relative; z-index:3; text-align:left; cursor:pointer; font:inherit;
+  background:var(--surface); color:var(--ink); border:1px solid var(--hair);
+  border-top:2.5px solid var(--c); border-radius:9px; padding:11px 12px 12px;
+  box-shadow:var(--shadow); transition:transform .16s ease, box-shadow .16s ease, border-color .16s;
+  display:block; width:100%; }
+.card:hover{ box-shadow:var(--shadow-lift); transform:translateY(-2px); }
+.card .cdate{ font-family:"IBM Plex Mono",monospace; font-size:12px; font-weight:600; color:var(--c);
+  letter-spacing:.01em; display:flex; align-items:baseline; gap:7px; }
+.card .cam{ color:var(--ink-faint); font-weight:400; font-size:10.5px; }
+.card .ctitle{ font-family:"Fraunces",serif; font-size:15px; font-weight:600; line-height:1.16;
+  margin:5px 0 0; color:var(--ink); }
+.card .chips-row{ display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; align-items:center; }
+.tag{ font-size:9.5px; letter-spacing:.09em; text-transform:uppercase; font-weight:600;
+  padding:2px 6px; border-radius:4px; white-space:nowrap;
+  color:var(--c); background:color-mix(in oklab, var(--c) 15%, transparent); }
+.heb{ font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:0; text-transform:none;
+  color:var(--gold); background:color-mix(in oklab, var(--gold) 14%, transparent);
+  padding:2px 6px; border-radius:4px; white-space:nowrap; font-weight:500; }
+.card .detail{ display:none; margin-top:9px; padding-top:9px; border-top:1px dashed var(--hair); }
+.card.open .detail{ display:block; }
+.card .notes{ font-size:12px; color:var(--ink-soft); line-height:1.5; }
+.card .src{ font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--ink-faint);
+  margin-top:7px; display:block; }
+.card .more{ font-size:10px; color:var(--ink-faint); letter-spacing:.08em; text-transform:uppercase;
+  margin-top:8px; display:block; }
+.card.open .more{ display:none; }
+
+/* reveal */
+.reveal{ opacity:.001; transform:translateY(12px); }
+.node.in .card,.node.in .dot{ }
+.node.in.reveal{ opacity:1; transform:none; transition:opacity .5s ease, transform .5s cubic-bezier(.2,.7,.2,1); }
+
+/* ---------- MOBILE (vertical, top -> bottom) : base ---------- */
+.stage{ overflow:visible; }
+.rail{ display:flex; flex-direction:column; padding:6px 0 40px; }
+.rail::before{ top:0; bottom:0; left:23px; width:2px; }
+.era{ display:flex; flex-direction:column; }
+.era-head{ padding:30px 20px 16px 20px; display:grid; grid-template-columns:auto 1fr; gap:0 16px;
+  align-items:center; border-top:1px solid var(--hair); margin-top:8px; }
+.era:first-child .era-head{ border-top:0; margin-top:0; }
+.rn-big{ font-size:34px; grid-row:span 2; width:34px; text-align:center; }
+.era-name{ font-size:23px; }
+.era-blurb{ font-size:13px; grid-column:2; }
+.era-meta{ grid-column:2; margin-top:4px; }
+.node{ display:grid; grid-template-columns:48px 1fr; align-items:start; padding:7px 20px 7px 0; }
+.dot{ grid-column:1; justify-self:center; margin-top:9px; }
+.node .stem{ display:none; }
+.card{ grid-column:2; max-width:520px; }
+
+/* ---------- DESKTOP (horizontal, left -> right) ---------- */
+@media (min-width:880px){
+  .stage{ overflow-x:auto; overflow-y:hidden; height:clamp(480px,72vh,760px);
+    scroll-behavior:smooth; cursor:grab; scrollbar-width:thin; }
+  .stage.grabbing{ cursor:grabbing; scroll-behavior:auto; }
+  .stage::-webkit-scrollbar{ height:10px; }
+  .stage::-webkit-scrollbar-thumb{ background:var(--hair); border-radius:10px;
+    border:3px solid var(--ground); }
+  .rail{ flex-direction:row; align-items:stretch; height:100%; padding:0; width:max-content; }
+  .rail::before{ left:0; right:0; top:50%; height:2px; width:auto; }
+  .era{ flex-direction:row; align-items:stretch; }
+  .era-head{ width:var(--headw); flex:none; border-top:0; margin:0; padding:0 26px;
+    display:flex; flex-direction:column; justify-content:center; gap:9px;
+    border-left:1px solid var(--hair); }
+  .era:first-child .era-head{ border-left:0; padding-left:clamp(16px,4vw,44px); }
+  .rn-big{ font-size:60px; }
+  .era-name{ font-size:26px; line-height:1.02; max-width:11ch; }
+  .era-blurb{ font-size:12.5px; max-width:24ch; }
+  .node{ width:var(--track); flex:none; display:grid; grid-template-columns:minmax(0,1fr);
+    grid-template-rows:1fr auto 1fr; align-items:center; padding:0; }
+  .dot{ grid-row:2; grid-column:1; justify-self:center; margin:0; }
+  .card{ grid-row:1; grid-column:1; align-self:end; justify-self:center; width:calc(var(--track) + 40px); margin:0 0 52px; }
+  .node[data-pos="down"] .card{ grid-row:3; grid-column:1; align-self:start; margin:52px 0 0; }
+  .card.open{ z-index:25; }
+  .node .stem{ display:block; }
+  .node[data-pos="down"] .stem{ top:50%; height:52px; }
+  .node[data-pos="up"] .stem{ bottom:50%; height:52px; }
+  .stem{ position:absolute; left:50%; width:2px; background:var(--gold-line); opacity:.5;
+    transform:translateX(-50%); z-index:1; }
+  .node[data-pos="up"] .stem{ bottom:50%; height:16px; }
+  .node[data-pos="down"] .stem{ top:50%; height:16px; }
+  .card::-webkit-scrollbar{ width:6px; } .card::-webkit-scrollbar-thumb{ background:var(--hair); border-radius:6px; }
+}
+
+/* progress (desktop only) */
+.progress{ display:none; }
+@media (min-width:880px){
+  .progress{ display:flex; align-items:center; gap:14px; padding:9px clamp(16px,4vw,44px);
+    border-top:1px solid var(--hair); background:var(--ground); }
+  .progress-track{ flex:1; height:3px; background:var(--hair); border-radius:3px; overflow:hidden; }
+  .progress-fill{ display:block; height:100%; width:0; background:var(--gold-line); }
+  .progress-era{ font-family:"IBM Plex Mono",monospace; font-size:11.5px; color:var(--ink-faint);
+    white-space:nowrap; min-width:0; }
+  .progress-era b{ color:var(--gold); font-weight:600; }
+  .hint{ font-size:11px; color:var(--ink-faint); white-space:nowrap; }
+}
+
+/* ============================ FOOTER ============================ */
+.footer{ border-top:1px solid var(--hair); padding:clamp(30px,5vw,56px) clamp(20px,5vw,64px);
+  background:var(--ground-2); }
+.footer h2{ font-size:22px; margin:0 0 4px; }
+.footer p.sub{ color:var(--ink-soft); margin:0 0 26px; max-width:70ch; font-size:14px; }
+.tiers{ display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px 26px;
+  margin:0 0 34px; }
+.tier{ display:grid; grid-template-columns:auto 1fr; gap:0 12px; align-items:start; }
+.tier .mk{ width:13px; height:13px; border-radius:50%; margin-top:4px;
+  background:var(--c); border:2px solid var(--c); }
+.tier.hollow .mk{ background:transparent; }
+.tier .tn{ font-weight:600; font-size:14px; }
+.tier .tn .cnt{ font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink-faint);
+  font-weight:400; margin-left:6px; }
+.tier .td{ grid-column:2; font-size:12.5px; color:var(--ink-soft); }
+.method{ font-size:13px; color:var(--ink-soft); max-width:76ch; line-height:1.6; }
+.method b{ color:var(--ink); }
+.colophon{ margin-top:26px; font-family:"IBM Plex Mono",monospace; font-size:11px;
+  color:var(--ink-faint); letter-spacing:.02em; }
+
+@media (prefers-reduced-motion:reduce){
+  *{ scroll-behavior:auto !important; }
+  .reveal,.node.in.reveal{ opacity:1 !important; transform:none !important; transition:none !important; }
+  .card{ transition:none; }
+}
+
+html,body{margin:0}[hidden]{display:none!important}img{max-width:100%}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="hero">
+    <p class="eyebrow">Creation <span class="sep">&#8594;</span> the Apostles <span class="sep">&#183;</span> Ussher / Anno&nbsp;Mundi frame</p>
+    <h1>From Creation to <em>the Apostles</em></h1>
+    <p class="lead" id="lead"></p>
+    <ul class="stats" id="stats"></ul>
+  </header>
+
+  <div class="controls">
+    <div class="controls-row">
+      <span class="wordmark">Anno&nbsp;Mundi <span class="wm-sub">a chronicle of sacred time</span></span>
+      <div class="spacer"></div>
+      <input class="search" id="search" type="search" placeholder="Search events, sources..." autocomplete="off">
+      <span class="count" id="count"></span>
+      <button class="icon-btn" id="theme" title="Toggle light / dark" aria-label="Toggle light or dark theme">&#9680;</button>
+    </div>
+    <div class="eranav" id="eranav"></div>
+  </div>
+
+  <div class="stagewrap">
+    <div class="stage" id="stage" tabindex="0" aria-label="Timeline. Use arrow keys to scroll.">
+      <div class="rail" id="rail"></div>
+    </div>
+    <div class="progress">
+      <span class="hint">Scroll / drag &#8596;</span>
+      <span class="progress-track"><span class="progress-fill" id="pfill"></span></span>
+      <span class="progress-era" id="pera"></span>
+    </div>
+  </div>
+</div>
+
+<script type="application/json" id="data">{"meta":{"total":190,"backbone":164,"span":"4004 BC – AD 99","anchors":48,"hebrew_dated":53},"eras":[{"key":"primeval","name":"Primeval History","blurb":"Creation, the Flood and the first families","count":41,"range":"4004 BC – 1817 BC"},{"key":"patriarchs","name":"The Patriarchs","blurb":"Abraham, Isaac, Jacob and Joseph","count":19,"range":"1921 BC – 1491 BC"},{"key":"exodus","name":"Exodus & Conquest","blurb":"Out of Egypt to the Promised Land","count":11,"range":"1491 BC – 1451 BC"},{"key":"judges","name":"The Judges","blurb":"Three centuries of deliverers","count":3,"range":"1451 BC – 1116 BC"},{"key":"united","name":"United Monarchy","blurb":"Saul, David and Solomon","count":8,"range":"1095 BC – 975 BC"},{"key":"divided","name":"Divided Monarchy","blurb":"Israel and Judah drift apart","count":6,"range":"971 BC – 609 BC"},{"key":"exile","name":"Conquest & Exile","blurb":"Babylon and the fall of Jerusalem","count":24,"range":"605 BC – 561 BC"},{"key":"return","name":"Return & Second Temple","blurb":"Restoration under Persia","count":22,"range":"539 BC – 430 BC"},{"key":"between","name":"Between the Testaments","blurb":"Greece, the Maccabees and Rome","count":25,"range":"331 BC – 19 BC"},{"key":"jesus","name":"Life of Jesus","blurb":"Incarnation to resurrection","count":11,"range":"5 BC – AD 30"},{"key":"apostolic","name":"The Apostolic Age","blurb":"The gospel crosses the empire","count":15,"range":"AD 34 – AD 68"},{"key":"john","name":"Fall of Jerusalem & John","blurb":"AD 70 and the last apostle","count":5,"range":"AD 70 – AD 99"}],"events":[{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Creation","date":"4004 BC","year":-4004,"am":1,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Day 1 of the Ussher Anno Mundi count."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Seth born","date":"3874 BC","year":-3874,"am":130,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 5:3."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Enosh born","date":"3769 BC","year":-3769,"am":235,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 5:6."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Kenan born","date":"3679 BC","year":-3679,"am":325,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 5:9."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Mahalalel born","date":"3609 BC","year":-3609,"am":395,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 5:12."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Jared born","date":"3544 BC","year":-3544,"am":460,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 5:15."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Enoch born","date":"3382 BC","year":-3382,"am":622,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 5:18."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Methuselah born","date":"3317 BC","year":-3317,"am":687,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 5:21."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Lamech born","date":"3130 BC","year":-3130,"am":874,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 5:25."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Adam dies","date":"3074 BC","year":-3074,"am":930,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 5:5","notes":"Lifespan 930 yrs (birth AM 0 + 930)."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Enoch taken (translated)","date":"3017 BC","year":-3017,"am":987,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 5:23-24","notes":"Did NOT die - 'God took him' (Gen 5:24); age 365."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Seth dies","date":"2962 BC","year":-2962,"am":1042,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 5:8","notes":"Lifespan 912 yrs (birth AM 130 + 912)."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Noah born","date":"2948 BC","year":-2948,"am":1056,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 5:28-29."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Enosh dies","date":"2864 BC","year":-2864,"am":1140,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 5:11","notes":"Lifespan 905 yrs (birth AM 235 + 905)."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Kenan dies","date":"2769 BC","year":-2769,"am":1235,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 5:14","notes":"Lifespan 910 yrs (birth AM 325 + 910)."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Mahalalel dies","date":"2714 BC","year":-2714,"am":1290,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 5:17","notes":"Lifespan 895 yrs (birth AM 395 + 895)."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Jared dies","date":"2582 BC","year":-2582,"am":1422,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 5:20","notes":"Lifespan 962 yrs (birth AM 460 + 962)."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Shem born","date":"2446 BC","year":-2446,"am":1558,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 5:32 (Noah 502)."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Lamech dies","date":"2353 BC","year":-2353,"am":1651,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 5:31","notes":"Dies 5 years before the Flood."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Flood","date":"2348 BC","year":-2348,"am":1656,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 7-8. Methuselah dies this very year (AM 1656)."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Methuselah dies","date":"2348 BC","year":-2348,"am":1656,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 5:27","notes":"Dies in the very year of the Flood (AM 1656) - internal-consistency proof."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Arpachshad born","date":"2346 BC","year":-2346,"am":1658,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 11:10 (2 yrs after the Flood)."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Shelah born","date":"2311 BC","year":-2311,"am":1693,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 11:12."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Eber born","date":"2281 BC","year":-2281,"am":1723,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 11:14."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Peleg born","date":"2247 BC","year":-2247,"am":1757,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 11:16 ('in his days the earth was divided')."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Reu born","date":"2217 BC","year":-2217,"am":1787,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 11:18."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Serug born","date":"2185 BC","year":-2185,"am":1819,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 11:20."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Nahor born","date":"2155 BC","year":-2155,"am":1849,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 11:22."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Terah born","date":"2126 BC","year":-2126,"am":1878,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 11:24."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Peleg dies","date":"2008 BC","year":-2008,"am":1996,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 11:19","notes":"Lifespan 239 yrs (birth AM 1757 + 239)."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Nahor dies","date":"2007 BC","year":-2007,"am":1997,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 11:25","notes":"Lifespan 148 yrs (birth AM 1849 + 148)."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Noah dies","date":"1998 BC","year":-1998,"am":2006,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 9:29; age 950. (Note: after Abraham is born.)"},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Abraham born","date":"1996 BC","year":-1996,"am":2008,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 11:26-27."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Reu dies","date":"1978 BC","year":-1978,"am":2026,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 11:21","notes":"Lifespan 239 yrs (birth AM 1787 + 239)."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Serug dies","date":"1955 BC","year":-1955,"am":2049,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 11:23","notes":"Lifespan 230 yrs (birth AM 1819 + 230)."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Terah dies","date":"1921 BC","year":-1921,"am":2083,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 11:32","notes":"Dies AM 2083 = year of Abraham's call at age 75 (Acts 7:4; Gen 12:4)."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Arpachshad dies","date":"1908 BC","year":-1908,"am":2096,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 11:13","notes":"Lifespan 438 yrs (birth AM 1658 + 438)."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Shelah dies","date":"1878 BC","year":-1878,"am":2126,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 11:15","notes":"Lifespan 433 yrs (birth AM 1693 + 433)."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Shem dies","date":"1846 BC","year":-1846,"am":2158,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 11:11","notes":"The Flood survivor, still alive well into the patriarchal age."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Abraham dies","date":"1821 BC","year":-1821,"am":2183,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 25:7; age 175."},{"era":"primeval","section":"PATRIARCHS & PRIMEVAL HISTORY","event":"Eber dies","date":"1817 BC","year":-1817,"am":2187,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 11:17","notes":"Outlives Abraham (d. AM 2183); dies AM 2187."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Abraham called / enters Canaan","date":"1921 BC","year":-1921,"am":2083,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 12; age 75. 430 yrs to the Exodus (Ex 12:40). Terah dies this year (Acts 7:4)."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Ishmael born","date":"1910 BC","year":-1910,"am":2094,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 16; Abraham age 86."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Circumcision / Sodom","date":"1897 BC","year":-1897,"am":2107,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 17-19; Abraham age 99."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Isaac born","date":"1896 BC","year":-1896,"am":2108,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 21; Abraham age 100."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Isaac weaned / 400 years begin","date":"1891 BC","year":-1891,"am":2113,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 21:8-9; the 400 yrs of Gen 15:13 to the Exodus."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Sarah dies","date":"1859 BC","year":-1859,"am":2145,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 23; age 127."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Isaac marries","date":"1856 BC","year":-1856,"am":2148,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 24; Isaac age 40."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Jacob born","date":"1836 BC","year":-1836,"am":2168,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 25:26; Isaac age 60."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Ishmael dies","date":"1773 BC","year":-1773,"am":2231,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 25:17","notes":"Age 137 (born AM 2094)."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Joseph born","date":"1745 BC","year":-1745,"am":2259,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 30; in Jacob's service to Laban."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Jacob returns / renamed Israel (Peniel)","date":"1739 BC","year":-1739,"am":2265,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 32:28."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Isaac dies","date":"1716 BC","year":-1716,"am":2288,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR (AM-exact)","confidence":"LOCKED","category":"Biblical","source":"Gen 35:28","notes":"Age 180 (born AM 2108)."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Enter Egypt","date":"1706 BC","year":-1706,"am":2298,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 46-47; Jacob age 130 (2nd yr of famine)."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Jacob dies","date":"1689 BC","year":-1689,"am":2315,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 49-50; age 147."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Joseph dies / slavery begins","date":"1635 BC","year":-1635,"am":2369,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Gen 50:26; age 110."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Aaron born","date":"1574 BC","year":-1574,"am":2430,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"DERIVED","category":"Biblical","source":"Ex 7:7","notes":"3 yrs older than Moses (born 1571)."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Moses born","date":"1571 BC","year":-1571,"am":2433,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Ex 2."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Moses flees to Midian","date":"1531 BC","year":-1531,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"DERIVED","category":"Biblical","source":"Ex 2:15; Acts 7:23","notes":"Age 40."},{"era":"patriarchs","section":"ABRAHAM TO THE EXODUS","event":"Moses returns to Egypt (burning bush)","date":"1491 BC","year":-1491,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"DERIVED","category":"Biblical","source":"Ex 7:7; Acts 7:30","notes":"Age 80, in the Exodus year."},{"era":"exodus","section":"EXODUS, WILDERNESS & CONQUEST","event":"Exodus / Sinai","date":"1491 BC","year":-1491,"am":2513,"hmonth":1,"hmonthname":"Nisan/Aviv","hday":"14-15","precision":"DAY (month+day)","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Ex 12. 480 yrs before the Temple (1 Kings 6:1); Passover instituted."},{"era":"exodus","section":"EXODUS, WILDERNESS & CONQUEST","event":"Crossing of the Red Sea","date":"1491 BC","year":-1491,"am":"","hmonth":1,"hmonthname":"Nisan/Aviv","hday":"21","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Ex 14","notes":"~21st of the 1st month (7th day of Unleavened Bread)."},{"era":"exodus","section":"EXODUS, WILDERNESS & CONQUEST","event":"Arrival at Sinai","date":"1491 BC","year":-1491,"am":"","hmonth":3,"hmonthname":"Sivan","hday":"1","precision":"MONTH","confidence":"LOCKED","category":"Biblical","source":"Ex 19:1","notes":"1st day of the 3rd month."},{"era":"exodus","section":"EXODUS, WILDERNESS & CONQUEST","event":"Giving of the Law (Ten Commandments)","date":"1491 BC","year":-1491,"am":"","hmonth":3,"hmonthname":"Sivan","hday":"6","precision":"DAY (traditional)","confidence":"LOCKED","category":"Biblical","source":"Ex 19-20","notes":"~6th of the 3rd month (traditional Shavuot)."},{"era":"exodus","section":"EXODUS, WILDERNESS & CONQUEST","event":"Tabernacle erected","date":"1490 BC","year":-1490,"am":2514,"hmonth":1,"hmonthname":"Nisan","hday":"1","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Ex 40:17","notes":"1st day, 1st month of the 2nd year."},{"era":"exodus","section":"EXODUS, WILDERNESS & CONQUEST","event":"Spies sent; Kadesh rebellion -> 38 more years","date":"1490 BC","year":-1490,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"LOCKED","category":"Biblical","source":"Num 13-14","notes":"40-yr wandering decreed."},{"era":"exodus","section":"EXODUS, WILDERNESS & CONQUEST","event":"Aaron dies on Mt Hor","date":"1452 BC","year":-1452,"am":2552,"hmonth":5,"hmonthname":"Av","hday":"1","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Num 33:38","notes":"Age 123; 1st day 5th month, 40th year."},{"era":"exodus","section":"EXODUS, WILDERNESS & CONQUEST","event":"Promised Land / entry","date":"1451 BC","year":-1451,"am":2553,"hmonth":1,"hmonthname":"Nisan","hday":"10","precision":"DAY (month+day)","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Josh 4:19; Jordan crossing at Gilgal, 40 yrs after the Exodus."},{"era":"exodus","section":"EXODUS, WILDERNESS & CONQUEST","event":"Moses dies (Mt Nebo)","date":"1451 BC","year":-1451,"am":2553,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"LOCKED","category":"Biblical","source":"Deut 34:7","notes":"Age 120, end of the 40 years."},{"era":"exodus","section":"EXODUS, WILDERNESS & CONQUEST","event":"Passover at Gilgal; manna ceases","date":"1451 BC","year":-1451,"am":"","hmonth":1,"hmonthname":"Nisan","hday":"14","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Josh 5:10-12","notes":"14th of the 1st month."},{"era":"exodus","section":"EXODUS, WILDERNESS & CONQUEST","event":"Fall of Jericho","date":"1451 BC","year":-1451,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"LOCKED","category":"Biblical","source":"Josh 6","notes":"First city taken."},{"era":"judges","section":"JUDGES","event":"Judges span (356 years)","date":"1451-1095 BC (356 yrs)","year":-1451,"am":"2553-2909","hmonth":"","hmonthname":"","hday":"","precision":"SPAN","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Sheet: AM 2553-2909 = 356 yrs. Individual judges overlap and are not uniquely datable."},{"era":"judges","section":"JUDGES","event":"Jephthah's '300 years since the conquest'","date":"1151 BC","year":-1151,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR (marker)","confidence":"DERIVED","category":"Biblical","source":"Judg 11:26","notes":"Marker ~300 yrs after entry. Judges overlap; not uniquely datable."},{"era":"judges","section":"JUDGES","event":"Eli / Ark captured by Philistines (Eli dies)","date":"1116 BC","year":-1116,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR (approx)","confidence":"DERIVED","category":"Biblical","source":"1 Sam 4:18","notes":"Eli judged 40 yrs; transitional to Samuel/Saul."},{"era":"united","section":"UNITED MONARCHY","event":"Saul accedes","date":"1095 BC","year":-1095,"am":2909,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Reigns 40 yrs (Acts 13:21)."},{"era":"united","section":"UNITED MONARCHY","event":"David accedes","date":"1055 BC","year":-1055,"am":2949,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Reigns 40 yrs: 7.5 in Hebron + 33 in Jerusalem (2 Sam 5:4-5)."},{"era":"united","section":"UNITED MONARCHY","event":"David captures Jerusalem; makes it capital","date":"1048 BC","year":-1048,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"DERIVED","category":"Biblical","source":"2 Sam 5:5","notes":"After 7.5 yrs in Hebron."},{"era":"united","section":"UNITED MONARCHY","event":"Solomon accedes","date":"1015 BC","year":-1015,"am":2989,"hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Reigns 40 yrs (1 Kings 11:42)."},{"era":"united","section":"UNITED MONARCHY","event":"Temple begun (4th year Ziv)","date":"1012 BC","year":-1012,"am":2993,"hmonth":2,"hmonthname":"Ziv/Iyar","hday":"","precision":"MONTH","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"480th yr after the Exodus (1 Kings 6:1) - the master link welding Exodus<->Temple."},{"era":"united","section":"UNITED MONARCHY","event":"Temple finished","date":"1005 BC","year":-1005,"am":3000,"hmonth":8,"hmonthname":"Bul/Cheshvan","hday":"","precision":"MONTH","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"1 Kings 6:38; 8th month, Solomon's 11th yr."},{"era":"united","section":"UNITED MONARCHY","event":"Temple dedicated (Tishri)","date":"1004 BC","year":-1004,"am":3001,"hmonth":7,"hmonthname":"Tishri","hday":"","precision":"MONTH","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"1 Kings 8:2; Feast of Tabernacles."},{"era":"united","section":"UNITED MONARCHY","event":"Solomon dies; kingdom divides (Rehoboam/Jeroboam I)","date":"975 BC","year":-975,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"LOCKED","category":"Biblical","source":"1 Kings 11:42-12","notes":"1015 - 40 = 975. Judah (south) / Israel (north)."},{"era":"divided","section":"DIVIDED MONARCHY","event":"Shishak of Egypt plunders Jerusalem","date":"971 BC","year":-971,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"DERIVED","category":"Biblical","source":"1 Kings 14:25; 2 Chr 12","notes":"5th yr of Rehoboam. Extra-biblical: Pharaoh Shoshenq I (Karnak relief)."},{"era":"divided","section":"DIVIDED MONARCHY","event":"Jehu's revolt ends the house of Ahab","date":"884 BC","year":-884,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"DERIVED","category":"Biblical","source":"2 Kings 9-10","notes":"Deaths of Joram, Ahaziah of Judah, Jezebel. History dates Jehu's tribute to 841 (Black Obelisk) - Ussher/history diverge."},{"era":"divided","section":"DIVIDED MONARCHY","event":"Fall of Samaria - Northern Kingdom (Israel) ends","date":"722 BC","year":-722,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR (722; 723-720 range)","confidence":"HISTORICAL","category":"Biblical","source":"2 Kings 17; 18:10","notes":"6th yr Hezekiah = 9th yr Hoshea. Falls to Shalmaneser V in 722 (consensus); Sargon II claims 721 (=Ussher); 2nd deportation 720. Range 723-720."},{"era":"divided","section":"DIVIDED MONARCHY","event":"Sennacherib invades Judah; Hezekiah delivered","date":"710 BC","year":-710,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR (disputed: 710 Ussher / 701 history)","confidence":"DERIVED","category":"Biblical","source":"2 Kings 18:13; Isa 36-37","notes":"14th yr of Hezekiah (Ussher). Mainstream history: 701 BC - classic Ussher/Thiele divergence."},{"era":"divided","section":"DIVIDED MONARCHY","event":"Josiah's reforms; Book of the Law found","date":"622 BC","year":-622,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"DERIVED","category":"Biblical","source":"2 Kings 22-23","notes":"18th yr of Josiah (622 widely accepted)."},{"era":"divided","section":"DIVIDED MONARCHY","event":"Josiah killed at Megiddo by Pharaoh Necho","date":"609 BC","year":-609,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Biblical","source":"2 Kings 23:29","notes":"Jehoahaz reigns 3 months; Egypt installs Jehoiakim."},{"era":"exile","section":"BABYLONIAN CONQUEST & EXILE","event":"Battle of Carchemish; Babylon supplants Egypt","date":"605 BC","year":-605,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Jer 46:2; Bab. Chronicle","notes":"Nebuchadnezzar's decisive victory."},{"era":"exile","section":"BABYLONIAN CONQUEST & EXILE","event":"FIRST deportation (Daniel & nobility); 70-yr exile begins","date":"605 BC","year":-605,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"LOCKED","category":"Biblical","source":"Dan 1:1-6; Jer 25:11","notes":"3rd yr of Jehoiakim."},{"era":"exile","section":"BABYLONIAN CONQUEST & EXILE","event":"SECOND deportation; Jehoiachin exiled; Zedekiah made king","date":"597 BC","year":-597,"am":"","hmonth":12,"hmonthname":"Adar","hday":"2","precision":"DAY (month+day)","confidence":"HISTORICAL","category":"Biblical","source":"2 Kings 24:12-17; Jer 52:28","notes":"Chronicle fixes it to 2 Adar = 16 Mar 597. Ezekiel among these exiles (3,023 persons)."},{"era":"exile","section":"EZEKIEL'S DATED ORACLES","event":"Ezekiel #1 - call vision by the Chebar","date":"593 BC","year":-593,"am":"","hmonth":4,"hmonthname":"Tammuz","hday":"5","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Ezek 1:1-2","notes":"Yr 5 of Jehoiachin's exile (597 - 4). Ministry begins."},{"era":"exile","section":"EZEKIEL'S DATED ORACLES","event":"Ezekiel #2 - vision of temple abominations","date":"592 BC","year":-592,"am":"","hmonth":6,"hmonthname":"Elul","hday":"5","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Ezek 8:1","notes":"Yr 6 of Jehoiachin's exile (597 - 5). "},{"era":"exile","section":"EZEKIEL'S DATED ORACLES","event":"Ezekiel #3 - elders inquire","date":"591 BC","year":-591,"am":"","hmonth":5,"hmonthname":"Av","hday":"10","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Ezek 20:1","notes":"Yr 7 of Jehoiachin's exile (597 - 6). "},{"era":"exile","section":"BABYLONIAN CONQUEST & EXILE","event":"Siege of Jerusalem begins","date":"588 BC","year":-588,"am":"","hmonth":10,"hmonthname":"Tevet","hday":"10","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"2 Kings 25:1; Ezek 24:1","notes":"10th day 10th month, 9th yr of Zedekiah (Asarah B'Tevet)."},{"era":"exile","section":"EZEKIEL'S DATED ORACLES","event":"Ezekiel #4 - 'write this day': siege begins","date":"588 BC","year":-588,"am":"","hmonth":10,"hmonthname":"Tevet","hday":"10","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Ezek 24:1-2","notes":"Yr 9 of Jehoiachin's exile (597 - 8). SAME day as 2 Kings 25:1."},{"era":"exile","section":"EZEKIEL'S DATED ORACLES","event":"Ezekiel #5 - oracle against Egypt","date":"588 BC","year":-588,"am":"","hmonth":10,"hmonthname":"Tevet","hday":"12","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Ezek 29:1","notes":"Yr 10 of Jehoiachin's exile (597 - 9). "},{"era":"exile","section":"EZEKIEL'S DATED ORACLES","event":"Ezekiel #6 - Pharaoh's broken arm","date":"587 BC","year":-587,"am":"","hmonth":1,"hmonthname":"Nisan","hday":"7","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Ezek 30:20","notes":"Yr 11 of Jehoiachin's exile (597 - 10). "},{"era":"exile","section":"EZEKIEL'S DATED ORACLES","event":"Ezekiel #7 - Egypt as fallen cedar","date":"587 BC","year":-587,"am":"","hmonth":3,"hmonthname":"Sivan","hday":"1","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Ezek 31:1","notes":"Yr 11 of Jehoiachin's exile (597 - 10). "},{"era":"exile","section":"BABYLONIAN CONQUEST & EXILE","event":"1st Temple destroyed","date":"586 BC","year":-586,"am":3416,"hmonth":5,"hmonthname":"Av","hday":"7-10","precision":"DAY (month+day)","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"2 Kings 25; Tisha B'Av. Coincides with the third (major) deportation."},{"era":"exile","section":"BABYLONIAN CONQUEST & EXILE","event":"Jerusalem's walls breached","date":"586 BC","year":-586,"am":"","hmonth":4,"hmonthname":"Tammuz","hday":"9","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Jer 39:2; 52:6-7","notes":"9th day 4th month, 11th yr of Zedekiah."},{"era":"exile","section":"BABYLONIAN CONQUEST & EXILE","event":"THIRD deportation (with the fall of Jerusalem)","date":"586 BC","year":-586,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"LOCKED","category":"Biblical","source":"2 Kings 25:11; Jer 52:29","notes":"The major deportation, concurrent with the temple's destruction (832 + the populace). <- what most mean by 'the Exile'."},{"era":"exile","section":"BABYLONIAN CONQUEST & EXILE","event":"Gedaliah assassinated; remnant flees to Egypt","date":"586 BC","year":-586,"am":"","hmonth":7,"hmonthname":"Tishri","hday":"3","precision":"MONTH","confidence":"LOCKED","category":"Biblical","source":"2 Kings 25:25; Jer 41","notes":"7th month (Fast of Gedaliah, 3 Tishri)."},{"era":"exile","section":"EZEKIEL'S DATED ORACLES","event":"Ezekiel #8 - oracle against Tyre","date":"586 BC","year":-586,"am":"","hmonth":0,"hmonthname":"","hday":"1","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Ezek 26:1","notes":"Yr 11 of Jehoiachin's exile (597 - 10). (Month unstated; 11th yr = 586.)"},{"era":"exile","section":"PROPHETIC MARKERS (interpretive)","event":"The 70-year exile as the land's sabbaths","date":"586 BC","year":-586,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"INTERPRETIVE","confidence":"INTERPRETIVE","category":"Biblical","source":"2 Chr 36:21; Lev 26:34-35","notes":"The 70 yrs = missed sabbatical (shmita) years - ties into the app's shmita/yovel logic."},{"era":"exile","section":"EZEKIEL'S DATED ORACLES","event":"Ezekiel #9 - lament over Pharaoh","date":"585 BC","year":-585,"am":"","hmonth":12,"hmonthname":"Adar","hday":"1","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Ezek 32:1","notes":"Yr 12 of Jehoiachin's exile (597 - 11). "},{"era":"exile","section":"EZEKIEL'S DATED ORACLES","event":"Ezekiel #10 - Egypt sent to the pit","date":"585 BC","year":-585,"am":"","hmonth":12,"hmonthname":"Adar","hday":"15","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Ezek 32:17","notes":"Yr 12 of Jehoiachin's exile (597 - 11). "},{"era":"exile","section":"EZEKIEL'S DATED ORACLES","event":"Ezekiel #11 - news of Jerusalem's fall arrives","date":"585 BC","year":-585,"am":"","hmonth":10,"hmonthname":"Tevet","hday":"5","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Ezek 33:21","notes":"Yr 12 of Jehoiachin's exile (597 - 11). 'The city is fallen.'"},{"era":"exile","section":"BABYLONIAN CONQUEST & EXILE","event":"FOURTH (final) deportation","date":"582 BC","year":-582,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Biblical","source":"Jer 52:30","notes":"23rd yr of Nebuchadnezzar; 745 persons. Jer 52:28-30 tallies THREE (597/586/582); 605 is the earlier hostage-taking."},{"era":"exile","section":"EZEKIEL'S DATED ORACLES","event":"Ezekiel #12 - vision of the new temple","date":"573 BC","year":-573,"am":"","hmonth":1,"hmonthname":"Nisan/Tishri","hday":"10","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Ezek 40:1","notes":"Yr 25 of Jehoiachin's exile (597 - 24). 25th yr = 14th yr after the city fell."},{"era":"exile","section":"EZEKIEL'S DATED ORACLES","event":"Ezekiel #13 - Nebuchadnezzar to take Egypt (latest)","date":"571 BC","year":-571,"am":"","hmonth":1,"hmonthname":"Nisan","hday":"1","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Ezek 29:17","notes":"Yr 27 of Jehoiachin's exile (597 - 26). Final dated oracle; the 13 span 593-571."},{"era":"exile","section":"BABYLONIAN CONQUEST & EXILE","event":"Jehoiachin released from prison","date":"561 BC","year":-561,"am":"","hmonth":12,"hmonthname":"Adar","hday":"27","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"2 Kings 25:27; Jer 52:31","notes":"27th day 12th month, 37th yr of exile; accession yr of Evil-Merodach (37 yrs after 597)."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Fall of Babylon to Cyrus; Belshazzar slain","date":"539 BC","year":-539,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"DAY (historical)","confidence":"HISTORICAL","category":"Biblical","source":"Dan 5; Nabonidus Chronicle","notes":"Night of 12 Oct 539 (astronomically fixed). Darius the Mede."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Decree of Cyrus; captivity ends","date":"538 BC","year":-538,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"LOCKED","category":"Biblical","source":"2 Chr 36:22-23; Ezra 1:1","notes":"1st yr of Cyrus over Babylon. FIXED at 538 by his capture of Babylon (Oct 539). 70-yr counts: 605->536 and 586->516."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Return under Zerubbabel & Jeshua (~50,000)","date":"537 BC","year":-537,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"LOCKED","category":"Biblical","source":"Ezra 2","notes":"The first return."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Altar rebuilt; Feast of Tabernacles resumed","date":"537 BC","year":-537,"am":"","hmonth":7,"hmonthname":"Tishri","hday":"1","precision":"MONTH","confidence":"LOCKED","category":"Biblical","source":"Ezra 3:1-6","notes":"1st day of the 7th month."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Second Temple foundation laid; 70-yr servitude ends","date":"536 BC","year":-536,"am":"","hmonth":2,"hmonthname":"Iyar","hday":"","precision":"MONTH","confidence":"LOCKED","category":"Biblical","source":"Ezra 3:8-10","notes":"2nd month, 2nd yr of return. 606->536 = ~70 yrs (Ussher's classic endpoint = 536; hence '~535' by a strict 605-70 count)."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Work halted by opposition (Samaritan adversaries)","date":"535 BC","year":-535,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR (approx)","confidence":"HISTORICAL","category":"Biblical","source":"Ezra 4:1-5,24","notes":"Building stops until Darius I's 2nd yr (520)."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Haggai's 1st oracle; temple work resumes","date":"520 BC","year":-520,"am":"","hmonth":6,"hmonthname":"Elul","hday":"1","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Hag 1:1,15","notes":"1st day 6th month (call); work resumes 24th day 6th month, 2nd yr of Darius I."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Haggai's 2nd oracle ('glory of this house')","date":"520 BC","year":-520,"am":"","hmonth":7,"hmonthname":"Tishri","hday":"21","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Hag 2:1","notes":"21st day of the 7th month."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Haggai's 3rd & 4th oracles (blessing; Zerubbabel)","date":"520 BC","year":-520,"am":"","hmonth":9,"hmonthname":"Kislev","hday":"24","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Hag 2:10,20","notes":"24th day of the 9th month."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Zechariah begins prophesying","date":"520 BC","year":-520,"am":"","hmonth":8,"hmonthname":"Bul/Cheshvan","hday":"","precision":"MONTH","confidence":"LOCKED","category":"Biblical","source":"Zech 1:1","notes":"8th month, 2nd yr of Darius I."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Zechariah's night visions","date":"519 BC","year":-519,"am":"","hmonth":11,"hmonthname":"Shebat","hday":"24","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Zech 1:7","notes":"24th day 11th month (Shebat), 2nd yr of Darius (early 519)."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Zechariah's oracle on fasting (4th yr of Darius)","date":"518 BC","year":-518,"am":"","hmonth":9,"hmonthname":"Kislev","hday":"4","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Zech 7:1","notes":"4th day 9th month (Kislev), 4th yr of Darius. <- the later date you remembered."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Second Temple completed","date":"515 BC","year":-515,"am":"","hmonth":12,"hmonthname":"Adar","hday":"3","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Ezra 6:15","notes":"3rd day of Adar, 6th yr of Darius. TEMPLE-TO-TEMPLE = 70 yrs (586->516/515)."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Second Temple dedication & Passover","date":"515 BC","year":-515,"am":"","hmonth":1,"hmonthname":"Nisan","hday":"14","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Ezra 6:19","notes":"14th of the 1st month."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Esther becomes queen of Persia","date":"479 BC","year":-479,"am":"","hmonth":10,"hmonthname":"Tevet","hday":"","precision":"MONTH","confidence":"HISTORICAL","category":"Biblical","source":"Est 2:16","notes":"10th month (Tevet), 7th yr of Xerxes I."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Deliverance of the Jews - first Purim","date":"473 BC","year":-473,"am":"","hmonth":12,"hmonthname":"Adar","hday":"13-14","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Est 3:7; 9:1,17-19","notes":"13th-14th of Adar, 12th yr of Xerxes I."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Ezra returns to Jerusalem","date":"458 BC","year":-458,"am":"","hmonth":1,"hmonthname":"Nisan","hday":"1","precision":"DAY (month+day)","confidence":"HISTORICAL","category":"Biblical","source":"Ezra 7:7-9","notes":"7th yr of Artaxerxes I; departs 1 Nisan, arrives 1 Av. (Candidate start of Daniel's 70 weeks.)"},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Nehemiah's decree to rebuild Jerusalem","date":"445 BC","year":-445,"am":"","hmonth":1,"hmonthname":"Nisan","hday":"","precision":"MONTH","confidence":"HISTORICAL","category":"Biblical","source":"Neh 2:1","notes":"20th yr of Artaxerxes I, month Nisan. (Candidate start of Daniel's 70 weeks.)"},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Jerusalem's wall completed (52 days)","date":"445 BC","year":-445,"am":"","hmonth":6,"hmonthname":"Elul","hday":"25","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Neh 6:15","notes":"25th of Elul (6th month)."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Ezra reads the Law; Feast of Tabernacles","date":"445 BC","year":-445,"am":"","hmonth":7,"hmonthname":"Tishri","hday":"1","precision":"DAY (month+day)","confidence":"LOCKED","category":"Biblical","source":"Neh 7:73-8:18","notes":"1st day of the 7th month - only ~5 days after the wall (25 Elul -> 1 Tishri), SAME year 445."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Nehemiah's second term as governor","date":"433 BC","year":-433,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Biblical","source":"Neh 13:6","notes":"32nd yr of Artaxerxes I."},{"era":"return","section":"RETURN FROM EXILE & SECOND TEMPLE","event":"Malachi prophesies; OT canon closes","date":"430 BC","year":-430,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR (approx)","confidence":"DERIVED","category":"Biblical","source":"Malachi","notes":"End of the Hebrew prophetic record."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Alexander the Great conquers the Persian Empire","date":"331 BC","year":-331,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"1 Macc 1:1-7; Dan 8,11","notes":"Gaugamela 331 (Issus 333)."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Alexander dies; empire split among the Diadochi","date":"323 BC","year":-323,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"1 Macc 1:7-9; Dan 8:8","notes":""},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Ptolemaic rule over Judea (Battle of Ipsus)","date":"301 BC","year":-301,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Josephus","notes":"Judea under Egypt's Ptolemies ~a century."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Septuagint (LXX) translation begins in Alexandria","date":"250 BC","year":-250,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR (approx)","confidence":"HISTORICAL","category":"Extra-biblical","source":"Letter of Aristeas","notes":"Torah into Greek (~250s BC)."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Seleucid rule over Judea (Battle of Panium)","date":"200 BC","year":-200,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Josephus; Dan 11:15-16","notes":"Antiochus III takes Judea from the Ptolemies."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Antiochus IV Epiphanes accedes","date":"175 BC","year":-175,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"1 Macc 1:10; Dan 11:21","notes":"The persecutor-king."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Antiochus IV plunders the Temple","date":"169 BC","year":-169,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"1 Macc 1:20-24; 2 Macc 5","notes":""},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Abomination of desolation; Maccabean revolt begins","date":"167 BC","year":-167,"am":"","hmonth":9,"hmonthname":"Kislev","hday":"15-25","precision":"DAY (month+day)","confidence":"HISTORICAL","category":"Extra-biblical","source":"1 Macc 1:54-59; Dan 11:31","notes":"Altar to Zeus 15 Kislev; sacrifice 25 Kislev. Mattathias revolts at Modein."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Mattathias dies; Judas Maccabeus leads","date":"166 BC","year":-166,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"1 Macc 2:49-70","notes":""},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Temple rededicated - FIRST HANUKKAH","date":"164 BC","year":-164,"am":"","hmonth":9,"hmonthname":"Kislev","hday":"25","precision":"DAY (month+day)","confidence":"HISTORICAL","category":"Extra-biblical","source":"1 Macc 4:52-59; John 10:22","notes":"25th of Kislev, 148 SE. Origin of Chanukkah (8 days)."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Death of Antiochus IV Epiphanes","date":"164 BC","year":-164,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"1 Macc 6:1-16","notes":""},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Judas Maccabeus killed at Elasa; Jonathan succeeds","date":"160 BC","year":-160,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"1 Macc 9:1-22","notes":""},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Jonathan becomes high priest","date":"152 BC","year":-152,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"1 Macc 10:18-21","notes":""},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Judean independence under Simon","date":"142 BC","year":-142,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"1 Macc 13:41-42","notes":"Hasmonean state; Seleucid yoke removed."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Simon confirmed high priest, ethnarch & leader","date":"140 BC","year":-140,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"1 Macc 14:41","notes":"Hasmonean dynasty established."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Simon murdered; John Hyrcanus I begins","date":"134 BC","year":-134,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"1 Macc 16; Josephus","notes":"Height of Hasmonean expansion."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Pompey captures Jerusalem - Roman rule begins","date":"63 BC","year":-63,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Josephus Ant. 14","notes":"Enters the Holy of Holies."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Battle of Pharsalus; Caesar defeats Pompey","date":"48 BC","year":-48,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Caesar; Josephus","notes":"Pompey flees to Egypt, is killed."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Caesar rewards Antipater; Herod made governor of Galilee","date":"47 BC","year":-47,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Josephus Ant. 14.137-143","notes":"Caesar confirms Hyrcanus II, makes Antipater procurator of Judea and Herod governor of Galilee - the Herodian launch."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Julius Caesar assassinated (Ides of March)","date":"44 BC","year":-44,"am":"","hmonth":3,"hmonthname":"","hday":"15","precision":"DAY (Julian)","confidence":"HISTORICAL","category":"Extra-biblical","source":"Suetonius; Josephus","notes":"15 March 44 BC."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Roman Senate declares Herod 'King of the Jews'","date":"40 BC","year":-40,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Josephus Ant. 14.381-385","notes":"Parthians install Antigonus; Rome backs Herod."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Herod the Great takes Jerusalem (reigns as king)","date":"37 BC","year":-37,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Josephus Ant. 14-15","notes":"Defeats Antigonus."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Battle of Actium; Octavian defeats Antony & Cleopatra","date":"31 BC","year":-31,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Roman history","notes":"2 Sep 31 BC."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Octavian becomes Augustus - first Roman emperor","date":"27 BC","year":-27,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Luke 2:1","notes":"The 'Caesar Augustus' of the nativity census."},{"era":"between","section":"INTERTESTAMENTAL, MACCABEES & ROME","event":"Herod begins rebuilding/expanding the Second Temple","date":"19 BC","year":-19,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Josephus Ant. 15.380; John 2:20","notes":"18th yr of Herod; the '46 years' of John 2:20 count from here."},{"era":"jesus","section":"LIFE OF JESUS","event":"Birth of Jesus","date":"5 BC","year":-5,"am":"","hmonth":7,"hmonthname":"Tishri (traditional)","hday":"","precision":"SEASON (given)","confidence":"GIVEN","category":"Given/Biblical","source":"Luke 2; Matt 2 (user anchor)","notes":"Autumn 5 BC (traditional Tishri/Sukkot). Before Herod's death."},{"era":"jesus","section":"LIFE OF JESUS","event":"Death of Herod the Great","date":"4 BC","year":-4,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Josephus Ant. 17.191","notes":"Constrains the nativity (Matt 2:19). (Minority view: 1 BC.)"},{"era":"jesus","section":"LIFE OF JESUS","event":"Return from Egypt; Archelaus ethnarch of Judea","date":"4 BC","year":-4,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Biblical","source":"Matt 2:22","notes":"Archelaus rules Judea 4 BC-AD 6."},{"era":"jesus","section":"LIFE OF JESUS","event":"Judea becomes a Roman province; census of Quirinius","date":"AD 6","year":6,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Luke 2:2; Josephus","notes":"Archelaus deposed. (Luke 2:2 dating debated.)"},{"era":"jesus","section":"LIFE OF JESUS","event":"Jesus at the Temple, age 12","date":"AD 8","year":8,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"DERIVED","category":"Biblical","source":"Luke 2:42","notes":"5 BC birth + 12 (no year 0) = AD 8."},{"era":"jesus","section":"LIFE OF JESUS","event":"Pontius Pilate becomes prefect of Judea","date":"AD 26","year":26,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Josephus; Tacitus","notes":"Prefect AD 26-36."},{"era":"jesus","section":"LIFE OF JESUS","event":"Jesus' public ministry begins","date":"AD 26","year":26,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"SEASON (given)","confidence":"GIVEN","category":"Given/Biblical","source":"Luke 3:1,23 (user anchor)","notes":"Autumn AD 26. 'About thirty' (5 BC->AD 26 = ~30). John the Baptist, 15th yr of Tiberius."},{"era":"jesus","section":"PROPHETIC MARKERS (interpretive)","event":"Daniel's 70 weeks: 483 yrs from decree to Messiah","date":"AD 26","year":26,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"INTERPRETIVE","confidence":"INTERPRETIVE","category":"Biblical","source":"Dan 9:24-27","notes":"Ezra's 458 BC decree + 483 solar yrs ~ AD 26 (given ministry-start). Alt: Nehemiah 445 BC + 483 x 360-day yrs ~ AD 33."},{"era":"jesus","section":"LIFE OF JESUS","event":"First Passover of the ministry","date":"AD 27","year":27,"am":"","hmonth":1,"hmonthname":"Nisan","hday":"","precision":"MONTH","confidence":"DERIVED","category":"Biblical","source":"John 2:13,20","notes":"Spring AD 27. Temple '46 years' (from 19 BC) lands here."},{"era":"jesus","section":"LIFE OF JESUS","event":"Crucifixion, death & burial (and resurrection)","date":"AD 30","year":30,"am":"","hmonth":1,"hmonthname":"Nisan","hday":"14-15","precision":"DAY (given)","confidence":"GIVEN","category":"Given/Biblical","source":"Passover; user anchor","notes":"Passover, spring AD 30 (Nisan 14-15; common fit Fri 7 Apr AD 30). Ministry ~3.5 yrs. Age ~33-34."},{"era":"jesus","section":"LIFE OF JESUS","event":"Pentecost - birth of the Church","date":"AD 30","year":30,"am":"","hmonth":3,"hmonthname":"Sivan","hday":"6","precision":"DAY (month+day)","confidence":"DERIVED","category":"Biblical","source":"Acts 2:1","notes":"Shavuot, 50 days after the resurrection."},{"era":"apostolic","section":"APOSTOLIC AGE","event":"Stephen martyred; conversion of Saul (Paul)","date":"AD 34","year":34,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR (approx)","confidence":"DERIVED","category":"Biblical","source":"Acts 7-9","notes":"~AD 34-36 (back-calc from Gal 1-2)."},{"era":"apostolic","section":"APOSTOLIC AGE","event":"Paul's first visit to Jerusalem (after 3 yrs)","date":"AD 37","year":37,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR (approx)","confidence":"DERIVED","category":"Biblical","source":"Gal 1:18; Acts 9:26","notes":"Also: Tiberius dies, Caligula emperor (AD 37)."},{"era":"apostolic","section":"APOSTOLIC AGE","event":"Herod Agrippa I dies; James (son of Zebedee) martyred","date":"AD 44","year":44,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Biblical","source":"Acts 12:2,23; Josephus Ant. 19.343","notes":"FIRM anchor (Josephus). Agrippa reigned AD 41-44."},{"era":"apostolic","section":"APOSTOLIC AGE","event":"Paul's first missionary journey","date":"AD 47","year":47,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR (approx)","confidence":"DERIVED","category":"Biblical","source":"Acts 13-14","notes":"~AD 46-48 (Cyprus, Galatia)."},{"era":"apostolic","section":"APOSTOLIC AGE","event":"Council of Jerusalem; Claudius expels Jews from Rome","date":"AD 49","year":49,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Biblical","source":"Acts 15; 18:2; Suetonius","notes":"Claudius's expulsion (~49) is externally dated."},{"era":"apostolic","section":"APOSTOLIC AGE","event":"Paul before Gallio, proconsul of Achaia (Corinth)","date":"AD 51","year":51,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Biblical","source":"Acts 18:12; Delphi inscription","notes":"THE anchor of Pauline chronology: Gallio's proconsulship AD 51-52."},{"era":"apostolic","section":"APOSTOLIC AGE","event":"Paul's third journey; ~3 years in Ephesus","date":"AD 54","year":54,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR (approx)","confidence":"DERIVED","category":"Biblical","source":"Acts 19","notes":"~AD 52-57."},{"era":"apostolic","section":"APOSTOLIC AGE","event":"Paul arrested in Jerusalem","date":"AD 57","year":57,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR (approx)","confidence":"DERIVED","category":"Biblical","source":"Acts 21:33","notes":"Begins 2 yrs' custody in Caesarea."},{"era":"apostolic","section":"APOSTOLIC AGE","event":"Festus succeeds Felix; Paul appeals to Caesar","date":"AD 59","year":59,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Biblical","source":"Acts 24:27; 25:11","notes":"~AD 59."},{"era":"apostolic","section":"APOSTOLIC AGE","event":"Paul reaches Rome; 2 yrs under house arrest","date":"AD 60","year":60,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR (approx)","confidence":"DERIVED","category":"Biblical","source":"Acts 28:16,30","notes":"Shipwreck en route (Acts 27); house arrest AD 60-62."},{"era":"apostolic","section":"APOSTOLIC AGE","event":"James the Just (brother of Jesus) martyred","date":"AD 62","year":62,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Josephus Ant. 20.200","notes":"FIRM anchor (Josephus)."},{"era":"apostolic","section":"APOSTOLIC AGE","event":"Great Fire of Rome; Neronian persecution begins","date":"AD 64","year":64,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Tacitus, Annals 15","notes":"FIRM anchor."},{"era":"apostolic","section":"APOSTOLIC AGE","event":"Martyrdoms of Peter and Paul in Rome","date":"AD 66","year":66,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR (traditional)","confidence":"TRADITIONAL","category":"Extra-biblical","source":"Church tradition (Eusebius; 1 Clement)","notes":"~AD 64-67 under Nero. Peter crucified, Paul beheaded."},{"era":"apostolic","section":"APOSTOLIC AGE","event":"First Jewish-Roman War (Great Revolt) begins","date":"AD 66","year":66,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Josephus, Wars 2","notes":""},{"era":"apostolic","section":"APOSTOLIC AGE","event":"Nero dies; Year of the Four Emperors","date":"AD 68","year":68,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Roman history","notes":"Vespasian emerges (emperor AD 69)."},{"era":"john","section":"FALL OF JERUSALEM & THE APOSTLE JOHN","event":"2nd Temple destroyed","date":"AD 70","year":70,"am":3841,"hmonth":5,"hmonthname":"Av","hday":"9-10","precision":"DAY (month+day)","confidence":"ANCHOR","category":"Biblical","source":"Sheet (definitive)","notes":"Josephus, Wars 6; Titus. Same calendar date (Tisha B'Av) as the First Temple."},{"era":"john","section":"FALL OF JERUSALEM & THE APOSTLE JOHN","event":"Masada falls; the Great Revolt ends","date":"AD 73","year":73,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR","confidence":"HISTORICAL","category":"Extra-biblical","source":"Josephus, Wars 7","notes":"Last Zealot holdout."},{"era":"john","section":"FALL OF JERUSALEM & THE APOSTLE JOHN","event":"John writes his Gospel and epistles (Ephesus)","date":"AD 90","year":90,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR (traditional)","confidence":"TRADITIONAL","category":"Extra-biblical","source":"Church tradition (Irenaeus)","notes":"~AD 85-95."},{"era":"john","section":"FALL OF JERUSALEM & THE APOSTLE JOHN","event":"John exiled to Patmos; writes Revelation","date":"AD 95","year":95,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR (traditional)","confidence":"TRADITIONAL","category":"Biblical","source":"Rev 1:9; Irenaeus 5.30","notes":"~AD 95-96, reign of Domitian. Minority view: Neronian ~AD 68."},{"era":"john","section":"FALL OF JERUSALEM & THE APOSTLE JOHN","event":"Death of the Apostle John at Ephesus","date":"AD 99","year":99,"am":"","hmonth":"","hmonthname":"","hday":"","precision":"YEAR (traditional)","confidence":"TRADITIONAL","category":"Extra-biblical","source":"Church tradition","notes":"~AD 98-100. Last surviving apostle; close of the apostolic age."}]}</script>
+<script>
+(function(){
+  "use strict";
+  const DATA = JSON.parse(document.getElementById("data").textContent);
+  const RN = ["","I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII","XIII","XIV"];
+  const TIERS = {
+    ANCHOR:{label:"Anchor", blurb:"Your definitive sheet, kept verbatim", backbone:true},
+    LOCKED:{label:"Locked", blurb:"Must be true from the anchors + biblical intervals", backbone:true},
+    GIVEN:{label:"Given", blurb:"Your New-Testament anchor points", backbone:true},
+    HISTORICAL:{label:"Historical", blurb:"Extra-biblical, essentially certain", backbone:true},
+    DERIVED:{label:"Derived", blurb:"Solid, but rests on a synchronisation assumption", backbone:false},
+    TRADITIONAL:{label:"Traditional", blurb:"Church tradition, not textually fixed", backbone:false},
+    INTERPRETIVE:{label:"Interpretive", blurb:"Prophetic alignment, noted not asserted", backbone:false}
+  };
+  const ORDER = ["ANCHOR","LOCKED","GIVEN","HISTORICAL","DERIVED","TRADITIONAL","INTERPRETIVE"];
+  const cls = t => "t-"+t.toLowerCase();
+
+  // ---- inject per-tier color into a style tag (so --c resolves everywhere) ----
+  let css = "";
+  ORDER.forEach(t=>{ css += `.${cls(t)}{--c:var(--t-${t.toLowerCase()});}`; });
+  const st = document.createElement("style"); st.textContent = css; document.head.appendChild(st);
+
+  // ---- HERO ----
+  const dash = s => (s||"").replace(/–/g,"&ndash;").replace(/—/g,"&mdash;");
+  const m = DATA.meta;
+  document.getElementById("lead").innerHTML =
+    `Every date the biblical record fixes &mdash; reckoned from a single Ussher / <b>Anno Mundi</b> count, `+
+    `cross-checked against the Babylonian and Roman record, and mapped to the Hebrew calendar. `+
+    `<b>${m.total}</b> events across four millennia, from Creation to the apostles.`;
+  const stats = [
+    [m.total,"events"], [dash(m.span),"span"], [DATA.eras.length,"eras"], [m.hebrew_dated,"Hebrew-dated"]
+  ];
+  document.getElementById("stats").innerHTML = stats.map(s=>
+    `<li><span class="n mono">${s[0]}</span><span class="k">${s[1]}</span></li>`).join("");
+
+  // ---- ERA NAV ----
+  document.getElementById("eranav").innerHTML = DATA.eras.map((e,i)=>
+    `<button class="pill" data-era="${e.key}"><span class="rn">${RN[i+1]}</span>${e.name}</button>`).join("");
+
+  // ---- BUILD RAIL ----
+  const rail = document.getElementById("rail");
+  let html = ""; let idx = 0;
+  DATA.eras.forEach((era,ei)=>{
+    html += `<section class="era" id="era-${era.key}" data-era="${era.key}">`;
+    html += `<header class="era-head"><span class="rn-big">${RN[ei+1]}</span>`+
+            `<div class="era-name">${era.name}</div>`+
+            `<div class="era-blurb">${era.blurb}</div>`+
+            `<div class="era-meta"><b>${dash(era.range)}</b> &#183; ${era.count} events</div></header>`;
+    const evs = DATA.events.filter(e=>e.era===era.key);
+    evs.forEach(e=>{
+      const pos = (idx%2===0) ? "up" : "down"; idx++;
+      const am = e.am ? `<span class="cam">AM ${e.am}</span>` : "";
+      const heb = e.hmonth ? `<span class="heb">${(e.hmonthname||"").trim()} ${e.hday||""}</span>`.replace(/\s+<\/span>/,"</span>") : "";
+      const hebRow = heb ? `<div class="chips-row">${heb}</div>` : "";
+      const notes = e.notes ? `<div class="notes">${escapeHtml(e.notes)}</div>` : "";
+      const src = e.source ? `<span class="src">${escapeHtml(e.source)}</span>` : "";
+      const hasDetail = notes || src;
+      html += `<div class="node ${cls(e.confidence)}" `+
+        `data-pos="${pos}" data-tier="${e.confidence}" data-txt="${escapeAttr((e.event+" "+e.source+" "+e.notes).toLowerCase())}">`+
+        `<span class="stem"></span><span class="dot"></span>`+
+        `<button class="card${hasDetail?"":" nodetail"}" aria-expanded="false">`+
+          `<span class="cdate mono">${e.date}${am}</span>`+
+          `<div class="ctitle">${escapeHtml(e.event)}</div>`+
+          hebRow +
+          (hasDetail ? `<div class="detail">${notes}${src}</div><span class="more">+ details</span>` : "")+
+        `</button></div>`;
+    });
+    html += `</section>`;
+  });
+  rail.innerHTML = html;
+
+  function escapeHtml(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+  function escapeAttr(s){ return (s||"").replace(/"/g,"&quot;").replace(/[<>]/g,""); }
+
+  // ---- FILTERING ----
+  const nodes = Array.from(rail.querySelectorAll(".node"));
+  const eras = Array.from(rail.querySelectorAll(".era"));
+  const countEl = document.getElementById("count");
+  const searchEl = document.getElementById("search");
+  let q = "";
+  function apply(){
+    let shown = 0;
+    nodes.forEach(n=>{
+      const vis = !q || n.dataset.txt.indexOf(q)>=0;
+      n.hidden = !vis; if(vis) shown++;
+    });
+    eras.forEach(er=>{ er.hidden = !er.querySelector('.node:not([hidden])'); });
+    countEl.textContent = q ? `${shown} of ${m.total} events` : `${m.total} events`;
+  }
+  searchEl.addEventListener("input",()=>{ q = searchEl.value.trim().toLowerCase(); apply(); });
+  apply();
+
+  // ---- CARD EXPAND ----
+  rail.addEventListener("click",e=>{
+    if(justDragged) return;
+    const card = e.target.closest(".card"); if(!card) return;
+    const open = card.classList.toggle("open");
+    card.setAttribute("aria-expanded", open?"true":"false");
+  });
+
+  // ---- ERA NAV SCROLL ----
+  const stage = document.getElementById("stage");
+  // Detect the ACTIVE layout from applied CSS (the horizontal stage sets overflow-x:auto;
+  // the vertical/mobile stage is overflow:visible). More reliable than matchMedia.
+  const isDesk = ()=> getComputedStyle(stage).overflowX !== "visible";
+  document.getElementById("eranav").addEventListener("click",e=>{
+    const p = e.target.closest(".pill"); if(!p) return;
+    const el = document.getElementById("era-"+p.dataset.era);
+    if(!el) return;
+    if(isDesk()){
+      stage.scrollTo({left: el.offsetLeft - 12, behavior:"smooth"});
+    } else {
+      el.scrollIntoView({behavior:"smooth", block:"start"});
+    }
+  });
+
+  // ---- WHEEL -> HORIZONTAL + DRAG PAN (desktop) ----
+  stage.addEventListener("wheel",e=>{
+    if(!isDesk()) return;
+    if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){ stage.scrollLeft += e.deltaY; e.preventDefault(); }
+  }, {passive:false});
+  let down=false, sx=0, sl=0, justDragged=false;
+  stage.addEventListener("pointerdown",e=>{
+    if(!isDesk() || e.target.closest("a")) return;
+    down=true; justDragged=false; sx=e.clientX; sl=stage.scrollLeft;
+  });
+  stage.addEventListener("pointermove",e=>{
+    if(!down) return;
+    const dx = e.clientX - sx;
+    if(Math.abs(dx)>5){ justDragged=true; stage.classList.add("grabbing"); }
+    stage.scrollLeft = sl - dx;
+  });
+  function endDrag(){ down=false; stage.classList.remove("grabbing");
+    setTimeout(()=>justDragged=false, 40); }
+  stage.addEventListener("pointerup",endDrag);
+  stage.addEventListener("pointerleave",endDrag);
+  stage.addEventListener("keydown",e=>{
+    if(!isDesk()) return;
+    const step = stage.clientWidth*0.8;
+    if(e.key==="ArrowRight"){ stage.scrollLeft+=step; e.preventDefault(); }
+    else if(e.key==="ArrowLeft"){ stage.scrollLeft-=step; e.preventDefault(); }
+    else if(e.key==="Home"){ stage.scrollLeft=0; e.preventDefault(); }
+    else if(e.key==="End"){ stage.scrollLeft=stage.scrollWidth; e.preventDefault(); }
+  });
+
+  // ---- CURRENT-ERA HIGHLIGHT (desktop horizontal + mobile vertical) ----
+  const pfill=document.getElementById("pfill"), pera=document.getElementById("pera");
+  const eranavEl=document.getElementById("eranav");
+  let lastEraKey=null;
+  function setActiveEra(key){
+    if(key===lastEraKey) return; lastEraKey=key;
+    const i=DATA.eras.findIndex(x=>x.key===key); if(i<0) return;
+    const meta=DATA.eras[i];
+    if(pera) pera.innerHTML = `<b>${RN[i+1]}</b> &#183; ${meta.name} &#183; ${dash(meta.range)}`;
+    let activePill=null;
+    document.querySelectorAll(".pill").forEach(pl=>{ const on=pl.dataset.era===key;
+      pl.classList.toggle("active",on); if(on) activePill=pl; });
+    if(activePill){
+      const target=activePill.offsetLeft - eranavEl.clientWidth/2 + activePill.offsetWidth/2;
+      eranavEl.scrollTo({left:Math.max(0,target), behavior:"smooth"});
+    }
+  }
+  function updateProgress(){
+    if(isDesk()){
+      const max = stage.scrollWidth - stage.clientWidth;
+      if(pfill) pfill.style.width = (max>0 ? stage.scrollLeft/max*100 : 0).toFixed(1)+"%";
+      const mid = stage.scrollLeft + stage.clientWidth/2;
+      let cur=eras.find(e=>!e.hidden);
+      for(const er of eras){ if(!er.hidden && er.offsetLeft<=mid) cur=er; }
+      if(cur) setActiveEra(cur.dataset.era);
+    } else {
+      const probe = document.querySelector(".controls").getBoundingClientRect().bottom + window.innerHeight*0.16;
+      let cur=eras.find(e=>!e.hidden);
+      for(const er of eras){ if(er.hidden) continue; if(er.getBoundingClientRect().top<=probe) cur=er; }
+      if(cur) setActiveEra(cur.dataset.era);
+    }
+  }
+  stage.addEventListener("scroll",()=>{ requestAnimationFrame(updateProgress); }, {passive:true});
+  window.addEventListener("scroll",()=>{ if(!isDesk()) requestAnimationFrame(updateProgress); }, {passive:true});
+
+  // ---- REVEAL ON SCROLL (first frame visible) ----
+  const reduce = window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  const io = new IntersectionObserver((ents)=>{
+    ents.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add("in"); io.unobserve(en.target); } });
+  }, {root: null, rootMargin:"0px 12% 0px 12%", threshold:0.01});
+  // observe with the stage as root on desktop for horizontal reveal
+  const ioH = new IntersectionObserver((ents)=>{
+    ents.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add("in"); ioH.unobserve(en.target); } });
+  }, {root: stage, rootMargin:"0px 12% 0px 12%", threshold:0.01});
+  function setupReveal2(){
+    if(reduce) return;
+    const horiz = isDesk();
+    const vw = stage.clientWidth || window.innerWidth;
+    const vh = window.innerHeight;
+    const obs = horiz ? ioH : io;
+    nodes.forEach(n=>{
+      const r = n.getBoundingClientRect();
+      const inFrame = horiz ? (r.left < vw + 40) : (r.top < vh + 40);
+      if(!inFrame){ n.classList.add("reveal"); requestAnimationFrame(()=>obs.observe(n)); }
+    });
+  }
+
+  // ---- THEME TOGGLE ----
+  const themeBtn = document.getElementById("theme");
+  try{ const saved = localStorage.getItem("am-theme"); if(saved) document.documentElement.setAttribute("data-theme",saved); }catch(e){}
+  themeBtn.addEventListener("click",()=>{
+    const cur = document.documentElement.getAttribute("data-theme");
+    const sysDark = window.matchMedia("(prefers-color-scheme:dark)").matches;
+    const next = cur ? (cur==="dark"?"light":"dark") : (sysDark?"light":"dark");
+    document.documentElement.setAttribute("data-theme",next);
+    try{ localStorage.setItem("am-theme",next); }catch(e){}
+  });
+
+  // ---- INIT ----
+  requestAnimationFrame(()=>{ setupReveal2(); updateProgress(); });
+  window.addEventListener("resize",()=>{ requestAnimationFrame(updateProgress); });
+})();
+</script>
+
+</body>
+</html>

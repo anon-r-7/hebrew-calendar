@@ -105,6 +105,11 @@ export const Holidays = () => {
               Days Between
             </Text>
           </a>
+          <a href="/timeline" target="_blank" rel="noopener noreferrer">
+            <Text fontSize="md" color="brand.grey">
+              Biblical Timeline
+            </Text>
+          </a>
         </Flex>
       </Flex>
     </Box>
