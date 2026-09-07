@@ -6,13 +6,14 @@
     "defaults"
   ],
   "scripts": {
-    "start": "vite",
-    "start:docker": "vite --host 0.0.0.0",
-    "build": "vite build --emptyOutDir",
+    "start": "yarn timeline && vite",
+    "start:docker": "yarn timeline && vite --host 0.0.0.0",
+    "build": "yarn timeline && vite build --emptyOutDir",
     "serve": "vite preview --port 3005",
     "start:prod": "yarn build && yarn setenv && yarn serve",
     "setenv": "bash update_env.sh",
-    "tsc": "tsc --noEmit"
+    "tsc": "tsc --noEmit",
+    "timeline": "node timeline/build.mjs"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.0.17",

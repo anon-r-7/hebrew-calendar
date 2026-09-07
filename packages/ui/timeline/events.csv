@@ -1,0 +1,311 @@
+section,event,date,year_signed,AM,heb_month,heb_month_name,heb_day,precision,confidence,category,source,notes
+PATRIARCHS & PRIMEVAL HISTORY,Creation,4004 BC,-4004,1,,,,YEAR,Scriptural,Biblical,Ussher AM epoch (4004 BC); Gen 1,Day 1 of the Ussher Anno Mundi count.
+PATRIARCHS & PRIMEVAL HISTORY,Seth born,3874 BC,-3874,130,,,,YEAR,Scriptural,Biblical,Gen 5:3,Adam is 130 at his birth (Gen 5:3). AM 130.
+PATRIARCHS & PRIMEVAL HISTORY,Enosh born,3769 BC,-3769,235,,,,YEAR,Scriptural,Biblical,Gen 5:6,Seth is 105 (Gen 5:6). AM 235.
+PATRIARCHS & PRIMEVAL HISTORY,Kenan born,3679 BC,-3679,325,,,,YEAR,Scriptural,Biblical,Gen 5:9,Enosh is 90 (Gen 5:9). AM 325.
+PATRIARCHS & PRIMEVAL HISTORY,Mahalalel born,3609 BC,-3609,395,,,,YEAR,Scriptural,Biblical,Gen 5:12,Kenan is 70 (Gen 5:12). AM 395.
+PATRIARCHS & PRIMEVAL HISTORY,Jared born,3544 BC,-3544,460,,,,YEAR,Scriptural,Biblical,Gen 5:15,Mahalalel is 65 (Gen 5:15). AM 460.
+PATRIARCHS & PRIMEVAL HISTORY,Enoch born,3382 BC,-3382,622,,,,YEAR,Scriptural,Biblical,Gen 5:18,Jared is 162 (Gen 5:18). AM 622.
+PATRIARCHS & PRIMEVAL HISTORY,Methuselah born,3317 BC,-3317,687,,,,YEAR,Scriptural,Biblical,Gen 5:21,Enoch is 65 (Gen 5:21) before walking with God 300 years more. AM 687.
+PATRIARCHS & PRIMEVAL HISTORY,Lamech born,3130 BC,-3130,874,,,,YEAR,Scriptural,Biblical,Gen 5:25,Methuselah is 187 (Gen 5:25). AM 874.
+PATRIARCHS & PRIMEVAL HISTORY,Adam dies,3074 BC,-3074,930,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 5:5,Lifespan 930 yrs (birth AM 0 + 930).
+PATRIARCHS & PRIMEVAL HISTORY,Enoch taken (translated),3017 BC,-3017,987,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 5:23-24,Did NOT die - 'God took him' (Gen 5:24); age 365.
+PATRIARCHS & PRIMEVAL HISTORY,Seth dies,2962 BC,-2962,1042,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 5:8,Lifespan 912 yrs (birth AM 130 + 912).
+PATRIARCHS & PRIMEVAL HISTORY,Noah born,2948 BC,-2948,1056,,,,YEAR,Scriptural,Biblical,Gen 5:28-29,Lamech is 182 (Gen 5:28). AM 1056.
+PATRIARCHS & PRIMEVAL HISTORY,Enosh dies,2864 BC,-2864,1140,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 5:11,Lifespan 905 yrs (birth AM 235 + 905).
+PATRIARCHS & PRIMEVAL HISTORY,Kenan dies,2769 BC,-2769,1235,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 5:14,Lifespan 910 yrs (birth AM 325 + 910).
+PATRIARCHS & PRIMEVAL HISTORY,Mahalalel dies,2714 BC,-2714,1290,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 5:17,Lifespan 895 yrs (birth AM 395 + 895).
+PATRIARCHS & PRIMEVAL HISTORY,Jared dies,2582 BC,-2582,1422,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 5:20,Lifespan 962 yrs (birth AM 460 + 962).
+PATRIARCHS & PRIMEVAL HISTORY,Shem born,2446 BC,-2446,1558,,,,YEAR,Scriptural,Biblical,Gen 5:32; 11:10,"Noah is 502 (Gen 5:32 with Gen 11:10, back-counted from the Flood). AM 1558."
+PATRIARCHS & PRIMEVAL HISTORY,Lamech dies,2353 BC,-2353,1651,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 5:31,Dies 5 years before the Flood.
+PATRIARCHS & PRIMEVAL HISTORY,Flood,2348 BC,-2348,1656,,,,YEAR,Scriptural,Biblical,Gen 7-8,Noah is 600 (Gen 7:6) and the deep breaks open. Methuselah — oldest of men at 969 — dies this very year. AM 1656.
+PATRIARCHS & PRIMEVAL HISTORY,Methuselah dies,2348 BC,-2348,1656,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 5:27,Dies in the very year of the Flood (AM 1656) - internal-consistency proof.
+PATRIARCHS & PRIMEVAL HISTORY,Arpachshad born,2346 BC,-2346,1658,,,,YEAR,Scriptural,Biblical,Gen 11:10,"Shem is 100, two years after the Flood (Gen 11:10). AM 1658."
+PATRIARCHS & PRIMEVAL HISTORY,Shelah born,2311 BC,-2311,1693,,,,YEAR,Scriptural,Biblical,Gen 11:12,Arpachshad is 35 (Gen 11:12). AM 1693.
+PATRIARCHS & PRIMEVAL HISTORY,Eber born,2281 BC,-2281,1723,,,,YEAR,Scriptural,Biblical,Gen 11:14,Shelah is 30 (Gen 11:14). AM 1723.
+PATRIARCHS & PRIMEVAL HISTORY,Peleg born,2247 BC,-2247,1757,,,,YEAR,Scriptural,Biblical,Gen 11:16,Eber is 34 (Gen 11:16) — 'in his days the earth was divided.' AM 1757.
+PATRIARCHS & PRIMEVAL HISTORY,Reu born,2217 BC,-2217,1787,,,,YEAR,Scriptural,Biblical,Gen 11:18,Peleg is 30 (Gen 11:18). AM 1787.
+PATRIARCHS & PRIMEVAL HISTORY,Serug born,2185 BC,-2185,1819,,,,YEAR,Scriptural,Biblical,Gen 11:20,Reu is 32 (Gen 11:20). AM 1819.
+PATRIARCHS & PRIMEVAL HISTORY,Nahor born,2155 BC,-2155,1849,,,,YEAR,Scriptural,Biblical,Gen 11:22,Serug is 30 (Gen 11:22). AM 1849.
+PATRIARCHS & PRIMEVAL HISTORY,Terah born,2126 BC,-2126,1878,,,,YEAR,Scriptural,Biblical,Gen 11:24,Nahor is 29 (Gen 11:24). AM 1878.
+PATRIARCHS & PRIMEVAL HISTORY,Peleg dies,2008 BC,-2008,1996,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 11:19,Lifespan 239 yrs (birth AM 1757 + 239).
+PATRIARCHS & PRIMEVAL HISTORY,Nahor dies,2007 BC,-2007,1997,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 11:25,Lifespan 148 yrs (birth AM 1849 + 148).
+PATRIARCHS & PRIMEVAL HISTORY,Noah dies,1998 BC,-1998,2006,,,,YEAR,Scriptural,Biblical,Gen 9:29,"Gen 9:29; Noah dies at 950, just two years before Abraham is born. AM 2006."
+PATRIARCHS & PRIMEVAL HISTORY,Abraham born,1996 BC,-1996,2008,,,,YEAR,Scriptural,Biblical,Gen 11:26-32; Acts 7:4,Terah is 130 at his birth — Abraham leaves Haran at 75 the year Terah dies at 205 (Gen 11:32; Acts 7:4). AM 2008.
+PATRIARCHS & PRIMEVAL HISTORY,Reu dies,1978 BC,-1978,2026,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 11:21,Lifespan 239 yrs (birth AM 1787 + 239).
+PATRIARCHS & PRIMEVAL HISTORY,Serug dies,1955 BC,-1955,2049,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 11:23,Lifespan 230 yrs (birth AM 1819 + 230).
+ABRAHAM TO THE EXODUS,Abraham called / enters Canaan,1921 BC,-1921,2083,,,,YEAR,Scriptural,Biblical,Gen 12:1-4; Ex 12:40,Gen 12; age 75. 430 yrs to the Exodus (Ex 12:40). Terah dies this year (Acts 7:4).
+PATRIARCHS & PRIMEVAL HISTORY,Terah dies,1921 BC,-1921,2083,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 11:32,Dies AM 2083 = year of Abraham's call at age 75 (Acts 7:4; Gen 12:4).
+ABRAHAM TO THE EXODUS,Ishmael born,1910 BC,-1910,2094,,,,YEAR,Scriptural,Biblical,Gen 16:16,Gen 16; Abraham age 86.
+PATRIARCHS & PRIMEVAL HISTORY,Arpachshad dies,1908 BC,-1908,2096,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 11:13,Lifespan 438 yrs (birth AM 1658 + 438).
+ABRAHAM TO THE EXODUS,Circumcision / Sodom,1897 BC,-1897,2107,,,,YEAR,Scriptural,Biblical,Gen 17-19,Gen 17-19; Abraham age 99.
+ABRAHAM TO THE EXODUS,Isaac born,1896 BC,-1896,2108,,,,YEAR,Scriptural,Biblical,Gen 21:5,Gen 21; Abraham age 100.
+ABRAHAM TO THE EXODUS,Isaac weaned / 400 years begin,1891 BC,-1891,2113,,,,YEAR,Scriptural,Biblical,Gen 21:8; 15:13,Gen 21:8-9; the 400 yrs of Gen 15:13 to the Exodus.
+PATRIARCHS & PRIMEVAL HISTORY,Shelah dies,1878 BC,-1878,2126,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 11:15,Lifespan 433 yrs (birth AM 1693 + 433).
+ABRAHAM TO THE EXODUS,Sarah dies,1859 BC,-1859,2145,,,,YEAR,Scriptural,Biblical,Gen 23:1,Gen 23; age 127.
+ABRAHAM TO THE EXODUS,Isaac marries,1856 BC,-1856,2148,,,,YEAR,Scriptural,Biblical,Gen 25:20,Gen 24; Isaac age 40.
+PATRIARCHS & PRIMEVAL HISTORY,Shem dies,1846 BC,-1846,2158,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 11:11,"The Flood survivor, still alive well into the patriarchal age."
+ABRAHAM TO THE EXODUS,Jacob born,1836 BC,-1836,2168,,,,YEAR,Scriptural,Biblical,Gen 25:26,Gen 25:26; Isaac age 60.
+PATRIARCHS & PRIMEVAL HISTORY,Abraham dies,1821 BC,-1821,2183,,,,YEAR,Scriptural,Biblical,Gen 25:7,"Gen 25:7-8; Abraham dies at 175, gathered to his people. AM 2183."
+PATRIARCHS & PRIMEVAL HISTORY,Eber dies,1817 BC,-1817,2187,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 11:17,Outlives Abraham (d. AM 2183); dies AM 2187.
+ABRAHAM TO THE EXODUS,Ishmael dies,1773 BC,-1773,2231,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 25:17,Age 137 (born AM 2094).
+ABRAHAM TO THE EXODUS,Joseph born,1745 BC,-1745,2259,,,,YEAR,Scriptural,Biblical,Gen 30:22-24,Gen 30; in Jacob's service to Laban.
+ABRAHAM TO THE EXODUS,Jacob returns / renamed Israel (Peniel),1739 BC,-1739,2265,,,,YEAR,Scriptural,Biblical,Gen 32:28,Gen 32:28.
+ABRAHAM TO THE EXODUS,Isaac dies,1716 BC,-1716,2288,,,,YEAR (AM-exact),Scriptural,Biblical,Gen 35:28,Age 180 (born AM 2108).
+ABRAHAM TO THE EXODUS,Enter Egypt,1706 BC,-1706,2298,,,,YEAR,Scriptural,Biblical,Gen 46-47; 47:9,Gen 46-47; Jacob age 130 (2nd yr of famine).
+ABRAHAM TO THE EXODUS,Jacob dies,1689 BC,-1689,2315,,,,YEAR,Scriptural,Biblical,Gen 47:28; 49-50,Gen 49-50; age 147.
+ABRAHAM TO THE EXODUS,Joseph dies / slavery begins,1635 BC,-1635,2369,,,,YEAR,Scriptural,Biblical,Gen 50:26; Ex 1:8,Gen 50:26; age 110.
+ABRAHAM TO THE EXODUS,Aaron born,1574 BC,-1574,2430,,,,YEAR,Scriptural,Biblical,Ex 7:7,3 yrs older than Moses (born 1571).
+ABRAHAM TO THE EXODUS,Moses born,1571 BC,-1571,2433,,,,YEAR,Scriptural,Biblical,Ex 2:1-2; 7:7,"Ex 2; Moses is 80 at the Exodus (Ex 7:7), fixing his birth 80 years earlier. AM 2433."
+ABRAHAM TO THE EXODUS,Moses flees to Midian,1531 BC,-1531,,,,,YEAR,Scriptural,Biblical,Ex 2:15; Acts 7:23,Age 40.
+"EXODUS, WILDERNESS & CONQUEST",Exodus / Sinai,1491 BC,-1491,2513,1,Nisan/Aviv,14-15,DAY (month+day),Scriptural,Biblical,Ex 12:40-41; 1 Kings 6:1,Ex 12. 480 yrs before the Temple (1 Kings 6:1); Passover instituted.
+ABRAHAM TO THE EXODUS,Moses returns to Egypt (burning bush),1491 BC,-1491,,,,,YEAR,Scriptural,Biblical,Ex 7:7; Acts 7:30,"Age 80, in the Exodus year."
+"EXODUS, WILDERNESS & CONQUEST",Crossing of the Red Sea,1491 BC,-1491,,1,Nisan/Aviv,21,DAY (month+day),Scriptural,Biblical,Ex 14,~21st of the 1st month (7th day of Unleavened Bread).
+"EXODUS, WILDERNESS & CONQUEST",Arrival at Sinai,1491 BC,-1491,,3,Sivan,1,MONTH,Scriptural,Biblical,Ex 19:1,1st day of the 3rd month.
+"EXODUS, WILDERNESS & CONQUEST",Giving of the Law (Ten Commandments),1491 BC,-1491,,3,Sivan,6,DAY (traditional),Scriptural,Biblical,Ex 19-20,~6th of the 3rd month (traditional Shavuot).
+"EXODUS, WILDERNESS & CONQUEST",Tabernacle erected,1490 BC,-1490,2514,1,Nisan,1,DAY (month+day),Scriptural,Biblical,Ex 40:17,"1st day, 1st month of the 2nd year."
+"EXODUS, WILDERNESS & CONQUEST",Spies sent; Kadesh rebellion -> 38 more years,1490 BC,-1490,,,,,YEAR,Scriptural,Biblical,Num 13-14,40-yr wandering decreed.
+"EXODUS, WILDERNESS & CONQUEST",Aaron dies on Mt Hor,1452 BC,-1452,2552,5,Av,1,DAY (month+day),Scriptural,Biblical,Num 33:38,"Age 123; 1st day 5th month, 40th year."
+"EXODUS, WILDERNESS & CONQUEST",Promised Land / entry,1451 BC,-1451,2553,1,Nisan,10,DAY (month+day),Scriptural,Biblical,Josh 4:19; Num 14:34,"Josh 4:19; Jordan crossing at Gilgal, 40 yrs after the Exodus."
+JUDGES,Judges span (356 years),1451-1095 BC (356 yrs),-1451,2553-2909,,,,SPAN,Scriptural,Biblical,Judg; Acts 13:20; Ussher-school reign chronology,Ussher AM 2553-2909 = 356 yrs. Individual judges overlap and are not uniquely datable.
+"EXODUS, WILDERNESS & CONQUEST",Moses dies (Mt Nebo),1451 BC,-1451,2553,,,,YEAR,Scriptural,Biblical,Deut 34:7,"Age 120, end of the 40 years."
+"EXODUS, WILDERNESS & CONQUEST",Passover at Gilgal; manna ceases,1451 BC,-1451,,1,Nisan,14,DAY (month+day),Scriptural,Biblical,Josh 5:10-12,14th of the 1st month.
+"EXODUS, WILDERNESS & CONQUEST",Fall of Jericho,1451 BC,-1451,,,,,YEAR,Scriptural,Biblical,Josh 6,First city taken.
+JUDGES,Jephthah's '300 years since the conquest',1151 BC,-1151,,,,,YEAR (marker),Scriptural,Biblical,Judg 11:26,Marker ~300 yrs after entry. Judges overlap; not uniquely datable.
+JUDGES,Eli / Ark captured by Philistines (Eli dies),1116 BC,-1116,,,,,YEAR (approx),Scriptural,Biblical,1 Sam 4:18,Eli judged 40 yrs; transitional to Samuel/Saul.
+UNITED MONARCHY,Saul accedes,1095 BC,-1095,2909,,,,YEAR,Scriptural,Biblical,Acts 13:21; Ussher-school reign chronology,Reigns 40 yrs (Acts 13:21).
+UNITED MONARCHY,David accedes,1055 BC,-1055,2949,,,,YEAR,Scriptural,Biblical,2 Sam 5:4-5; Ussher-school reign chronology,Reigns 40 yrs: 7.5 in Hebron + 33 in Jerusalem (2 Sam 5:4-5).
+UNITED MONARCHY,David captures Jerusalem; makes it capital,1048 BC,-1048,,,,,YEAR,Scriptural,Biblical,2 Sam 5:5,After 7.5 yrs in Hebron.
+UNITED MONARCHY,Solomon accedes,1015 BC,-1015,2989,,,,YEAR,Scriptural,Biblical,1 Kings 11:42; Ussher-school reign chronology,Reigns 40 yrs (1 Kings 11:42).
+UNITED MONARCHY,Temple begun (4th year Ziv),1012 BC,-1012,2993,2,Ziv/Iyar,,MONTH,Scriptural,Biblical,1 Kings 6:1; Ussher-school reign chronology,480th yr after the Exodus (1 Kings 6:1) - the master link welding Exodus<->Temple.
+UNITED MONARCHY,Temple finished,1005 BC,-1005,3000,8,Bul/Cheshvan,,MONTH,Scriptural,Biblical,1 Kings 6:38; Ussher-school reign chronology,"1 Kings 6:38; 8th month, Solomon's 11th yr."
+UNITED MONARCHY,Temple dedicated (Tishri),1004 BC,-1004,3001,7,Tishri,,MONTH,Scriptural,Biblical,1 Kings 8:2; Ussher-school reign chronology,1 Kings 8:2; Feast of Tabernacles.
+UNITED MONARCHY,Solomon dies; kingdom divides (Rehoboam/Jeroboam I),975 BC,-975,,,,,YEAR,Scriptural,Biblical,1 Kings 11:42-12,1015 - 40 = 975. Judah (south) / Israel (north).
+DIVIDED MONARCHY,Shishak of Egypt plunders Jerusalem,971 BC,-971,,,,,YEAR,Scriptural,Biblical,1 Kings 14:25; 2 Chr 12,5th yr of Rehoboam. Extra-biblical: Pharaoh Shoshenq I (Karnak relief).
+DIVIDED MONARCHY,Jehu's revolt ends the house of Ahab,884 BC,-884,,,,,YEAR,Scriptural,Biblical,2 Kings 9-10,"2 Kings 9-10; Jehu's coup topples the house of Ahab — Joram, Ahaziah of Judah and Jezebel all fall in a single purge."
+DIVIDED MONARCHY,Fall of Samaria - Northern Kingdom (Israel) ends,722 BC,-722,,,,,YEAR (722; 723-720 range),Scriptural,Biblical,2 Kings 17; 18:10,2 Kings 17; in Hezekiah's 6th year (Hoshea's 9th) Samaria falls and the ten northern tribes go into Assyrian exile.
+DIVIDED MONARCHY,Sennacherib invades Judah; Hezekiah delivered,710 BC,-710,,,,,YEAR (disputed: 710 Ussher / 701 history),Scriptural,Biblical,2 Kings 18:13; Isa 36-37,Hezekiah's 14th year (2 Kings 18:13). Assyria overruns Judah and besieges Jerusalem — then the Angel of the LORD strikes the camp overnight.
+DIVIDED MONARCHY,Josiah's reforms; Book of the Law found,622 BC,-622,,,,,YEAR,Scriptural,Biblical,2 Kings 22-23,18th yr of Josiah (622 widely accepted).
+DIVIDED MONARCHY,Josiah killed at Megiddo by Pharaoh Necho,609 BC,-609,,,,,YEAR,Scriptural,Biblical,2 Kings 23:29,Jehoahaz reigns 3 months; Egypt installs Jehoiakim.
+BABYLONIAN CONQUEST & EXILE,Battle of Carchemish; Babylon supplants Egypt,605 BC,-605,,,,,YEAR,Historical,Extra-biblical,Jer 46:2; Bab. Chronicle,Nebuchadnezzar's decisive victory.
+BABYLONIAN CONQUEST & EXILE,FIRST deportation (Daniel & nobility); 70-yr exile begins,605 BC,-605,,,,,YEAR,Scriptural,Biblical,Dan 1:1-6; Jer 25:11,3rd yr of Jehoiakim.
+BABYLONIAN CONQUEST & EXILE,SECOND deportation; Jehoiachin exiled; Zedekiah made king,597 BC,-597,,12,Adar,2,DAY (month+day),Scriptural,Biblical,2 Kings 24:12-17; Jer 52:28,"Chronicle fixes it to 2 Adar = 16 Mar 597. Ezekiel among these exiles (3,023 persons)."
+EZEKIEL'S DATED ORACLES,Ezekiel #1 - call vision by the Chebar,593 BC,-593,,4,Tammuz,5,DAY (month+day),Scriptural,Biblical,Ezek 1:1-2,Yr 5 of Jehoiachin's exile (597 - 4). Ministry begins.
+EZEKIEL'S DATED ORACLES,Ezekiel #2 - vision of temple abominations,592 BC,-592,,6,Elul,5,DAY (month+day),Scriptural,Biblical,Ezek 8:1,Yr 6 of Jehoiachin's exile (597 - 5). 
+EZEKIEL'S DATED ORACLES,Ezekiel #3 - elders inquire,591 BC,-591,,5,Av,10,DAY (month+day),Scriptural,Biblical,Ezek 20:1,Yr 7 of Jehoiachin's exile (597 - 6). 
+BABYLONIAN CONQUEST & EXILE,Siege of Jerusalem begins,588 BC,-588,,10,Tevet,10,DAY (month+day),Scriptural,Biblical,2 Kings 25:1; Ezek 24:1,"10th day 10th month, 9th yr of Zedekiah (Asarah B'Tevet)."
+EZEKIEL'S DATED ORACLES,Ezekiel #4 - 'write this day': siege begins,588 BC,-588,,10,Tevet,10,DAY (month+day),Scriptural,Biblical,Ezek 24:1-2,Yr 9 of Jehoiachin's exile (597 - 8). SAME day as 2 Kings 25:1.
+EZEKIEL'S DATED ORACLES,Ezekiel #5 - oracle against Egypt,588 BC,-588,,10,Tevet,12,DAY (month+day),Scriptural,Biblical,Ezek 29:1,Yr 10 of Jehoiachin's exile (597 - 9). 
+EZEKIEL'S DATED ORACLES,Ezekiel #6 - Pharaoh's broken arm,587 BC,-587,,1,Nisan,7,DAY (month+day),Scriptural,Biblical,Ezek 30:20,Yr 11 of Jehoiachin's exile (597 - 10). 
+EZEKIEL'S DATED ORACLES,Ezekiel #7 - Egypt as fallen cedar,587 BC,-587,,3,Sivan,1,DAY (month+day),Scriptural,Biblical,Ezek 31:1,Yr 11 of Jehoiachin's exile (597 - 10). 
+BABYLONIAN CONQUEST & EXILE,1st Temple destroyed,586 BC,-586,3416,5,Av,7-10,DAY (month+day),Historical,Biblical,2 Kings 25:8-9 (586 BC),2 Kings 25:8-9; Nebuchadnezzar's army burns the house of the LORD on the 9th of Av — the day Israel still mourns as Tisha B'Av.
+BABYLONIAN CONQUEST & EXILE,Jerusalem's walls breached,586 BC,-586,,4,Tammuz,9,DAY (month+day),Scriptural,Biblical,Jer 39:2; 52:6-7,"9th day 4th month, 11th yr of Zedekiah."
+BABYLONIAN CONQUEST & EXILE,THIRD deportation (with the fall of Jerusalem),586 BC,-586,,,,,YEAR,Scriptural,Biblical,2 Kings 25:11; Jer 52:29,"The major deportation, concurrent with the temple's destruction (832 + the populace). <- what most mean by 'the Exile'."
+BABYLONIAN CONQUEST & EXILE,Gedaliah assassinated; remnant flees to Egypt,586 BC,-586,,7,Tishri,3,MONTH,Scriptural,Biblical,2 Kings 25:25; Jer 41,"7th month (Fast of Gedaliah, 3 Tishri)."
+EZEKIEL'S DATED ORACLES,Ezekiel #8 - oracle against Tyre,586 BC,-586,,0,,1,DAY (month+day),Scriptural,Biblical,Ezek 26:1,Yr 11 of Jehoiachin's exile (597 - 10). (Month unstated; 11th yr = 586.)
+PROPHETIC MARKERS (interpretive),The 70-year exile as the land's sabbaths,586 BC,-586,,,,,INTERPRETIVE,Traditional,Biblical,2 Chr 36:21; Lev 26:34-35,The 70 yrs = missed sabbatical (shmita) years - ties into the app's shmita/yovel logic.
+EZEKIEL'S DATED ORACLES,Ezekiel #9 - lament over Pharaoh,585 BC,-585,,12,Adar,1,DAY (month+day),Scriptural,Biblical,Ezek 32:1,Yr 12 of Jehoiachin's exile (597 - 11). 
+EZEKIEL'S DATED ORACLES,Ezekiel #10 - Egypt sent to the pit,585 BC,-585,,12,Adar,15,DAY (month+day),Scriptural,Biblical,Ezek 32:17,Yr 12 of Jehoiachin's exile (597 - 11). 
+EZEKIEL'S DATED ORACLES,Ezekiel #11 - news of Jerusalem's fall arrives,585 BC,-585,,10,Tevet,5,DAY (month+day),Scriptural,Biblical,Ezek 33:21,Yr 12 of Jehoiachin's exile (597 - 11). 'The city is fallen.'
+BABYLONIAN CONQUEST & EXILE,FOURTH (final) deportation,582 BC,-582,,,,,YEAR,Scriptural,Biblical,Jer 52:30,23rd yr of Nebuchadnezzar; 745 persons. Jer 52:28-30 tallies THREE (597/586/582); 605 is the earlier hostage-taking.
+EZEKIEL'S DATED ORACLES,Ezekiel #12 - vision of the new temple,573 BC,-573,,1,Nisan/Tishri,10,DAY (month+day),Scriptural,Biblical,Ezek 40:1,Yr 25 of Jehoiachin's exile (597 - 24). 25th yr = 14th yr after the city fell.
+EZEKIEL'S DATED ORACLES,Ezekiel #13 - Nebuchadnezzar to take Egypt (latest),571 BC,-571,,1,Nisan,1,DAY (month+day),Scriptural,Biblical,Ezek 29:17,Yr 27 of Jehoiachin's exile (597 - 26). Final dated oracle; the 13 span 593-571.
+BABYLONIAN CONQUEST & EXILE,Jehoiachin released from prison,561 BC,-561,,12,Adar,27,DAY (month+day),Scriptural,Biblical,2 Kings 25:27; Jer 52:31,"27th day 12th month, 37th yr of exile; accession yr of Evil-Merodach (37 yrs after 597)."
+RETURN FROM EXILE & SECOND TEMPLE,Fall of Babylon to Cyrus; Belshazzar slain,539 BC,-539,,,,,DAY (historical),Historical,Biblical,Dan 5; Nabonidus Chronicle,Night of 12 Oct 539 (astronomically fixed). Darius the Mede.
+RETURN FROM EXILE & SECOND TEMPLE,Decree of Cyrus; captivity ends,538 BC,-538,,,,,YEAR,Scriptural,Biblical,2 Chr 36:22-23; Ezra 1:1,1st yr of Cyrus over Babylon. FIXED at 538 by his capture of Babylon (Oct 539). 70-yr counts: 605->536 and 586->516.
+RETURN FROM EXILE & SECOND TEMPLE,"Return under Zerubbabel & Jeshua (~50,000)",537 BC,-537,,,,,YEAR,Scriptural,Biblical,Ezra 2,The first return.
+RETURN FROM EXILE & SECOND TEMPLE,Altar rebuilt; Feast of Tabernacles resumed,537 BC,-537,,7,Tishri,1,MONTH,Scriptural,Biblical,Ezra 3:1-6,1st day of the 7th month.
+RETURN FROM EXILE & SECOND TEMPLE,Second Temple foundation laid; 70-yr servitude ends,536 BC,-536,,2,Iyar,,MONTH,Scriptural,Biblical,Ezra 3:8-10,Ezra 3; in the 2nd month of the return's 2nd year the altar and foundation are laid — Jeremiah's 70 years of exile (Jer 25:11-12) run their course.
+RETURN FROM EXILE & SECOND TEMPLE,Work halted by opposition (Samaritan adversaries),535 BC,-535,,,,,YEAR (approx),Scriptural,Biblical,"Ezra 4:1-5,24",Building stops until Darius I's 2nd yr (520).
+RETURN FROM EXILE & SECOND TEMPLE,Haggai's 1st oracle; temple work resumes,520 BC,-520,,6,Elul,1,DAY (month+day),Scriptural,Biblical,"Hag 1:1,15","1st day 6th month (call); work resumes 24th day 6th month, 2nd yr of Darius I."
+RETURN FROM EXILE & SECOND TEMPLE,Haggai's 2nd oracle ('glory of this house'),520 BC,-520,,7,Tishri,21,DAY (month+day),Scriptural,Biblical,Hag 2:1,21st day of the 7th month.
+RETURN FROM EXILE & SECOND TEMPLE,Haggai's 3rd & 4th oracles (blessing; Zerubbabel),520 BC,-520,,9,Kislev,24,DAY (month+day),Scriptural,Biblical,"Hag 2:10,20",24th day of the 9th month.
+RETURN FROM EXILE & SECOND TEMPLE,Zechariah begins prophesying,520 BC,-520,,8,Bul/Cheshvan,,MONTH,Scriptural,Biblical,Zech 1:1,"8th month, 2nd yr of Darius I."
+RETURN FROM EXILE & SECOND TEMPLE,Zechariah's night visions,519 BC,-519,,11,Shebat,24,DAY (month+day),Scriptural,Biblical,Zech 1:7,"24th day 11th month (Shebat), 2nd yr of Darius (early 519)."
+RETURN FROM EXILE & SECOND TEMPLE,Zechariah's oracle on fasting (4th yr of Darius),518 BC,-518,,9,Kislev,4,DAY (month+day),Scriptural,Biblical,Zech 7:1,"4th day 9th month (Kislev), 4th yr of Darius. <- the later date you remembered."
+RETURN FROM EXILE & SECOND TEMPLE,Second Temple completed,515 BC,-515,,12,Adar,3,DAY (month+day),Scriptural,Biblical,Ezra 6:15,"3rd day of Adar, 6th yr of Darius. TEMPLE-TO-TEMPLE = 70 yrs (586->516/515)."
+RETURN FROM EXILE & SECOND TEMPLE,Second Temple dedication & Passover,515 BC,-515,,1,Nisan,14,DAY (month+day),Scriptural,Biblical,Ezra 6:19,14th of the 1st month.
+RETURN FROM EXILE & SECOND TEMPLE,Esther becomes queen of Persia,479 BC,-479,,10,Tevet,,MONTH,Scriptural,Biblical,Est 2:16,"10th month (Tevet), 7th yr of Xerxes I."
+RETURN FROM EXILE & SECOND TEMPLE,Deliverance of the Jews - first Purim,473 BC,-473,,12,Adar,13-14,DAY (month+day),Scriptural,Biblical,"Est 3:7; 9:1,17-19","13th-14th of Adar, 12th yr of Xerxes I."
+RETURN FROM EXILE & SECOND TEMPLE,Ezra returns to Jerusalem,458 BC,-458,,1,Nisan,1,DAY (month+day),Scriptural,Biblical,Ezra 7:7-9,"7th yr of Artaxerxes I; departs 1 Nisan, arrives 1 Av. (Candidate start of Daniel's 70 weeks.)"
+RETURN FROM EXILE & SECOND TEMPLE,Nehemiah's decree to rebuild Jerusalem,445 BC,-445,,1,Nisan,,MONTH,Scriptural,Biblical,Neh 2:1,"20th yr of Artaxerxes I, month Nisan. (Candidate start of Daniel's 70 weeks.)"
+RETURN FROM EXILE & SECOND TEMPLE,Jerusalem's wall completed (52 days),445 BC,-445,,6,Elul,25,DAY (month+day),Scriptural,Biblical,Neh 6:15,25th of Elul (6th month).
+RETURN FROM EXILE & SECOND TEMPLE,Ezra reads the Law; Feast of Tabernacles,445 BC,-445,,7,Tishri,1,DAY (month+day),Scriptural,Biblical,Neh 7:73-8:18,"1st day of the 7th month - only ~5 days after the wall (25 Elul -> 1 Tishri), SAME year 445."
+RETURN FROM EXILE & SECOND TEMPLE,Nehemiah's second term as governor,433 BC,-433,,,,,YEAR,Scriptural,Biblical,Neh 13:6,32nd yr of Artaxerxes I.
+RETURN FROM EXILE & SECOND TEMPLE,Malachi prophesies; OT canon closes,430 BC,-430,,,,,YEAR (approx),Scriptural,Biblical,Malachi,End of the Hebrew prophetic record.
+"INTERTESTAMENTAL, MACCABEES & ROME",Alexander the Great conquers the Persian Empire,331 BC,-331,,,,,YEAR,Historical,Extra-biblical,"1 Macc 1:1-7; Dan 8,11",Gaugamela 331 (Issus 333).
+"INTERTESTAMENTAL, MACCABEES & ROME",Alexander dies; empire split among the Diadochi,323 BC,-323,,,,,YEAR,Historical,Extra-biblical,1 Macc 1:7-9; Dan 8:8,
+"INTERTESTAMENTAL, MACCABEES & ROME",Ptolemaic rule over Judea (Battle of Ipsus),301 BC,-301,,,,,YEAR,Historical,Extra-biblical,Josephus,Judea under Egypt's Ptolemies ~a century.
+"INTERTESTAMENTAL, MACCABEES & ROME",Septuagint (LXX) translation begins in Alexandria,250 BC,-250,,,,,YEAR (approx),Historical,Extra-biblical,Letter of Aristeas,Torah into Greek (~250s BC).
+"INTERTESTAMENTAL, MACCABEES & ROME",Seleucid rule over Judea (Battle of Panium),200 BC,-200,,,,,YEAR,Historical,Extra-biblical,Josephus; Dan 11:15-16,Antiochus III takes Judea from the Ptolemies.
+"INTERTESTAMENTAL, MACCABEES & ROME",Antiochus IV Epiphanes accedes,175 BC,-175,,,,,YEAR,Historical,Extra-biblical,1 Macc 1:10; Dan 11:21,The persecutor-king.
+"INTERTESTAMENTAL, MACCABEES & ROME",Antiochus IV plunders the Temple,169 BC,-169,,,,,YEAR,Historical,Extra-biblical,1 Macc 1:20-24; 2 Macc 5,
+"INTERTESTAMENTAL, MACCABEES & ROME",Abomination of desolation; Maccabean revolt begins,167 BC,-167,,9,Kislev,15-25,DAY (month+day),Historical,Extra-biblical,1 Macc 1:54-59; Dan 11:31,Altar to Zeus 15 Kislev; sacrifice 25 Kislev. Mattathias revolts at Modein.
+"INTERTESTAMENTAL, MACCABEES & ROME",Mattathias dies; Judas Maccabeus leads,166 BC,-166,,,,,YEAR,Historical,Extra-biblical,1 Macc 2:49-70,
+"INTERTESTAMENTAL, MACCABEES & ROME",Temple rededicated - FIRST HANUKKAH,164 BC,-164,,9,Kislev,25,DAY (month+day),Historical,Extra-biblical,1 Macc 4:52-59; John 10:22,"25th of Kislev, 148 SE. Origin of Chanukkah (8 days)."
+"INTERTESTAMENTAL, MACCABEES & ROME",Death of Antiochus IV Epiphanes,164 BC,-164,,,,,YEAR,Historical,Extra-biblical,1 Macc 6:1-16,
+"INTERTESTAMENTAL, MACCABEES & ROME",Judas Maccabeus killed at Elasa; Jonathan succeeds,160 BC,-160,,,,,YEAR,Historical,Extra-biblical,1 Macc 9:1-22,
+"INTERTESTAMENTAL, MACCABEES & ROME",Jonathan becomes high priest,152 BC,-152,,,,,YEAR,Historical,Extra-biblical,1 Macc 10:18-21,
+"INTERTESTAMENTAL, MACCABEES & ROME",Judean independence under Simon,142 BC,-142,,,,,YEAR,Historical,Extra-biblical,1 Macc 13:41-42,Hasmonean state; Seleucid yoke removed.
+"INTERTESTAMENTAL, MACCABEES & ROME","Simon confirmed high priest, ethnarch & leader",140 BC,-140,,,,,YEAR,Historical,Extra-biblical,1 Macc 14:41,Hasmonean dynasty established.
+"INTERTESTAMENTAL, MACCABEES & ROME",Simon murdered; John Hyrcanus I begins,134 BC,-134,,,,,YEAR,Historical,Extra-biblical,1 Macc 16; Josephus,Height of Hasmonean expansion.
+"INTERTESTAMENTAL, MACCABEES & ROME",Pompey captures Jerusalem - Roman rule begins,63 BC,-63,,,,,YEAR,Historical,Extra-biblical,Josephus Ant. 14,Enters the Holy of Holies.
+"INTERTESTAMENTAL, MACCABEES & ROME",Battle of Pharsalus; Caesar defeats Pompey,48 BC,-48,,,,,YEAR,Historical,Extra-biblical,Caesar; Josephus,"Pompey flees to Egypt, is killed."
+"INTERTESTAMENTAL, MACCABEES & ROME",Caesar rewards Antipater; Herod made governor of Galilee,47 BC,-47,,,,,YEAR,Historical,Extra-biblical,Josephus Ant. 14.137-143,"Caesar confirms Hyrcanus II, makes Antipater procurator of Judea and Herod governor of Galilee - the Herodian launch."
+"INTERTESTAMENTAL, MACCABEES & ROME",Julius Caesar assassinated (Ides of March),44 BC,-44,,3,,15,DAY (Julian),Historical,Extra-biblical,Suetonius; Josephus,15 March 44 BC.
+"INTERTESTAMENTAL, MACCABEES & ROME",Roman Senate declares Herod 'King of the Jews',40 BC,-40,,,,,YEAR,Historical,Extra-biblical,Josephus Ant. 14.381-385,Parthians install Antigonus; Rome backs Herod.
+"INTERTESTAMENTAL, MACCABEES & ROME",Herod the Great takes Jerusalem (reigns as king),37 BC,-37,,,,,YEAR,Historical,Extra-biblical,Josephus Ant. 14-15,Defeats Antigonus.
+"INTERTESTAMENTAL, MACCABEES & ROME",Battle of Actium; Octavian defeats Antony & Cleopatra,31 BC,-31,,,,,YEAR,Historical,Extra-biblical,Roman history,2 Sep 31 BC.
+"INTERTESTAMENTAL, MACCABEES & ROME",Octavian becomes Augustus - first Roman emperor,27 BC,-27,,,,,YEAR,Scriptural,Extra-biblical,Luke 2:1,The 'Caesar Augustus' of the nativity census.
+"INTERTESTAMENTAL, MACCABEES & ROME",Herod begins rebuilding/expanding the Second Temple,19 BC,-19,,,,,YEAR,Historical,Extra-biblical,Josephus Ant. 15.380; John 2:20,18th yr of Herod; the '46 years' of John 2:20 count from here.
+LIFE OF JESUS,Birth of Jesus,5 BC,-5,,7,Tishri (traditional),,SEASON (given),Scriptural,Given/Biblical,Luke 2; Matt 2 (user anchor),Autumn 5 BC (traditional Tishri/Sukkot). Before Herod's death.
+LIFE OF JESUS,Death of Herod the Great,4 BC,-4,,,,,YEAR,Historical,Extra-biblical,Josephus Ant. 17.191,Constrains the nativity (Matt 2:19). (Minority view: 1 BC.)
+LIFE OF JESUS,Return from Egypt; Archelaus ethnarch of Judea,4 BC,-4,,,,,YEAR,Scriptural,Biblical,Matt 2:22,Archelaus rules Judea 4 BC-AD 6.
+LIFE OF JESUS,Judea becomes a Roman province; census of Quirinius,AD 6,6,,,,,YEAR,Historical,Extra-biblical,Luke 2:2; Josephus,Archelaus deposed. (Luke 2:2 dating debated.)
+LIFE OF JESUS,"Jesus at the Temple, age 12",AD 8,8,,,,,YEAR,Scriptural,Biblical,Luke 2:42,5 BC birth + 12 (no year 0) = AD 8.
+LIFE OF JESUS,Pontius Pilate becomes prefect of Judea,AD 26,26,,,,,YEAR,Historical,Extra-biblical,Josephus; Tacitus,Prefect AD 26-36.
+LIFE OF JESUS,Jesus' public ministry begins,AD 26,26,,,,,SEASON (given),Scriptural,Given/Biblical,"Luke 3:1,23 (user anchor)","Autumn AD 26. 'About thirty' (5 BC->AD 26 = ~30). John the Baptist, 15th yr of Tiberius."
+PROPHETIC MARKERS (interpretive),Daniel's 70 weeks: 483 yrs from decree to Messiah,AD 26,26,,,,,INTERPRETIVE,Traditional,Biblical,Dan 9:24-27,Ezra's decree (458 BC) plus Daniel's 483 years lands squarely on AD 26 — the very year the ministry opens (Dan 9:25).
+LIFE OF JESUS,First Passover of the ministry,AD 27,27,,1,Nisan,,MONTH,Scriptural,Biblical,"John 2:13,20",Spring AD 27. Temple '46 years' (from 19 BC) lands here.
+LIFE OF JESUS,"Crucifixion, death & burial (and resurrection)",AD 30,30,,1,Nisan,14-15,DAY (given),Scriptural,Given/Biblical,Passover; user anchor,"Passover, spring AD 30 (Nisan 14-15; common fit Fri 7 Apr AD 30). Ministry ~3.5 yrs. Age ~33-34."
+LIFE OF JESUS,Pentecost - birth of the Church,AD 30,30,,3,Sivan,6,DAY (month+day),Scriptural,Biblical,Acts 2:1,"Shavuot, 50 days after the resurrection."
+APOSTOLIC AGE,Stephen martyred; conversion of Saul (Paul),AD 34,34,,,,,YEAR (approx),Scriptural,Biblical,Acts 7-9,~AD 34-36 (back-calc from Gal 1-2).
+APOSTOLIC AGE,Paul's first visit to Jerusalem (after 3 yrs),AD 37,37,,,,,YEAR (approx),Scriptural,Biblical,Gal 1:18; Acts 9:26,"Also: Tiberius dies, Caligula emperor (AD 37)."
+APOSTOLIC AGE,Herod Agrippa I dies; James (son of Zebedee) martyred,AD 44,44,,,,,YEAR,Historical,Biblical,"Acts 12:2,23; Josephus Ant. 19.343",Struck down at Caesarea for taking God's glory (Acts 12:23; Josephus Ant. 19) — the same season he beheads James and imprisons Peter.
+APOSTOLIC AGE,Paul's first missionary journey,AD 47,47,,,,,YEAR (approx),Scriptural,Biblical,Acts 13-14,"~AD 46-48 (Cyprus, Galatia)."
+APOSTOLIC AGE,Council of Jerusalem; Claudius expels Jews from Rome,AD 49,49,,,,,YEAR,Historical,Biblical,Acts 15; 18:2; Suetonius,Claudius's expulsion (~49) is externally dated.
+APOSTOLIC AGE,"Paul before Gallio, proconsul of Achaia (Corinth)",AD 51,51,,,,,YEAR,Historical,Biblical,Acts 18:12; Delphi inscription,THE anchor of Pauline chronology: Gallio's proconsulship AD 51-52.
+APOSTOLIC AGE,Paul's third journey; ~3 years in Ephesus,AD 54,54,,,,,YEAR (approx),Scriptural,Biblical,Acts 19,~AD 52-57.
+APOSTOLIC AGE,Paul arrested in Jerusalem,AD 57,57,,,,,YEAR (approx),Scriptural,Biblical,Acts 21:33,Begins 2 yrs' custody in Caesarea.
+APOSTOLIC AGE,Festus succeeds Felix; Paul appeals to Caesar,AD 59,59,,,,,YEAR,Scriptural,Biblical,Acts 24:27; 25:11,~AD 59.
+APOSTOLIC AGE,Paul reaches Rome; 2 yrs under house arrest,AD 60,60,,,,,YEAR (approx),Scriptural,Biblical,"Acts 28:16,30",Shipwreck en route (Acts 27); house arrest AD 60-62.
+APOSTOLIC AGE,James the Just (brother of Jesus) martyred,AD 62,62,,,,,YEAR,Historical,Extra-biblical,Josephus Ant. 20.200,Stoned on the high priest Ananus's order in the gap between the governors Festus and Albinus (Josephus Ant. 20.200).
+APOSTOLIC AGE,Great Fire of Rome; Neronian persecution begins,AD 64,64,,,,,YEAR,Historical,Extra-biblical,"Tacitus, Annals 15","Nero pins the blaze on the Christians; the persecution that will take Peter and Paul begins (Tacitus, Annals 15)."
+APOSTOLIC AGE,Martyrdoms of Peter and Paul in Rome,AD 66,66,,,,,YEAR (traditional),Traditional,Extra-biblical,Church tradition (Eusebius; 1 Clement),"~AD 64-67 under Nero. Peter crucified, Paul beheaded."
+APOSTOLIC AGE,First Jewish-Roman War (Great Revolt) begins,AD 66,66,,,,,YEAR,Historical,Extra-biblical,"Josephus, Wars 2",
+APOSTOLIC AGE,Nero dies; Year of the Four Emperors,AD 68,68,,,,,YEAR,Historical,Extra-biblical,Roman history,Vespasian emerges (emperor AD 69).
+FALL OF JERUSALEM & THE APOSTLE JOHN,2nd Temple destroyed,AD 70,70,3841,5,Av,9-10,DAY (month+day),Historical,Biblical,"Josephus, Wars 6 (AD 70)","Josephus, Wars 6; Titus. Same calendar date (Tisha B'Av) as the First Temple."
+FALL OF JERUSALEM & THE APOSTLE JOHN,Masada falls; the Great Revolt ends,AD 73,73,,,,,YEAR,Historical,Extra-biblical,"Josephus, Wars 7",Last Zealot holdout.
+FALL OF JERUSALEM & THE APOSTLE JOHN,John writes his Gospel and epistles (Ephesus),AD 90,90,,,,,YEAR (traditional),Traditional,Extra-biblical,Church tradition (Irenaeus),~AD 85-95.
+FALL OF JERUSALEM & THE APOSTLE JOHN,John exiled to Patmos; writes Revelation,AD 95,95,,,,,YEAR (traditional),Traditional,Biblical,Rev 1:9; Irenaeus 5.30,"~AD 95-96, reign of Domitian. Minority view: Neronian ~AD 68."
+FALL OF JERUSALEM & THE APOSTLE JOHN,Death of the Apostle John at Ephesus,AD 99,99,,,,,YEAR (traditional),Traditional,Extra-biblical,Church tradition,~AD 98-100. Last surviving apostle; close of the apostolic age.
+JUDGES,Othniel,1405 BC,-1405,,,,,YEAR,Relative,Judge,Judg 3:9-11,Caleb's kin; routs Cushan-Rishathaim of Aram. The land rests 40 years.
+JUDGES,Ehud,1325 BC,-1325,,,,,YEAR,Relative,Judge,Judg 3:15-30,The left-handed Benjamite slays fat Eglon of Moab. The land rests 80 years.
+JUDGES,Shamgar,1285 BC,-1285,,,,,YEAR,Relative,Judge,Judg 3:31,Strikes down 600 Philistines with an ox-goad.
+JUDGES,Deborah & Barak,1285 BC,-1285,,,,,YEAR,Relative,Judge,Judg 4-5,The prophetess and her captain break Sisera at the Kishon. The land rests 40 years.
+JUDGES,Gideon,1245 BC,-1245,,,,,YEAR,Relative,Judge,Judg 6-8,300 men with trumpets and torches scatter Midian. The land rests 40 years.
+JUDGES,Abimelech,1236 BC,-1236,,,,,YEAR,Relative,Judge,Judg 9,Gideon's son crowns himself at Shechem and rules 3 brutal years.
+JUDGES,Tola,1233 BC,-1233,,,,,YEAR,Relative,Judge,Judg 10:1-2,Of Issachar; judges Israel 23 years.
+JUDGES,Jair,1210 BC,-1210,,,,,YEAR,Relative,Judge,Judg 10:3-5,"The Gileadite; judges 22 years, with thirty sons on thirty donkeys."
+JUDGES,Jephthah,1143 BC,-1143,,,,,YEAR,Relative,Judge,Judg 11-12,"The outcast Gileadite beats Ammon, then is bound by his rash vow. Judges 6 years."
+JUDGES,Ibzan,1137 BC,-1137,,,,,YEAR,Relative,Judge,Judg 12:8-10,Of Bethlehem; judges 7 years.
+JUDGES,Elon,1130 BC,-1130,,,,,YEAR,Relative,Judge,Judg 12:11-12,The Zebulunite; judges 10 years.
+JUDGES,Abdon,1120 BC,-1120,,,,,YEAR,Relative,Judge,Judg 12:13-15,The Pirathonite; judges 8 years.
+JUDGES,Samson,1117 BC,-1117,,,,,YEAR,Relative,Judge,Judg 13-16,"Nazirite of Dan; 20 years of one-man war on the Philistines, ended by Delilah and Dagon's temple."
+JUDGES,Samuel judges Israel,1100 BC,-1100,,,,,YEAR,Relative,Judge,1 Sam 3-7,The last judge and first of the prophets; Israel puts away its idols and routs the Philistines at Mizpah.
+UNITED MONARCHY,Nathan the prophet,1042 BC,-1042,,,,,YEAR,Relative,Prophet,2 Sam 7; 12,"Bears God's covenant with David's house, then confronts him over Bathsheba: 'Thou art the man.'"
+DIVIDED MONARCHY,Rehoboam of Judah,975 BC,-975,,,,,YEAR,Relative,Reign (Judah),1 Kings 12; 14:21,Solomon's son; his harsh word at Shechem tears ten tribes away. Reigns 17 years.
+DIVIDED MONARCHY,Abijah of Judah,958 BC,-958,,,,,YEAR,Relative,Reign (Judah),1 Kings 15:1-8; 2 Chr 13,"Wars with Jeroboam and prevails, trusting the LORD. Reigns 3 years."
+DIVIDED MONARCHY,Asa of Judah,955 BC,-955,,,,,YEAR,Relative,Reign (Judah),1 Kings 15:9-24,A good king who tears down idols and is healed of none of his foot disease. Reigns 41 years.
+DIVIDED MONARCHY,Jehoshaphat of Judah,914 BC,-914,,,,,YEAR,Relative,Reign (Judah),1 Kings 22; 2 Chr 17-20,"Godly and reforming, but yokes himself to Ahab's house by marriage. Reigns 25 years."
+DIVIDED MONARCHY,Jehoram of Judah,889 BC,-889,,,,,YEAR,Relative,Reign (Judah),2 Kings 8:16-24,Marries Athaliah of Ahab's line and walks in Israel's ways. Reigns 8 years.
+DIVIDED MONARCHY,Ahaziah of Judah,885 BC,-885,,,,,YEAR,Relative,Reign (Judah),2 Kings 8:25-29; 9:27,Grandson of Ahab through his mother Athaliah; killed by Jehu in the great purge after one year.
+DIVIDED MONARCHY,Athaliah usurps Judah,884 BC,-884,,,,,YEAR,Relative,Reign (Judah),2 Kings 11,Ahab's daughter murders the royal seed and seizes the throne 6 years — the one break in David's line.
+DIVIDED MONARCHY,Joash of Judah,878 BC,-878,,,,,YEAR,Relative,Reign (Judah),2 Kings 11-12,"Hidden as an infant by his aunt Jehosheba, crowned at seven by Jehoiada the priest; repairs the Temple, then falls after the priest dies. 40 years."
+DIVIDED MONARCHY,Amaziah of Judah,839 BC,-839,,,,,YEAR,Relative,Reign (Judah),2 Kings 14:1-20,"Defeats Edom, then provokes Israel and is beaten at Beth-shemesh. Reigns 29 years."
+DIVIDED MONARCHY,Uzziah of Judah,810 BC,-810,,,,,YEAR,Relative,Reign (Judah),2 Kings 15:1-7; 2 Chr 26,"A long, strong reign undone when he burns incense unlawfully and is struck with leprosy. 52 years."
+DIVIDED MONARCHY,Jotham of Judah,758 BC,-758,,,,,YEAR,Relative,Reign (Judah),2 Kings 15:32-38; 2 Chr 27,Builds and grows mighty because he orders his ways before the LORD. Reigns 16 years.
+DIVIDED MONARCHY,Ahaz of Judah,742 BC,-742,,,,,YEAR,Relative,Reign (Judah),2 Kings 16; Isa 7,Sacrifices his son and strips the Temple to buy Assyria's help; Isaiah gives him the Immanuel sign. 16 years.
+DIVIDED MONARCHY,Hezekiah of Judah,726 BC,-726,,,,,YEAR,Relative,Reign (Judah),2 Kings 18-20; Isa 36-39,"Cleanses the Temple, defies Assyria and is given 15 added years. Reigns 29 years."
+DIVIDED MONARCHY,Manasseh of Judah,697 BC,-697,,,,,YEAR,Relative,Reign (Judah),2 Kings 21:1-18; 2 Chr 33,Judah's longest and most wicked reign — 55 years — yet he repents in a Babylonian prison.
+DIVIDED MONARCHY,Amon of Judah,642 BC,-642,,,,,YEAR,Relative,Reign (Judah),2 Kings 21:19-26,Returns to his father's idols; his own servants kill him after 2 years.
+DIVIDED MONARCHY,Josiah of Judah,640 BC,-640,,,,,YEAR,Relative,Reign (Judah),2 Kings 22-23,"The great reformer; the Book of the Law is found in his 18th year. Reigns 31 years, then falls at Megiddo."
+DIVIDED MONARCHY,Jehoahaz of Judah,609 BC,-609,,,,,YEAR,Relative,Reign (Judah),2 Kings 23:31-34,Reigns 3 months before Pharaoh Necho carries him to Egypt.
+DIVIDED MONARCHY,Jehoiakim of Judah,609 BC,-609,,,,,YEAR,Relative,Reign (Judah),2 Kings 23:34-24:7; Jer 36,Necho's puppet who burns Jeremiah's scroll; Babylon makes him a vassal. Reigns 11 years.
+DIVIDED MONARCHY,Jehoiachin of Judah,598 BC,-598,,,,,YEAR,Relative,Reign (Judah),2 Kings 24:8-16,"Reigns 3 months, then is carried to Babylon with the craftsmen and treasures (the first great deportation)."
+DIVIDED MONARCHY,Zedekiah of Judah,597 BC,-597,,,,,YEAR,Relative,Reign (Judah),2 Kings 24:17-25:7; Jer 39,The last king; rebels against Babylon and watches his sons die before his eyes are put out. 11 years to the fall.
+DIVIDED MONARCHY,Jeroboam I of Israel,975 BC,-975,,,,,YEAR,Relative,Reign (Israel),1 Kings 12:20-14:20,First king of the north; sets up golden calves at Bethel and Dan 'lest the people go up to Jerusalem.' 22 years.
+DIVIDED MONARCHY,Nadab of Israel,954 BC,-954,,,,,YEAR,Relative,Reign (Israel),1 Kings 15:25-31,"Jeroboam's son; struck down by Baasha, ending the first dynasty. 2 years."
+DIVIDED MONARCHY,Baasha of Israel,953 BC,-953,,,,,YEAR,Relative,Reign (Israel),1 Kings 15:33-16:7,Wipes out Jeroboam's house and reigns 24 years in the same sins.
+DIVIDED MONARCHY,Elah of Israel,930 BC,-930,,,,,YEAR,Relative,Reign (Israel),1 Kings 16:8-14,Baasha's son; murdered drunk by his chariot captain Zimri. 2 years.
+DIVIDED MONARCHY,Zimri of Israel,929 BC,-929,,,,,YEAR,Relative,Reign (Israel),1 Kings 16:15-20,"Reigns 7 days, then burns the palace over himself when Omri closes in."
+DIVIDED MONARCHY,Omri of Israel,929 BC,-929,,,,,YEAR,Relative,Reign (Israel),1 Kings 16:21-28,Founds Samaria as capital and a lasting dynasty; 'did worse than all before him.' 12 years.
+DIVIDED MONARCHY,Ahab of Israel,918 BC,-918,,,,,YEAR,Relative,Reign (Israel),1 Kings 16:29-22:40,Marries Jezebel and enthrones Baal; the great foil of Elijah. 22 years.
+DIVIDED MONARCHY,Ahaziah of Israel,897 BC,-897,,,,,YEAR,Relative,Reign (Israel),1 Kings 22:51-2 Kings 1,Falls through a lattice and sends to Baal-zebub instead of God; dies as Elijah foretold. 2 years.
+DIVIDED MONARCHY,Joram of Israel,896 BC,-896,,,,,YEAR,Relative,Reign (Israel),2 Kings 3; 9:14-26,"Ahab's son; slain by Jehu at Naboth's field, ending the house of Omri. 12 years."
+DIVIDED MONARCHY,Jehoahaz of Israel,856 BC,-856,,,,,YEAR,Relative,Reign (Israel),2 Kings 13:1-9,Jehu's son; Israel ground down to almost nothing under Aram. 17 years.
+DIVIDED MONARCHY,Jehoash of Israel,839 BC,-839,,,,,YEAR,Relative,Reign (Israel),2 Kings 13:10-25,Weeps over dying Elisha and wins three victories over Aram. 16 years.
+DIVIDED MONARCHY,Jeroboam II of Israel,825 BC,-825,,,,,YEAR,Relative,Reign (Israel),2 Kings 14:23-29; Amos,"Restores Israel's borders in a long, prosperous, and idolatrous reign — the age of Amos and Hosea. 41 years."
+DIVIDED MONARCHY,Zechariah of Israel,773 BC,-773,,,,,YEAR,Relative,Reign (Israel),2 Kings 15:8-12,Jehu's line ends in the fourth generation exactly as promised (2 Kings 10:30); after the anarchy that follows Jeroboam II he is slain within six months.
+DIVIDED MONARCHY,Shallum of Israel,772 BC,-772,,,,,YEAR,Relative,Reign (Israel),2 Kings 15:13-15,Reigns one month before Menahem cuts him down.
+DIVIDED MONARCHY,Menahem of Israel,772 BC,-772,,,,,YEAR,Relative,Reign (Israel),2 Kings 15:16-22,Buys off Assyria's Pul with silver wrung from the land. 10 years.
+DIVIDED MONARCHY,Pekahiah of Israel,761 BC,-761,,,,,YEAR,Relative,Reign (Israel),2 Kings 15:23-26,Menahem's son; killed by his officer Pekah. 2 years.
+DIVIDED MONARCHY,Pekah of Israel,759 BC,-759,,,,,YEAR,Relative,Reign (Israel),2 Kings 15:27-31; Isa 7,Allies with Aram against Judah in the Syro-Ephraimite war; loses Galilee and Gilead to Assyria. His 20 years (2 Kings 15:27) overlap the last northern kings before Hoshea conspires and kills him.
+DIVIDED MONARCHY,Hoshea of Israel,730 BC,-730,,,,,YEAR,Relative,Reign (Israel),2 Kings 17:1-6,"The last northern king; his revolt brings Shalmaneser, and after 9 years Samaria falls."
+DIVIDED MONARCHY,Ahijah the Shilonite,975 BC,-975,,,,,YEAR,Relative,Prophet,1 Kings 11:29-39; 14,"Tears his cloak in twelve pieces to foretell the split, then dooms Jeroboam's house."
+DIVIDED MONARCHY,Shemaiah the prophet,971 BC,-971,,,,,YEAR,Relative,Prophet,1 Kings 12:22-24; 2 Chr 12,Halts Rehoboam's war on the north — 'this thing is from Me' — and later reads Judah Shishak's judgment.
+DIVIDED MONARCHY,Elijah the Tishbite,910 BC,-910,,,,,YEAR,Relative,Prophet,1 Kings 17-19,"Shuts up heaven three years, calls fire on Carmel, and is taken up in a whirlwind. The great foe of Baal."
+DIVIDED MONARCHY,Elijah on Mount Carmel,906 BC,-906,,,,,YEAR,Relative,Prophet,1 Kings 18,"Alone against 450 prophets of Baal, he calls down fire and turns the people back: 'The LORD, He is God.'"
+DIVIDED MONARCHY,Micaiah son of Imlah,897 BC,-897,,,,,YEAR,Relative,Prophet,1 Kings 22,Alone foretells Ahab's death at Ramoth-gilead against 400 flattering prophets.
+DIVIDED MONARCHY,Elisha the prophet,895 BC,-895,,,,,YEAR,Relative,Prophet,1 Kings 19:19; 2 Kings 2-13,"Takes up Elijah's mantle and a double portion; heals, raises the dead, and topples kings for 50 years."
+DIVIDED MONARCHY,Obadiah the prophet,887 BC,-887,,,,,YEAR,Relative,Prophet,Obadiah,The shortest book: Edom is doomed for gloating over fallen Jacob.
+DIVIDED MONARCHY,Joel the prophet,800 BC,-800,,,,,YEAR,Relative,Prophet,Joel 2:28-32,Reads a locust plague as the Day of the LORD and foretells the Spirit poured out on all flesh.
+DIVIDED MONARCHY,Jonah of Gath-hepher,790 BC,-790,,,,,YEAR,Relative,Prophet,2 Kings 14:25; Jonah,"Flees his call, is swallowed and spared, then watches Nineveh repent to his dismay."
+DIVIDED MONARCHY,Amos of Tekoa,787 BC,-787,,,,,YEAR,Relative,Prophet,Amos 1:1,A herdsman sent north 'two years before the earthquake' to thunder against Israel's ease and injustice.
+DIVIDED MONARCHY,Hosea the prophet,785 BC,-785,,,,,YEAR,Relative,Prophet,Hosea 1-3,Marries the unfaithful Gomer as a living parable of the LORD's love for wayward Israel.
+DIVIDED MONARCHY,Isaiah son of Amoz,758 BC,-758,,,,,YEAR,Relative,Prophet,Isa 1:1; 6,Sees the LORD high and lifted up in Uzziah's death-year; prophet of the Holy One and the coming Servant.
+DIVIDED MONARCHY,Micah of Moresheth,750 BC,-750,,,,,YEAR,Relative,Prophet,Micah 1:1; 5:2,"Names Bethlehem as the ruler's birthplace and asks only to do justly, love mercy, and walk humbly."
+DIVIDED MONARCHY,Nahum the Elkoshite,713 BC,-713,,,,,YEAR,Relative,Prophet,Nahum 1-3,"Generations after Jonah spared Nineveh, he pronounces its ruin: the LORD is slow to anger but will not acquit the guilty."
+DIVIDED MONARCHY,Zephaniah the prophet,630 BC,-630,,,,,YEAR,Relative,Prophet,Zeph 1:1,Kinsman of the kings; heralds the Day of the LORD in Josiah's reign and calls Judah to seek meekness.
+DIVIDED MONARCHY,Jeremiah's call,627 BC,-627,,,,,YEAR,Relative,Prophet,Jer 1:2,Called in Josiah's 13th year as 'a prophet to the nations'; weeps over Judah for forty years to the fall.
+DIVIDED MONARCHY,Habakkuk the prophet,607 BC,-607,,,,,YEAR,Relative,Prophet,Hab 1-2,"Wrestles with why God would use Babylon, and is answered: 'the just shall live by his faith.'"
+DIVIDED MONARCHY,Jeroboam's golden calves at Bethel & Dan,974 BC,-974,,,,,YEAR,Relative,Apostasy,1 Kings 12:26-33,"The north's founding sin: two calves 'lest the people go up to Jerusalem,' a snare to Israel for good."
+DIVIDED MONARCHY,Jehu of Israel,884 BC,-884,,,,,YEAR,Relative,Reign (Israel),2 Kings 9-10; 10:36,Anointed to wipe out Baal and the house of Ahab; the LORD grants his line four generations. Reigns 28 years.
+DIVIDED MONARCHY,Elijah and the widow of Zarephath,908 BC,-908,,,,,YEAR,Relative,Miracle,1 Kings 17:8-24,"Through the famine her jar of meal and cruse of oil never fail, and her dead son is raised — mercy to a Gentile in Baal's own country."
+DIVIDED MONARCHY,Naboth's vineyard seized,899 BC,-899,,,,,YEAR,Relative,Injustice,1 Kings 21,Jezebel has Naboth stoned so Ahab can take his vineyard; Elijah pronounces the doom that Jehu will one day execute on this very ground.
+DIVIDED MONARCHY,Elijah taken up in a whirlwind,895 BC,-895,,,,,YEAR,Relative,Miracle,2 Kings 2:1-14,"Fire and horses part the two prophets; Elijah ascends, and Elisha takes up the fallen mantle with a double portion."
+DIVIDED MONARCHY,Naaman the Syrian healed by Elisha,890 BC,-890,,,,,YEAR,Relative,Miracle,2 Kings 5,The Aramean commander dips seven times in the Jordan and his leprosy is gone — a sign the God of Israel is God of all.
+DIVIDED MONARCHY,The great earthquake in Uzziah's days,785 BC,-785,,,,,YEAR,Relative,Portent,Amos 1:1; Zech 14:5,So violent it is remembered for centuries; Amos dates his oracles 'two years' before it.
+DIVIDED MONARCHY,Isaiah gives Ahaz the Immanuel sign,734 BC,-734,,,,,YEAR,Relative,Prophecy,Isa 7; 2 Kings 16:5,"As Aram and Israel besiege Jerusalem, Isaiah promises the faithless king a sign: a virgin shall conceive and bear Immanuel."
+DIVIDED MONARCHY,Hezekiah's great Passover,726 BC,-726,,,,,YEAR,Relative,Reform,2 Chr 30,He reopens the cleansed Temple and summons all Israel — even the north — to a Passover unmatched since Solomon.
+DIVIDED MONARCHY,Hezekiah's illness; fifteen years added,712 BC,-712,,,,,YEAR,Relative,Miracle,2 Kings 20; Isa 38,"Sick unto death, he turns his face to the wall and weeps; God adds fifteen years and turns the shadow back on the dial."
+DIVIDED MONARCHY,Hezekiah's tunnel to the Siloam pool,710 BC,-710,,,,,YEAR,Relative,Reign (Judah),2 Kings 20:20; 2 Chr 32:30,Ahead of the siege he cuts an aqueduct through solid rock to bring the Gihon spring inside the walls.
+DIVIDED MONARCHY,Manasseh's captivity and repentance,677 BC,-677,,,,,YEAR,Relative,Reign (Judah),2 Chr 33:11-13,"Judah's worst king is dragged to Babylon with hooks; there he humbles himself, and God restores him — the sharpest picture of grace in the monarchy."
+DIVIDED MONARCHY,Huldah the prophetess authenticates the Law,622 BC,-622,,,,,YEAR,Relative,Prophet,2 Kings 22:14-20,"When the lost scroll is found, Josiah's men go to Huldah; she confirms the coming judgment but promises the king will die in peace."
+DIVIDED MONARCHY,Josiah's great Passover,622 BC,-622,,,,,YEAR,Relative,Reform,2 Kings 23:21-23,No Passover like it had been kept since the days of the judges — the high point of the last reformation before the fall.
+DIVIDED MONARCHY,Jehoiakim burns Jeremiah's scroll,604 BC,-604,,,,,YEAR,Relative,Prophecy,Jer 36,"Column by column the king slices the prophet's warnings into the brazier — so Jeremiah dictates them again, with more added."
+UNITED MONARCHY,David defeats Goliath,1063 BC,-1063,,,,,YEAR,Relative,Deliverance,1 Sam 17,"A shepherd boy with a sling fells the Philistine champion in the Valley of Elah, and Israel's deliverer steps onto the stage."
+JUDGES,Ruth gleans in the field of Boaz,1120 BC,-1120,,,,,YEAR,Relative,Lineage,Ruth 1-4,"'In the days when the judges ruled,' a Moabite widow's loyalty grafts her into Israel — and into the line of David and the Messiah."
+"INTERTESTAMENTAL, MACCABEES & ROME",Ben Sira writes Ecclesiasticus (Sirach),180 BC,-180,,,,,YEAR,Historical,Scripture,Sirach prologue,A Jerusalem sage's book of wisdom; his grandson's Greek preface (132 BC) is one of the few fixed dates in the silent years.
+"INTERTESTAMENTAL, MACCABEES & ROME","Pharisees, Sadducees & Essenes emerge",150 BC,-150,,,,,YEAR,Historical,Sects,Josephus Ant. 13.171-173,Josephus first names the three 'schools' of the Jews — the very parties that will fill the pages of the Gospels.
+"INTERTESTAMENTAL, MACCABEES & ROME",The Essenes settle Qumran,140 BC,-140,,,,,YEAR,Historical,Community,Josephus; Qumran archaeology,A priestly community withdraws to the Dead Sea to keep the Law and await the LORD; their hidden library surfaces in 1947.
+"INTERTESTAMENTAL, MACCABEES & ROME",John Hyrcanus conquers Idumea,128 BC,-128,,,,,YEAR,Historical,Hasmonean,Josephus Ant. 13.257-258,"Hyrcanus subdues Edom and compels the Idumeans to be circumcised as Jews — a century later one of them, Herod, will rule as 'King of the Jews.'"
+"INTERTESTAMENTAL, MACCABEES & ROME",Aristobulus I takes the title 'King',104 BC,-104,,,,,YEAR,Historical,Hasmonean,Josephus Ant. 13.301,"The Maccabean high priests now claim the crown as well — priest and king in one house, against the Law's own separation."
+"INTERTESTAMENTAL, MACCABEES & ROME",Alexander Jannaeus rules; Judea at its height,103 BC,-103,,,,,YEAR,Historical,Hasmonean,Josephus Ant. 13.320,The Hasmonean kingdom reaches its widest borders under a warrior-priest whose cruelty turns the Pharisees against the dynasty.
+"INTERTESTAMENTAL, MACCABEES & ROME",Queen Salome Alexandra reigns in peace,76 BC,-76,,,,,YEAR,Historical,Hasmonean,Josephus Ant. 13.407-432,The one Hasmonean queen; she makes peace with the Pharisees — Judea's last calm before Rome.
+"INTERTESTAMENTAL, MACCABEES & ROME",Civil war: Hyrcanus II vs Aristobulus II,67 BC,-67,,,,,YEAR,Historical,Hasmonean,Josephus Ant. 14.4-79,The brothers' quarrel over throne and altar draws Pompey's Rome into Judea — the fatal invitation.
+"INTERTESTAMENTAL, MACCABEES & ROME",Crassus plunders the Temple treasury,54 BC,-54,,,,,YEAR,Historical,Rome,Josephus Ant. 14.105-109,"On his way to the Parthians who will kill him, the Roman triumvir strips 2,000 talents from the house of God."
+"INTERTESTAMENTAL, MACCABEES & ROME","Antigonus, last Hasmonean king; Parthians take Jerusalem",40 BC,-40,,,,,YEAR,Historical,Hasmonean,Josephus Ant. 14.330-369,The Parthians install the last Maccabee on the throne; Herod flees to Rome — and returns with legions and a crown.
+UNITED MONARCHY,David anointed by Samuel at Bethlehem,1063 BC,-1063,,,,,YEAR,Relative,Anointing,1 Sam 16,"The youngest son, keeping sheep, is anointed in secret — the LORD looks not on the outward appearance but on the heart."
+UNITED MONARCHY,Death of Saul and Jonathan at Gilboa,1055 BC,-1055,,,,,YEAR,Relative,Death,1 Sam 31,"Israel's first king falls on his own sword as the Philistines overrun Mount Gilboa; David laments, 'How are the mighty fallen.'"
+UNITED MONARCHY,David brings the Ark to Jerusalem,1045 BC,-1045,,,,,YEAR,Relative,Worship,2 Sam 6,"Uzzah dies steadying it, and then it comes up with shouting and trumpets as David dances before the LORD with all his might."
+UNITED MONARCHY,The Davidic Covenant,1042 BC,-1042,,,,,YEAR,Relative,Covenant,2 Sam 7; Ps 89,David would build God a house; instead God vows to build David a house — a throne and a Son whose kingdom shall have no end.
+UNITED MONARCHY,David and Bathsheba; Nathan's rebuke,1035 BC,-1035,,,,,YEAR,Relative,Sin & Mercy,2 Sam 11-12,The king takes Uriah's wife and hides murder under adultery; Nathan's parable springs the trap — 'Thou art the man.'
+UNITED MONARCHY,Absalom's rebellion,1023 BC,-1023,,,,,YEAR,Relative,Rebellion,2 Sam 15-18,"David's own son steals the people's hearts and drives him from Jerusalem; the revolt ends with Absalom caught in an oak and a father weeping, 'O Absalom, my son.'"
+UNITED MONARCHY,David numbers Israel; Araunah's threshing floor,1017 BC,-1017,,,,,YEAR,Relative,Judgment,2 Sam 24; 1 Chr 21,"His census brings a plague; where the destroying angel stays his hand, on Araunah's floor, Solomon will one day raise the Temple."
+UNITED MONARCHY,Solomon asks for wisdom at Gibeon,1014 BC,-1014,,,,,YEAR,Relative,Wisdom,1 Kings 3,"Offered anything, the young king asks not for wealth or long life but for a discerning heart — and is given all three."
+UNITED MONARCHY,The Queen of Sheba visits Solomon,992 BC,-992,,,,,YEAR,Relative,Glory,1 Kings 10,She comes to test him with hard questions and leaves overwhelmed: the half of his wisdom and glory had not been told her.
+UNITED MONARCHY,Solomon's foreign wives turn his heart to idolatry,980 BC,-980,,,,,YEAR,Relative,Apostasy,1 Kings 11,A thousand wives and concubines draw the wisest man alive into idolatry; for this the LORD will tear ten tribes from his son.
+APOSTOLIC AGE,Philip and the Ethiopian eunuch,AD 35,35,,,,,YEAR,Scriptural,Mission,Acts 8:26-40,On the Gaza road he baptizes a court official of Ethiopia — the gospel already running toward the ends of the earth.
+APOSTOLIC AGE,Peter and Cornelius; the gospel opens to the Gentiles,AD 40,40,,,,,YEAR,Scriptural,Church,Acts 10-11,The Spirit falls on a Roman centurion's household still uncircumcised; Peter concludes that God shows no partiality.
+APOSTOLIC AGE,Disciples first called 'Christians' at Antioch,AD 43,43,,,,,YEAR,Scriptural,Church,Acts 11:26,In the great mixed church of Antioch the movement is first given the name it will carry ever after.
+APOSTOLIC AGE,Paul's second journey; the gospel enters Europe,AD 50,50,,,,,YEAR,Scriptural,Mission,Acts 16,A vision of a man of Macedonia draws Paul across the Aegean to Philippi — the gospel steps onto European soil.
+APOSTOLIC AGE,Paul writes to the Thessalonians,AD 51,51,,,,,YEAR,Scriptural,Epistle,1-2 Thessalonians,"From Corinth he sends the church's earliest surviving letters, steadying young believers on the return of the Lord."
+APOSTOLIC AGE,Paul writes Romans from Corinth,AD 57,57,,,,,YEAR,Scriptural,Epistle,Romans,On the eve of his last journey to Jerusalem he sets out the gospel in full to a church he has never seen.
+APOSTOLIC AGE,Paul's shipwreck on Malta,AD 60,60,,,,,YEAR,Scriptural,Mission,Acts 27-28,"Fourteen storm-tossed nights end on Malta; unharmed by a viper, the prisoner reaches Rome at last."
+APOSTOLIC AGE,The Synoptic Gospels take written form,AD 62,62,,,,,YEAR,Traditional,Gospel,"Mark, Matthew & Luke",Within a generation of the resurrection the eyewitness accounts are set down for the churches.
+FALL OF JERUSALEM & THE APOSTLE JOHN,Christians flee Jerusalem to Pella,AD 68,68,,,,,YEAR,Traditional,Church,"Eusebius, Hist. Eccl. 3.5","Warned beforehand, the Jerusalem church slips across the Jordan to Pella before Rome closes the ring."
+FALL OF JERUSALEM & THE APOSTLE JOHN,Titus besieges Jerusalem; the great famine,AD 70,70,,,,,YEAR,Historical,Siege,"Josephus, Wars 5-6",Rome's legions ring the city at Passover; within the walls the famine grows too terrible for even Josephus to fully tell.
+FALL OF JERUSALEM & THE APOSTLE JOHN,The Temple treasures carried in Titus's triumph,AD 71,71,,,,,YEAR,Historical,Rome,"Josephus, Wars 7.5",The golden lampstand and table are paraded through Rome — and carved forever onto the Arch of Titus.
+FALL OF JERUSALEM & THE APOSTLE JOHN,Domitian's persecution of the church,AD 95,95,,,,,YEAR,Traditional,Persecution,Eusebius; Rev 1,The emperor who demands to be hailed 'Lord and God' turns on the church — the fire behind John's Revelation.
+FALL OF JERUSALEM & THE APOSTLE JOHN,Clement of Rome writes to Corinth,AD 96,96,,,,,YEAR,Traditional,Church,1 Clement,"The earliest Christian writing outside the New Testament, already pleading for order in a divided church."

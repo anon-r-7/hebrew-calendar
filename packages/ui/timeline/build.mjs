@@ -1,0 +1,234 @@
+#!/usr/bin/env node
+/*
+ * Build the Biblical Timeline page FROM events.csv — the single source of truth.
+ *
+ *   events.csv  +  the metadata below
+ *       -> derive era / colour-group / display fields
+ *       -> inline JSON  ->  template.html  ->  ../src/public/timeline/index.html
+ *
+ * Run:  node timeline/build.mjs      (or: yarn timeline / npm run timeline)
+ * It also runs automatically as part of `yarn build` and `yarn start`.
+ *
+ * Edit events.csv to add/change events; edit ERA_META / TITLE below for the
+ * section titles, blurbs and page title. See README.md for the column guide.
+ *
+ * Pure Node (no dependencies) so it runs anywhere the app builds.
+ */
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
+
+const HERE = dirname(fileURLToPath(import.meta.url))
+const CSV_PATH = join(HERE, 'events.csv')
+const TEMPLATE = join(HERE, 'template.html')
+const OUT = join(HERE, '..', 'src', 'public', 'timeline', 'index.html')
+
+const TITLE = 'Anno Mundi Timeline'
+
+// ---- Section names (must match the 'section' column in events.csv) ----
+const PP = 'PATRIARCHS & PRIMEVAL HISTORY'
+const ATE = 'ABRAHAM TO THE EXODUS'
+const EX = 'EXODUS, WILDERNESS & CONQUEST'
+const JU = 'JUDGES'
+const UM = 'UNITED MONARCHY'
+const DM = 'DIVIDED MONARCHY'
+const BAB = 'BABYLONIAN CONQUEST & EXILE'
+const RET = 'RETURN FROM EXILE & SECOND TEMPLE'
+const IT = 'INTERTESTAMENTAL, MACCABEES & ROME'
+const LJ = 'LIFE OF JESUS'
+const AP = 'APOSTOLIC AGE'
+const JHN = 'FALL OF JERUSALEM & THE APOSTLE JOHN'
+const PM = 'PROPHETIC MARKERS (interpretive)'
+const EZ = "EZEKIEL'S DATED ORACLES"
+
+const ERA_ORDER = ['primeval', 'exodus', 'judges', 'united', 'divided',
+  'exile', 'return', 'between', 'jesus', 'apostolic', 'john']
+
+// ---- Section titles + one-line blurbs (edit these for the on-page headings) ----
+const ERA_META = {
+  primeval: ['Primeval History & the Patriarchs', 'Creation, the Flood, and the fathers of Israel'],
+  exodus: ['Exodus & Conquest', 'Out of Egypt to the Promised Land'],
+  judges: ['The Judges', 'Three centuries of deliverers'],
+  united: ['United Monarchy', 'Saul, David and Solomon'],
+  divided: ['Divided Monarchy', 'Israel and Judah drift apart'],
+  exile: ['Conquest & Exile', 'Babylon and the fall of Jerusalem'],
+  return: ['Return & Second Temple', 'Restoration under Persia'],
+  between: ['Between the Testaments', 'Greece, the Maccabees and Rome'],
+  jesus: ['Life of Jesus', 'Incarnation to resurrection'],
+  apostolic: ['The Apostolic Age', 'The gospel crosses the empire'],
+  john: ['Fall of Jerusalem & John', 'AD 70 and the last apostle'],
+}
+
+const SECTION_TO_ERA = {
+  [PP]: 'primeval', [ATE]: 'primeval', [EX]: 'exodus', [JU]: 'judges', [UM]: 'united', [DM]: 'divided',
+  [BAB]: 'exile', [EZ]: 'exile', [RET]: 'return', [IT]: 'between',
+  [LJ]: 'jesus', [AP]: 'apostolic', [JHN]: 'john',
+}
+
+function eraFor(r) {
+  if (r.section === PM) return r.year_signed < 0 ? 'exile' : 'jesus'
+  return SECTION_TO_ERA[r.section]
+}
+
+function groupOf(name, section) {
+  const n = name.toLowerCase()
+  const has = (...ks) => ks.some(k => n.includes(k))
+  // NB: guard with `! of israel/judah` so king rows (e.g. "Zechariah of Israel") don't match a prophet
+  // name; "nathan the" (not bare "nathan") so "Jonathan" stays Maccabees; "daniel" omitted so the
+  // "FIRST deportation (Daniel & nobility)" reads as judgment like the other deportations.
+  if (!has(' of israel', ' of judah') && has('ezekiel', 'haggai', 'zechariah', 'malachi', '70 weeks',
+    'isaiah', 'jeremiah', 'elijah', 'elisha', 'hosea', 'amos', 'micah', 'micaiah', 'jonah',
+    'nahum', 'habakkuk', 'zephaniah', 'obadiah', 'joel', 'ahijah', 'shemaiah', 'huldah', 'nathan the')) return 'prophet'
+  if (n.includes('temple') && has('begun', 'construction', 'finished', 'complet', 'dedicat', 'foundation', 'rebuild')) return 'temple'
+  // guarded to the intertestamental section so e.g. "Jonathan" (Saul's son) or "Simon Peter" elsewhere don't match
+  if (section === IT && has('hanukkah', 'maccab', 'abomination', 'antiochus', 'judas', 'jonathan', 'simon ', 'mattathias', 'hyrcanus', 'independence', 'aristobulus', 'jannaeus', 'salome', 'antigonus')) return 'maccabees'
+  // NB: 'megiddo' intentionally omitted so Josiah's death reads as a reign event, not judgment.
+  if (has('deportation', 'siege', 'walls breached', 'gedaliah', 'carchemish', 'fall of samaria', 'sennacherib', 'shishak', "jehu's revolt", 'calves', 'naboth', 'earthquake')) return 'judgment'
+
+  if (section === PP || section === ATE) {
+    if (has(' born')) return 'birth'
+    if (has(' dies', 'taken')) return 'death'
+    return 'covenant'
+  }
+  if (section === EX) {
+    if (has('dies')) return 'death'
+    if (has('tabernacle', 'arrival at sinai', 'law')) return 'covenant'
+    if (has('jericho', 'promised land', 'spies', 'kadesh')) return 'conquest'
+    return 'exodus'
+  }
+  if (section === JU) {
+    if (has('ark', 'eli', 'captured')) return 'judgment'
+    return 'deliverer'
+  }
+  if (section === UM) return has('gilboa', 'absalom', 'idolatry', 'foreign wives') ? 'judgment' : 'kingdom'
+  if (section === DM) return 'kingdom'
+  if (section === BAB || section === EZ) return 'judgment'
+  if (section === RET) return 'restoration'
+  if (section === IT && has('pharisee', 'sadducee', 'essene', 'qumran', 'ben sira', 'sirach', 'septuagint', 'synagogue', 'sanhedrin')) return 'covenant'
+  if (section === IT) return 'powers'
+  if (section === LJ) {
+    if (has('pentecost')) return 'church'
+    if (has('herod', 'roman province', 'census', 'pilate')) return 'powers'
+    return 'messiah'
+  }
+  if (section === AP) {
+    if (has('martyr', 'stephen', 'peter and paul')) return 'martyr'
+    if (has('great fire', 'nero', 'jewish-roman war', 'revolt')) return 'powers'
+    if (has('council', 'christians', 'cornelius', 'writes', 'epistle', 'gospel', 'letter')) return 'church'
+    return 'mission'
+  }
+  if (section === JHN) {
+    if (has('temple', 'masada', 'revolt', 'siege', 'besieges', 'famine', 'triumph', 'domitian', 'persecution')) return 'judgment'
+    return 'church'
+  }
+  if (section === PM) return 'prophet'
+  return 'event'
+}
+
+const fmtYear = ys => ys < 0 ? `${-ys} BC` : `AD ${ys}`
+// CSV gives strings; emit an int for a clean number but keep '' and ranges ('7-10') as strings.
+const maybeInt = v => { const s = (v || '').trim(); return /^-?\d+$/.test(s) ? parseInt(s, 10) : v }
+
+// ---- minimal RFC-4180 CSV parser (quotes, embedded commas/newlines, "" escapes) ----
+function parseCSV(text) {
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+  const rows = []
+  let row = [], field = '', quoted = false, i = 0
+  while (i < text.length) {
+    const c = text[i]
+    if (quoted) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i += 2; continue }
+        quoted = false; i++; continue
+      }
+      field += c; i++; continue
+    }
+    if (c === '"') { quoted = true; i++; continue }
+    if (c === ',') { row.push(field); field = ''; i++; continue }
+    if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue }
+    field += c; i++
+  }
+  if (field !== '' || row.length) { row.push(field); rows.push(row) }
+  return rows
+}
+
+// ---- read events.csv (the source of truth) ----
+const raw = parseCSV(readFileSync(CSV_PATH, 'utf8'))
+const header = raw[0]
+const rows = raw.slice(1)
+  .filter(r => r.length > 1 || (r.length === 1 && r[0] !== ''))
+  .map((r, i) => {
+    const o = {}
+    header.forEach((h, j) => { o[h] = r[j] ?? '' })
+    const ys = Number((o.year_signed || '').trim())
+    if (!Number.isInteger(ys)) {
+      throw new Error(`events.csv row ${i + 2}: 'year_signed' must be a whole number (negative for BC), ` +
+        `got ${JSON.stringify(o.year_signed)} for ${JSON.stringify(o.event)}`)
+    }
+    o.year_signed = ys
+    if (!(o.section in SECTION_TO_ERA) && o.section !== PM && o.section !== EZ) {
+      throw new Error(`events.csv row ${i + 2}: unknown section ${JSON.stringify(o.section)} for ${JSON.stringify(o.event)}. ` +
+        `Use one of the SECTION names defined in build.mjs.`)
+    }
+    o._i = i
+    o.era = eraFor(o)
+    o.group = groupOf(o.event, o.section)
+    return o
+  })
+
+// ---- build the JSON the page consumes (era-grouped, then chronological) ----
+const tl = rows.slice().sort((a, b) =>
+  (ERA_ORDER.indexOf(a.era) - ERA_ORDER.indexOf(b.era)) ||
+  (a.year_signed - b.year_signed) || (a._i - b._i))
+
+const events = tl.map(r => ({
+  era: r.era, group: r.group, section: r.section, event: r.event, date: r.date,
+  year: r.year_signed, am: maybeInt(r.AM), hmonth: maybeInt(r.heb_month),
+  hmonthname: r.heb_month_name, hday: r.heb_day, precision: r.precision,
+  confidence: r.confidence, category: r.category, source: r.source, notes: r.notes,
+}))
+
+const eras = ERA_ORDER.map(key => {
+  const ev = tl.filter(r => r.era === key)
+  const ys = ev.map(e => e.year_signed)
+  return {
+    key, name: ERA_META[key][0], blurb: ERA_META[key][1], count: ev.length,
+    range: ys.length ? `${fmtYear(Math.min(...ys))} – ${fmtYear(Math.max(...ys))}` : '',
+  }
+})
+
+const TIER_ORDER = ['Scriptural', 'Historical', 'Traditional', 'Relative']
+const ysAll = rows.map(r => r.year_signed)
+const meta = {
+  total: rows.length,
+  span: `${fmtYear(Math.min(...ysAll))} – ${fmtYear(Math.max(...ysAll))}`,
+  tiers: Object.fromEntries(TIER_ORDER.map(t => [t, rows.filter(r => r.confidence === t).length])),
+  hebrew_dated: rows.filter(r => maybeInt(r.heb_month)).length,
+}
+
+const data = { meta, eras, events }
+
+// ---- inject into the template and write the standalone page ----
+const template = readFileSync(TEMPLATE, 'utf8')
+if ((template.match(/__DATA__/g) || []).length !== 1) throw new Error('template.html must contain exactly one __DATA__ placeholder')
+if ((template.match(/<\/style>/g) || []).length !== 1) throw new Error('template.html must contain exactly one </style>')
+
+const dataStr = JSON.stringify(data)
+const content = template
+  .replace('__DATA__', () => dataStr)                                   // fn form: no $-substitution
+  .replace('<title>Anno Mundi Timeline</title>', `<title>${TITLE}</title>`)
+
+const PREAMBLE =
+  '<!doctype html>\n' +
+  '<html lang="en" data-theme="dark">\n' +   // dark by default (system-independent)
+  '<head>\n' +
+  '<meta charset="utf-8">\n' +
+  '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n' +
+  '<link rel="icon" href="/favicon.ico">\n' +
+  '<script>try{var t=localStorage.getItem("am-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>\n'
+const RESET = 'html,body{margin:0}[hidden]{display:none!important}img{max-width:100%}\n'
+const standalone = PREAMBLE + content.replace('</style>', RESET + '</style>\n</head>\n<body>') + '\n</body>\n</html>\n'
+
+mkdirSync(dirname(OUT), { recursive: true })
+writeFileSync(OUT, standalone)
+console.log(`✓ ${events.length} events across ${eras.filter(e => e.count).length} eras (${meta.span}) -> ${OUT}`)
