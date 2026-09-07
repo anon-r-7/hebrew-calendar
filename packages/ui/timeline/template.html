@@ -538,7 +538,7 @@ a{ color:inherit; }
   // Per-era minimum horizontal step between consecutive cards (px). 0 = pure proportional.
   // A positive value cascades same-year / near-year piles into a readable fanned deck.
   const TIE={exodus:60, judges:15, united:36, divided:26, exile:30, return:26, apostolic:22, john:20,
-    antenicene:24, imperial:26, byzantine:22, medieval:24, reformation:26};
+    antenicene:30, imperial:36, byzantine:36, medieval:36, reformation:36};
   function layoutDesktop(){
     const ns = Array.from(rail.querySelectorAll(".node")).filter(n=>!tierHidden(n)); if(!ns.length) return;
     const eras = Array.from(rail.querySelectorAll(".era"));
