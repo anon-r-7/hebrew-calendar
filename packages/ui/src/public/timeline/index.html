@@ -1,9 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="icon" href="/favicon.ico">
+<script>try{var t=localStorage.getItem("am-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>
 <title>Anno Mundi Timeline</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -159,14 +160,15 @@ a{ color:inherit; }
 /* Era ambience: a subtle tint wash + optional faded backdrop image = "movement through the ages" */
 .era{ position:relative; --tint:transparent; --era-img:none;
   background:color-mix(in oklab, var(--ink) 4%, var(--ground)); }
-/* Era backdrop images are OFF by default so the page never requests missing files.
-   To turn them on: drop the .jpg files into /timeline/images/ (keys + prompts in
-   images/PROMPTS.md), then uncomment `background-image` below. The per-section
-   --era-img URLs stay defined above, ready to go. */
+/* Era backdrop images (in /timeline/images/<era>.jpg — see images/PROMPTS.md).
+   Shown only in DARK mode — they're painted dark/atmospheric; light mode hides them.
+   Faded so the cards and spine stay legible; a missing file just drops that backdrop. */
 .era::before{ content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
-  /* background-image:var(--era-img); */ background-size:cover; background-position:center 32%; opacity:.15; }
+  background-image:var(--era-img); background-size:cover; background-position:center 32%; opacity:.22; }
+.era[data-era="primeval"]::before{ background-position:center center; }
+.era[data-era="return"]::before, .era[data-era="between"]::before{ background-position:center bottom; }
+:root[data-theme="light"] .era::before{ background-image:none; }
 .era-head{ position:relative; z-index:2; background:color-mix(in oklab, var(--tint) 22%, var(--ground)); }
-:root[data-theme="dark"] .era::before, :root:not([data-theme="light"]) .era::before{ opacity:.22; }
 /* Section tints — "Journey of Light": a day-arc across the redemptive story.
    Value peaks at the golden zenith (United) and the Light of Christ (Jesus);
    the darkest indigo falls on the Exile nadir; warm -> cool -> warm throughout. */
@@ -198,7 +200,6 @@ a{ color:inherit; }
 .g-powers{--c:var(--grp-powers)} .g-maccabees{--c:var(--grp-maccabees)} .g-messiah{--c:var(--grp-messiah)}
 .g-church{--c:var(--grp-church)} .g-event{--c:var(--grp-event)}
 .g-conquest{--c:var(--grp-conquest)} .g-deliverer{--c:var(--grp-deliverer)} .g-mission{--c:var(--grp-mission)} .g-martyr{--c:var(--grp-martyr)}
-/*SECTIONCOLORS*/
 /* Per-section color legend (top-left of each section's card area on desktop) */
 .legend{ display:flex; flex-wrap:wrap; gap:6px 14px; margin:2px 0 12px; padding:0 4px; }
 .legend .lg{ display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--ink-soft);
