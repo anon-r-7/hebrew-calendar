@@ -7,7 +7,8 @@ darker-toned** scenes — texture and mood, not fine detail (detail is lost at l
 ## How to add one
 1. Generate an image with the matching prompt below (16:9 / landscape).
 2. Save it as **`<era-key>.jpg`** in this folder (`/timeline/images/`).
-   Keys: `primeval, exodus, judges, united, divided, exile, return, between, jesus, apostolic, john`
+   Keys: `primeval, exodus, judges, united, divided, exile, return, between, jesus, apostolic, john,`
+   `antenicene, imperial, byzantine, medieval, reformation`
 3. Reload `/timeline` — it appears automatically. No image = the era just shows its color tint.
    (Keep files reasonably small, ~150–400 KB each; they're a background wash, not a gallery.)
 
@@ -66,6 +67,37 @@ darker-toned** scenes — texture and mood, not fine detail (detail is lost at l
 **john** — *Fall of Jerusalem & the Apostle John (AD 70–99)*
 > …the second Temple wreathed in flames beneath a Roman siege at dusk; and far away, a
 > lone figure on the rocky isle of Patmos beneath a vast, stormy, apocalyptic sky.
+
+### Church-age scenes (AD 100 → present)
+For these five, keep the shared STYLE above **but swap the "Ancient Near East / Second Temple
+detail"** line for period-appropriate grounding — *Roman → Byzantine → Gothic/medieval →
+Reformation.* Same muted, painterly, fresco-on-vellum mood; one subject weighted to a side.
+
+**antenicene** — *The Ante-Nicene Church (AD 100–312)*
+> …a dim Roman catacomb passage lit by a single clay oil lamp; a faint fish (ichthys) and a
+> Chi-Rho scratched into the tufa wall; far off through an opening, a Colosseum arch under a
+> bruised, threatening sky. Hidden, reverent, the persecuted church.
+
+**imperial** — *Imperial Church & the Councils (AD 313–476)*
+> …the vast apse of an early basilica in gold mosaic, rows of bishops seated in council
+> beneath it; a Chi-Rho labarum standard catching the light; and far away, the sun going
+> down behind a broken Roman aqueduct — the West falling as the creed is written.
+
+**byzantine** — *Byzantium, Islam & the Papacy (AD 476–1054)*
+> …the great golden dome of Hagia Sophia at golden hour, a gold-ground icon of Christ
+> Pantocrator half in shadow; on the far horizon, a rising minaret and crescent moon.
+> Deep Byzantine blue and gilded light, East and South drifting apart.
+
+**medieval** — *Medieval Christendom (AD 1054–1517)*
+> …a soaring Gothic cathedral rising in timber scaffolding under a stormy plum sky; a
+> crusader's cross-shield and an illuminated manuscript in the foreground shadow; far off,
+> the great land walls of Constantinople breached amid cannon smoke.
+
+**reformation** — *Reformation & the Protestant Age (AD 1517–present)*
+> …a wooden printing press and an open Bible lit by a single candle; a church door with a
+> nailed page half-seen at the edge; and beyond, countless small steeples and chapels
+> scattering outward across a wide land under a clearing dawn — the church breaking apart
+> and spreading over the earth.
 
 ## Tuning
 - If an image makes the cards hard to read, lower its own brightness before saving, or

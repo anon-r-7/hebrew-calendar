@@ -22,7 +22,10 @@
   --t-derived:#a86e19; --t-traditional:#67479c; --t-interpretive:#a83a29;
   --track:150px; --headw:250px; --c:var(--gold);
   /* Global 4-colour card palette (used across all sections; muted so the neutral band lets them read) */
-  --c-green:#2c6b3a; --c-gold:#986c10; --c-blue:#585aa4; --c-grey:#6e6a62;
+  --c-green:#2c6b3a; --c-gold:#986c10; --c-blue:#585aa4; --c-grey:#6e6a62; --c-purple:#8a3fa8;
+  /* church-history branches (dot colour) */
+  --grp-early:var(--c-green); --grp-orthodox:var(--c-blue); --grp-catholic:var(--c-gold);
+  --grp-protestant:var(--c-purple); --grp-empire:var(--c-grey);
   --grp-birth:var(--c-green); --grp-restoration:var(--c-green); --grp-messiah:var(--c-green);
   --grp-conquest:var(--c-green); --grp-deliverer:var(--c-green); --grp-maccabees:var(--c-green); --grp-mission:var(--c-green);
   --grp-covenant:var(--c-gold); --grp-kingdom:var(--c-gold); --grp-martyr:var(--c-gold);
@@ -39,7 +42,7 @@
   --shadow-lift:0 2px 8px rgba(0,0,0,.5), 0 22px 50px rgba(0,0,0,.6);
   --t-anchor:#e0c063; --t-locked:#5cbd93; --t-given:#78a2e6; --t-historical:#9aa2b6;
   --t-derived:#e2a94e; --t-traditional:#b492e8; --t-interpretive:#e07a5f;
-  --c-green:#5eb974; --c-gold:#e3b153; --c-blue:#9d97dd; --c-grey:#aca69c;
+  --c-green:#5eb974; --c-gold:#e3b153; --c-blue:#9d97dd; --c-grey:#aca69c; --c-purple:#c48ee0;
 }}
 :root[data-theme="dark"]{
   --ground:#0d1020; --ground-2:#141833; --surface:#181c30; --surface-2:#1e2440;
@@ -51,7 +54,7 @@
   --shadow-lift:0 2px 8px rgba(0,0,0,.5), 0 22px 50px rgba(0,0,0,.6);
   --t-anchor:#e0c063; --t-locked:#5cbd93; --t-given:#78a2e6; --t-historical:#9aa2b6;
   --t-derived:#e2a94e; --t-traditional:#b492e8; --t-interpretive:#e07a5f;
-  --c-green:#5eb974; --c-gold:#e3b153; --c-blue:#9d97dd; --c-grey:#aca69c;
+  --c-green:#5eb974; --c-gold:#e3b153; --c-blue:#9d97dd; --c-grey:#aca69c; --c-purple:#c48ee0;
 }
 
 /* ============================ BASE ============================ */
@@ -200,6 +203,12 @@ a{ color:inherit; }
 .era[data-era="jesus"]    { --tint:#cba148; --era-img:url(/timeline/images/jesus.jpg); }     /* Radiant Gold */
 .era[data-era="apostolic"]{ --tint:#c0843a; --era-img:url(/timeline/images/apostolic.jpg); }/* Daylight Amber */
 .era[data-era="john"]     { --tint:#9e5433; --era-img:url(/timeline/images/john.jpg); }      /* Sunset Rust */
+/* Church age — the arc continues into history. */
+.era[data-era="antenicene"] { --tint:#8f4a3a; --era-img:url(/timeline/images/antenicene.jpg); }   /* Ember (the persecuted church) */
+.era[data-era="imperial"]   { --tint:#9a7630; --era-img:url(/timeline/images/imperial.jpg); }     /* Imperial Gold (Constantine & councils) */
+.era[data-era="byzantine"]  { --tint:#35708a; --era-img:url(/timeline/images/byzantine.jpg); }    /* Byzantine Blue (the East) */
+.era[data-era="medieval"]   { --tint:#7a4560; --era-img:url(/timeline/images/medieval.jpg); }     /* Cathedral Plum (Latin Christendom) */
+.era[data-era="reformation"]{ --tint:#5b4a94; --era-img:url(/timeline/images/reformation.jpg); }  /* Reformation Violet */
 .rn-big{ font-family:"Fraunces",serif; font-weight:600;
   color:color-mix(in oklab, var(--tint) 72%, var(--ink)); line-height:.8;
   letter-spacing:-.02em; }
@@ -217,6 +226,13 @@ a{ color:inherit; }
 .g-powers{--c:var(--grp-powers)} .g-maccabees{--c:var(--grp-maccabees)} .g-messiah{--c:var(--grp-messiah)}
 .g-church{--c:var(--grp-church)} .g-event{--c:var(--grp-event)}
 .g-conquest{--c:var(--grp-conquest)} .g-deliverer{--c:var(--grp-deliverer)} .g-mission{--c:var(--grp-mission)} .g-martyr{--c:var(--grp-martyr)}
+/* church-history branches */
+.g-early{--c:var(--grp-early)} .g-orthodox{--c:var(--grp-orthodox)} .g-catholic{--c:var(--grp-catholic)}
+.g-protestant{--c:var(--grp-protestant)} .g-empire{--c:var(--grp-empire)}
+/* card type marker (church-history: council / leader / mission / schism / empire / martyr / writing) */
+.tmark{ font-family:"IBM Plex Mono",monospace; font-size:12px; line-height:1; color:var(--c);
+  opacity:.9; margin-right:5px; flex:none; }
+.card .conf .sep{ opacity:.5; margin:0 5px; }
 /* Per-section color legend (top-left of each section's card area on desktop) */
 .legend{ display:flex; flex-wrap:wrap; gap:6px 14px; margin:2px 0 12px; padding:0 4px; }
 .legend .lg{ display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--ink-soft);
@@ -402,7 +418,7 @@ a{ color:inherit; }
 (function(){
   "use strict";
   const DATA = JSON.parse(document.getElementById("data").textContent);
-  const RN = ["","I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII","XIII","XIV"];
+  const RN = ["","I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII","XIII","XIV","XV","XVI","XVII"];
   // Four confidence tiers. The dot's shape (not colour) encodes the tier.
   const TIERS = {
     Scriptural:{blurb:"Fixed by the biblical text and its own intervals"},
@@ -423,7 +439,11 @@ a{ color:inherit; }
   const LABELS={birth:"Births",death:"Deaths",covenant:"Covenant",exodus:"Exodus",kingdom:"Reign",
     temple:"Temple",prophet:"Prophecy",judgment:"Judgment",restoration:"Restoration",powers:"Empires",
     maccabees:"Maccabees",messiah:"Messiah",church:"Church",event:"Event",
-    conquest:"Conquest",deliverer:"Deliverers",mission:"Missions",martyr:"Martyrs"};
+    conquest:"Conquest",deliverer:"Deliverers",mission:"Missions",martyr:"Martyrs",
+    early:"Early Church",orthodox:"Orthodox",catholic:"Catholic",protestant:"Protestant",empire:"Empire"};
+  // church-history TYPE markers (card glyph), keyed by the type half of the "Branch|Type" category
+  const TMARK={council:"⚖︎",leader:"✦",mission:"→",schism:"✕",
+    empire:"♛",martyr:"†",writing:"✍︎"};
   let html = ""; let idx = 0;
   DATA.eras.forEach((era,ei)=>{
     html += `<section class="era" id="era-${era.key}" data-era="${era.key}">`;
@@ -444,12 +464,18 @@ a{ color:inherit; }
       const src = e.source ? `<span class="src">${escapeHtml(e.source)}</span>` : "";
       const tier = e.confidence || "";
       const rel = tier === "Relative";
-      const conf = tier ? `<div class="conf"><span class="kd kd-${tier.toLowerCase()}"></span>${escapeHtml(tier)}</div>` : "";
+      // church-history "Branch|Type" category -> a type marker glyph + a spelled-out label
+      const cat = e.category || "";
+      const cparts = cat.includes("|") ? cat.split("|").map(s=>s.trim()) : ["",""];
+      const ctype = (cparts[1]||"").toLowerCase();
+      const mk = TMARK[ctype] ? `<span class="tmark">${TMARK[ctype]}</span>` : "";
+      const catTxt = cat.includes("|") ? ` <span class="sep">·</span> ${escapeHtml(cparts[0])} · ${escapeHtml(cparts[1])}` : "";
+      const conf = tier ? `<div class="conf"><span class="kd kd-${tier.toLowerCase()}"></span>${escapeHtml(tier)}${catTxt}</div>` : "";
       html += `<div class="node g-${e.group||"event"}" data-year="${e.year}" `+
-        `data-pos="${pos}" data-tier="${escapeAttr(tier)}" data-txt="${escapeAttr((e.event+" "+e.source+" "+e.notes).toLowerCase())}">`+
+        `data-pos="${pos}" data-tier="${escapeAttr(tier)}" data-txt="${escapeAttr((e.event+" "+e.source+" "+e.notes+" "+cat).toLowerCase())}">`+
         `<span class="stem"></span><span class="dot"></span>`+
         `<button class="card" aria-expanded="false">`+
-          `<span class="cdate mono">${rel?"&#8776;&#8202;":""}${e.date}${am}</span>`+
+          `<span class="cdate mono">${mk}${rel?"&#8776;&#8202;":""}${e.date}${am}</span>`+
           `<div class="ctitle">${escapeHtml(e.event)}</div>`+
           hebRow +
           `<div class="detail">${notes}${src}${conf}</div><span class="more">+ details</span>`+
@@ -511,7 +537,8 @@ a{ color:inherit; }
   const PX=12, PAD=140, CARD_W=112, CARD_H=72, LANE_GAP=16, BASE=48, GUTTER=12, AXIS_BOTTOM=64;
   // Per-era minimum horizontal step between consecutive cards (px). 0 = pure proportional.
   // A positive value cascades same-year / near-year piles into a readable fanned deck.
-  const TIE={exodus:60, judges:15, united:36, divided:26, exile:30, return:26, apostolic:22, john:20};
+  const TIE={exodus:60, judges:15, united:36, divided:26, exile:30, return:26, apostolic:22, john:20,
+    antenicene:24, imperial:26, byzantine:22, medieval:24, reformation:26};
   function layoutDesktop(){
     const ns = Array.from(rail.querySelectorAll(".node")).filter(n=>!tierHidden(n)); if(!ns.length) return;
     const eras = Array.from(rail.querySelectorAll(".era"));
@@ -530,7 +557,8 @@ a{ color:inherit; }
       [-430,2.2],[-200,6.0],[-176,15.0],[-133,6.0],[-63,9.0],
       [-5,125],[-4,14],[6,62],[8,9],[26,125],[27,45],[30,8.0],
       [34,28.0],
-      [68,42],[73,8.5],[90,26],[95,32]];
+      [68,42],[73,8.5],[90,26],[95,32],
+      [99,5.5],[313,7],[476,2.1],[1054,2.6],[1517,4.2]];
     const segX = y => { let x=0; for(let i=0;i<SEG.length;i++){ const s=SEG[i][0], r=SEG[i][1],
       e=(i+1<SEG.length)?SEG[i+1][0]:1e9; if(y>s) x+=(Math.min(y,e)-s)*r; } return x; };
     const COVER_W=236, COVER_LEAD=104, LEAD_BEFORE=96, END_GAP=64;

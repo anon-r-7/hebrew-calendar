@@ -40,9 +40,18 @@ const AP = 'APOSTOLIC AGE'
 const JHN = 'FALL OF JERUSALEM & THE APOSTLE JOHN'
 const PM = 'PROPHETIC MARKERS (interpretive)'
 const EZ = "EZEKIEL'S DATED ORACLES"
+// ---- Church-history sections (AD 100 -> present). Their 'category' column is "Branch|Type"
+// (e.g. "Catholic|Council"); the branch drives the dot colour, the type drives the card's marker. ----
+const AN = 'ANTE-NICENE CHURCH'
+const IC = 'IMPERIAL CHURCH & COUNCILS'
+const BZ = 'BYZANTIUM, ISLAM & THE PAPACY'
+const MED = 'MEDIEVAL CHRISTENDOM'
+const REF = 'REFORMATION & PROTESTANT AGE'
+const CHURCH = new Set([AN, IC, BZ, MED, REF])
 
 const ERA_ORDER = ['primeval', 'exodus', 'judges', 'united', 'divided',
-  'exile', 'return', 'between', 'jesus', 'apostolic', 'john']
+  'exile', 'return', 'between', 'jesus', 'apostolic', 'john',
+  'antenicene', 'imperial', 'byzantine', 'medieval', 'reformation']
 
 // ---- Section titles + one-line blurbs (edit these for the on-page headings) ----
 const ERA_META = {
@@ -57,12 +66,18 @@ const ERA_META = {
   jesus: ['Life of Jesus', 'Incarnation to resurrection'],
   apostolic: ['The Apostolic Age', 'The gospel crosses the empire'],
   john: ['Fall of Jerusalem & John', 'AD 70 and the last apostle'],
+  antenicene: ['The Ante-Nicene Church', 'Persecution, apologists and the forming canon'],
+  imperial: ['Imperial Church & Councils', 'Constantine, Nicaea and the fall of Rome'],
+  byzantine: ['Byzantium, Islam & the Papacy', 'The East, the Caliphate and the Great Schism'],
+  medieval: ['Medieval Christendom', 'Crusades, popes and the fall of Constantinople'],
+  reformation: ['Reformation & the Protestant Age', 'The church splinters and goes global'],
 }
 
 const SECTION_TO_ERA = {
   [PP]: 'primeval', [ATE]: 'primeval', [EX]: 'exodus', [JU]: 'judges', [UM]: 'united', [DM]: 'divided',
   [BAB]: 'exile', [EZ]: 'exile', [RET]: 'return', [IT]: 'between',
   [LJ]: 'jesus', [AP]: 'apostolic', [JHN]: 'john',
+  [AN]: 'antenicene', [IC]: 'imperial', [BZ]: 'byzantine', [MED]: 'medieval', [REF]: 'reformation',
 }
 
 function eraFor(r) {
@@ -70,9 +85,14 @@ function eraFor(r) {
   return SECTION_TO_ERA[r.section]
 }
 
-function groupOf(name, section) {
+function groupOf(name, section, category) {
   const n = name.toLowerCase()
   const has = (...ks) => ks.some(k => n.includes(k))
+  // Church-history eras: the dot colour is the BRANCH, taken from the "Branch|Type" category.
+  if (CHURCH.has(section)) {
+    const branch = (category || '').split('|')[0].trim().toLowerCase()
+    return { early: 'early', orthodox: 'orthodox', catholic: 'catholic', protestant: 'protestant', empire: 'empire' }[branch] || 'early'
+  }
   // NB: guard with `! of israel/judah` so king rows (e.g. "Zechariah of Israel") don't match a prophet
   // name; "nathan the" (not bare "nathan") so "Jonathan" stays Maccabees; "daniel" omitted so the
   // "FIRST deportation (Daniel & nobility)" reads as judgment like the other deportations.
@@ -172,7 +192,7 @@ const rows = raw.slice(1)
     }
     o._i = i
     o.era = eraFor(o)
-    o.group = groupOf(o.event, o.section)
+    o.group = groupOf(o.event, o.section, o.category)
     return o
   })
 
