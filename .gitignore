@@ -8,6 +8,8 @@ k8s-hebrew-feasts-kubeconfig.yaml
 **logs**
 tmp
 kubernetes/create_secret.sh
+nohup*
+.env.bk
 
 # Generated from packages/ui/timeline/events.csv by `yarn timeline` (runs on build/start).
 packages/ui/src/public/timeline/index.html
