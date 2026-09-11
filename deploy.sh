@@ -28,9 +28,7 @@ should_deploy() {
 echo "Deploying: ${TARGETS:-all (api, ui, admin)}"
 
 # Ensure script is running from the root of the project
-#ROOT_DIR="/var/www/hebrew-calendar"
-ROOT_DIR="$pwd"
-echo $pwd
+ROOT_DIR="$(pwd)"
 cd "$ROOT_DIR" || { echo "Error: Could not change to project root directory. Exiting..."; exit 1; }
 
 # Pull the latest from main before building
