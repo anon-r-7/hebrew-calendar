@@ -4,7 +4,19 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Hebrew Feasts</title>
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com;">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com;">
+
+    <!-- Google Analytics (GA4). Loaded everywhere, but only *tracks* on the live
+         domain so localhost / preview traffic doesn't pollute the reports. -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MH4XYVN0M8"></script>
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() { dataLayer.push(arguments) }
+      gtag('js', new Date())
+      if (/(^|\.)hebrewfeasts\.com$/.test(location.hostname)) {
+        gtag('config', 'G-MH4XYVN0M8')
+      }
+    </script>
 
     <meta
       name="description"
