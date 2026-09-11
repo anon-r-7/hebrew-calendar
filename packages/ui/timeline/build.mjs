@@ -23,7 +23,7 @@ const CSV_PATH = join(HERE, 'events.csv')
 const TEMPLATE = join(HERE, 'template.html')
 const OUT = join(HERE, '..', 'src', 'public', 'timeline', 'index.html')
 
-const TITLE = 'Anno Mundi Timeline'
+const TITLE = 'Hebrew Feasts'
 
 // ---- Section names (must match the 'section' column in events.csv) ----
 const PP = 'PATRIARCHS & PRIMEVAL HISTORY'
@@ -238,14 +238,36 @@ const content = template
   .replace('__DATA__', () => dataStr)                                   // fn form: no $-substitution
   .replace('<title>Anno Mundi Timeline</title>', `<title>${TITLE}</title>`)
 
+// The <head> matches the calendar app (src/index.html): same title, description, OG /
+// Twitter cards and favicons, so the timeline is not a different-looking page. The
+// per-page <title> and the shared color-mode script live in template.html.
 const PREAMBLE =
   '<!doctype html>\n' +
-  '<html lang="en" data-theme="dark">\n' +   // dark by default (system-independent)
+  '<html lang="en" data-theme="dark">\n' +   // dark default until the shared-key script runs
   '<head>\n' +
   '<meta charset="utf-8">\n' +
   '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n' +
-  '<link rel="icon" href="/favicon.ico">\n' +
-  '<script>try{var t=localStorage.getItem("am-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}</script>\n'
+  '<meta http-equiv="Content-Security-Policy" content="script-src \'self\' \'unsafe-inline\'; style-src \'self\' https://fonts.googleapis.com \'unsafe-inline\'; font-src \'self\' https://fonts.gstatic.com;">\n' +
+  '<meta name="description" content="A calendar for all Jewish Feasts back to 1 AD">\n' +
+  '<meta name="author" content="Hebrew Feasts">\n' +
+  '<meta name="keywords" content="Hebrew Feasts">\n' +
+  '<meta property="og:title" content="Hebrew Feasts">\n' +
+  '<meta property="og:description" content="A calendar for all Jewish Feasts back to 1 AD">\n' +
+  '<meta property="og:image" content="/og.png">\n' +
+  '<meta property="og:image:secure_url" content="/og.png">\n' +
+  '<meta property="og:image:width" content="1200">\n' +
+  '<meta property="og:image:height" content="630">\n' +
+  '<meta property="og:image:type" content="image/png">\n' +
+  '<meta property="og:image:alt" content="Hebrew Feasts">\n' +
+  '<meta name="twitter:card" content="summary_large_image">\n' +
+  '<meta name="twitter:site" content="@Hebrew Feasts">\n' +
+  '<meta name="twitter:creator" content="@Hebrew Feasts">\n' +
+  '<meta name="twitter:title" content="Hebrew Feasts">\n' +
+  '<meta name="twitter:description" content="A calendar for all Jewish Feasts back to 1 AD">\n' +
+  '<meta name="twitter:image" content="/og.png">\n' +
+  '<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">\n' +
+  '<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">\n' +
+  '<link rel="icon" type="image/x-icon" href="/favicon.ico">\n'
 const RESET = 'html,body{margin:0}[hidden]{display:none!important}img{max-width:100%}\n'
 const standalone = PREAMBLE + content.replace('</style>', RESET + '</style>\n</head>\n<body>') + '\n</body>\n</html>\n'
 

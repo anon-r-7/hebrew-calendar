@@ -71,6 +71,51 @@ h1,h2,h3,.disp{ font-family:"Fraunces","Fraunces 144",Georgia,serif; font-weight
 a{ color:inherit; }
 ::selection{ background:var(--gold-soft); color:var(--ink); }
 
+/* ===== Shared app header (matches the calendar app: wordmark + nav / hamburger + theme toggle) ===== */
+.apphdr{ position:relative; z-index:60;
+  background:color-mix(in oklab, var(--ground) 85%, transparent);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--hair); }
+.apphdr-in{ display:flex; align-items:center; gap:24px;
+  max-width:1200px; margin:0 auto; padding:11px clamp(16px,4vw,44px); }
+.apphdr .brand{ font-family:"Fraunces","Fraunces 144",Georgia,serif; font-weight:600; font-size:21px;
+  letter-spacing:-.01em; color:var(--ink); text-decoration:none; flex:none; }
+.apphdr .sp{ flex:1 1 auto; }
+.appnav{ display:flex; align-items:center; gap:20px; }
+.appnav a{ font-size:14px; font-weight:500; letter-spacing:.01em; color:var(--ink-soft);
+  text-decoration:none; white-space:nowrap; border-bottom:2px solid transparent; padding-bottom:2px;
+  transition:color .16s ease,border-color .16s ease; }
+.appnav a:hover{ color:var(--ink); }
+.appnav a.active{ color:var(--ink); font-weight:600; border-bottom-color:var(--gold); }
+.appham{ display:none; flex:none; width:34px; height:34px; border-radius:50%;
+  background:var(--surface); border:1px solid var(--hair); color:var(--ink);
+  align-items:center; justify-content:center; cursor:pointer; transition:border-color .16s ease; }
+.appham:hover{ border-color:var(--ink-faint); }
+.appmenu{ display:none; position:absolute; top:100%; left:clamp(16px,4vw,44px);
+  margin-top:6px; flex-direction:column; min-width:190px; padding:8px; z-index:61;
+  background:var(--surface); border:1px solid var(--hair); border-radius:10px; box-shadow:var(--shadow-lift); }
+.appmenu.open{ display:flex; }
+.appmenu a{ font-size:15px; font-weight:500; color:var(--ink); text-decoration:none; padding:9px 12px; border-radius:7px; }
+.appmenu a:hover{ background:var(--ground-2); }
+.appmenu a.active{ color:var(--gold); font-weight:600; }
+/* Header filter icon (mobile) toggles search + confidence key as a full-width drawer.
+   `.apphdr .appfilter` beats the later `.icon-btn{display:grid}` rule. */
+.apphdr .appfilter{ display:none; }
+.appfilter[aria-expanded="true"]{ border-color:var(--gold); color:var(--gold); }
+.filterwrap{ display:flex; align-items:center; gap:12px 14px; flex:1 1 auto; flex-wrap:wrap; }
+@media (max-width:768px){
+  .appnav{ display:none; }
+  .appham{ display:inline-flex; }
+  .apphdr .appfilter{ display:grid; }
+  .apphdr-in{ gap:10px; }
+  .apphdr .brand{ font-size:19px; }
+  .controls-row.toprow{ padding-top:0; padding-bottom:0; }
+  .filterwrap{ display:none; width:100%; flex-direction:column; align-items:stretch; gap:14px; padding:14px 0; }
+  .filterwrap.open{ display:flex; }
+  .filterwrap .search{ flex:1 1 auto; width:100%; }
+  .filterwrap .spacer{ display:none; }
+}
+
 /* ============================ CONTROLS ============================ */
 .controls{ position:sticky; top:0; z-index:40; background:color-mix(in oklab, var(--ground) 88%, transparent);
   backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
@@ -286,8 +331,8 @@ a{ color:inherit; }
 .rail{ display:flex; flex-direction:column; padding:6px 0 40px; }
 .rail::before{ top:0; bottom:0; left:23px; width:2px; }
 .era{ display:flex; flex-direction:column; }
-.era-head{ padding:30px 20px 16px 20px; display:grid; grid-template-columns:auto 1fr; gap:0 16px;
-  align-items:center; border-top:1px solid var(--hair); margin-top:8px; }
+.era-head{ padding:36px 20px 14px 20px; display:grid; grid-template-columns:auto 1fr; gap:0 16px;
+  align-items:center; border-top:1px solid var(--hair); margin-top:28px; }
 .era:first-child .era-head{ border-top:0; margin-top:0; }
 .rn-big{ font-size:34px; grid-row:span 2; width:34px; text-align:center; }
 .era-name{ font-size:23px; }
@@ -297,6 +342,15 @@ a{ color:inherit; }
 .dot{ grid-column:1; justify-self:center; margin-top:9px; }
 .node .stem{ display:none; }
 .card{ grid-column:2; max-width:520px; }
+
+/* On mobile the colour legend is the lower shelf of the era-header box: the same
+   tint wash, flush under the header, with room to breathe below before the events. */
+@media (max-width:879px){
+  .legend{ margin:0 0 30px; padding:12px 20px 20px; gap:8px 16px;
+    background:color-mix(in oklab, var(--tint) 22%, var(--ground)); }
+  .legend .lg{ font-size:12px; }
+  .legend .lg-div{ margin:6px 0 5px; }
+}
 
 /* ---------- DESKTOP (horizontal, left -> right) ---------- */
 @media (min-width:880px){
@@ -359,15 +413,38 @@ a{ color:inherit; }
 </style>
 
 <div class="page">
+  <header class="apphdr">
+    <div class="apphdr-in">
+      <button class="appham" id="appham" aria-label="Open navigation menu" aria-expanded="false" title="Menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <a class="brand" href="/calendar">Hebrew Feasts</a>
+      <span class="sp"></span>
+      <nav class="appnav">
+        <a href="/calendar">Calendar</a>
+        <a href="/holidays">Holidays</a>
+        <a href="/days-from">Days From</a>
+        <a href="/days-between">Days Between</a>
+        <a href="/timeline" class="active">Timeline</a>
+      </nav>
+      <button class="icon-btn appfilter" id="appfilter" aria-label="Filter and search" aria-expanded="false" title="Filter &amp; search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="21 4 3 4 10 12.5 10 19 14 21 14 12.5 21 4"/></svg></button>
+      <button class="icon-btn" id="theme" title="Toggle light / dark" aria-label="Toggle light or dark theme">&#9680;</button>
+    </div>
+    <div class="appmenu" id="appmenu">
+      <a href="/calendar">Calendar</a>
+      <a href="/holidays">Holidays</a>
+      <a href="/days-from">Days From</a>
+      <a href="/days-between">Days Between</a>
+      <a href="/timeline" class="active">Timeline</a>
+    </div>
+  </header>
   <div class="controls">
     <div class="controls-row toprow">
-      <a class="icon-btn" id="home" href="/" title="Back to Hebrew Feasts" aria-label="Back to Hebrew Feasts" style="text-decoration:none">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h4v-6h5v6h4v-9.5"/></svg>
-      </a>
-      <input class="search" id="search" type="search" placeholder="Search events, people, sources&#8230;" autocomplete="off" aria-label="Search the timeline">
-      <span class="spacer"></span>
-      <span class="ckey" id="ckey"></span>
-      <button class="icon-btn" id="theme" title="Toggle light / dark" aria-label="Toggle light or dark theme">&#9680;</button>
+      <div class="filterwrap" id="filterwrap">
+        <input class="search" id="search" type="search" placeholder="Search events, people, sources&#8230;" autocomplete="off" aria-label="Search the timeline">
+        <span class="spacer"></span>
+        <span class="ckey" id="ckey"></span>
+      </div>
     </div>
     <div class="eranav" id="eranav"></div>
     <div class="scrub" id="scrub" aria-hidden="true">
@@ -805,6 +882,21 @@ a{ color:inherit; }
     document.documentElement.setAttribute("data-theme",next);
     try{ localStorage.setItem("chakra-ui-color-mode",next); }catch(e){}
   });
+
+  // ---- APP HEADER: mobile hamburger nav + mobile "Filter" drawer ----
+  const ham = document.getElementById("appham"), appmenu = document.getElementById("appmenu");
+  if(ham && appmenu){
+    ham.addEventListener("click",(e)=>{ e.stopPropagation();
+      const o=appmenu.classList.toggle("open"); ham.setAttribute("aria-expanded", o?"true":"false"); });
+    document.addEventListener("click",(e)=>{
+      if(appmenu.classList.contains("open") && !appmenu.contains(e.target) && !ham.contains(e.target)){
+        appmenu.classList.remove("open"); ham.setAttribute("aria-expanded","false"); } });
+  }
+  const filterBtn = document.getElementById("appfilter"), filterWrap = document.getElementById("filterwrap");
+  if(filterBtn && filterWrap){
+    filterBtn.addEventListener("click",()=>{
+      const o=filterWrap.classList.toggle("open"); filterBtn.setAttribute("aria-expanded", o?"true":"false"); });
+  }
 
   // ---- INIT ----
   requestAnimationFrame(()=>{ relayout(); setupReveal2(); updateProgress(); });

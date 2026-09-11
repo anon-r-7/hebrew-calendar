@@ -1,5 +1,15 @@
 import React, { useEffect } from 'react'
-import { Box, Flex, Link, Text, useColorMode } from '@chakra-ui/react'
+import {
+  Box,
+  Flex,
+  Link,
+  Text,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  useColorMode
+} from '@chakra-ui/react'
 
 import { ThemeToggle } from '@ui/components/ThemeToggle'
 
@@ -11,9 +21,25 @@ const links = [
   { href: '/timeline', label: 'Timeline' }
 ]
 
-// Sticky, editorial top frame — echoes the timeline's blurred ".controls" bar:
-// translucent ground + backdrop blur + hairline base. Brand wordmark (Fraunces)
-// on the left, nav in the middle, the light/dark toggle on the right.
+const HamburgerIcon = () => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    aria-hidden="true">
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <line x1="3" y1="12" x2="21" y2="12" />
+    <line x1="3" y1="18" x2="21" y2="18" />
+  </svg>
+)
+
+// Sticky, editorial top frame — echoes the timeline's blurred ".controls" bar.
+// Desktop: brand wordmark, inline nav, theme toggle. Mobile: a hamburger menu
+// (left) + wordmark, with the toggle on the right.
 export const AppHeader = () => {
   const { colorMode } = useColorMode()
   const path =
@@ -28,17 +54,19 @@ export const AppHeader = () => {
     } catch (e) {}
   }, [colorMode])
 
-  const navLink = (href, label, isActive) => (
+  const isActive = (href) => path.startsWith(href)
+
+  const navLink = (href, label) => (
     <Link
       key={href}
       href={href}
-      fontSize={{ base: '13px', md: '14px' }}
-      fontWeight={isActive ? '600' : '500'}
+      fontSize="14px"
+      fontWeight={isActive(href) ? '600' : '500'}
       letterSpacing="0.01em"
       whiteSpace="nowrap"
-      color={isActive ? 'brand.text' : 'brand.textSecondary'}
+      color={isActive(href) ? 'brand.text' : 'brand.textSecondary'}
       borderBottom="2px solid"
-      borderColor={isActive ? 'brand.primary' : 'transparent'}
+      borderColor={isActive(href) ? 'brand.primary' : 'transparent'}
       pb="2px"
       _hover={{ color: 'brand.text', textDecoration: 'none' }}
       transition="color .16s ease, border-color .16s ease">
@@ -64,10 +92,53 @@ export const AppHeader = () => {
         py={{ base: 2.5, md: 3 }}
         maxW="container.xl"
         mx="auto">
-        <Link
-          href="/calendar"
-          _hover={{ textDecoration: 'none' }}
-          flex="none">
+        {/* Mobile: hamburger menu (hidden on desktop) */}
+        <Box display={{ base: 'block', md: 'none' }} flex="none">
+          <Menu autoSelect={false}>
+            <MenuButton
+              aria-label="Open navigation menu"
+              display="grid"
+              placeItems="center"
+              w="34px"
+              h="34px"
+              borderRadius="full"
+              bg="brand.surfaceRaised"
+              border="1px solid"
+              borderColor="brand.border"
+              color="brand.text"
+              transition="border-color .16s ease"
+              _hover={{ borderColor: 'brand.gray' }}
+              _active={{ borderColor: 'brand.gray' }}>
+              <Box as="span" display="grid" placeItems="center">
+                <HamburgerIcon />
+              </Box>
+            </MenuButton>
+            <MenuList
+              bg="brand.surfaceRaised"
+              borderColor="brand.border"
+              boxShadow="brand.lift"
+              minW="188px"
+              py={2}
+              zIndex={50}>
+              {links.map(({ href, label }) => (
+                <MenuItem
+                  key={href}
+                  as="a"
+                  href={href}
+                  bg="transparent"
+                  fontSize="15px"
+                  fontWeight={isActive(href) ? '600' : '500'}
+                  color={isActive(href) ? 'brand.primary' : 'brand.text'}
+                  _hover={{ bg: 'brand.backgroundAlt' }}
+                  _focus={{ bg: 'brand.backgroundAlt' }}>
+                  {label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          </Menu>
+        </Box>
+
+        <Link href="/calendar" _hover={{ textDecoration: 'none' }} flex="none">
           <Text
             as="span"
             fontFamily="heading"
@@ -81,15 +152,13 @@ export const AppHeader = () => {
 
         <Box flex="1 1 auto" />
 
+        {/* Desktop: inline nav (hidden on mobile) */}
         <Flex
           as="nav"
+          display={{ base: 'none', md: 'flex' }}
           align="center"
-          gap={{ base: 3, md: 5 }}
-          overflowX="auto"
-          css={{ scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
-          {links.map(({ href, label }) =>
-            navLink(href, label, path.startsWith(href))
-          )}
+          gap={5}>
+          {links.map(({ href, label }) => navLink(href, label))}
         </Flex>
 
         <ThemeToggle ml={{ base: 1, md: 2 }} />

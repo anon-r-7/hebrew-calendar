@@ -578,8 +578,8 @@ export const CalendarGrid = ({ dates, type }) => {
   )}-${String(now.getDate()).padStart(2, '0')}`
 
   return (
-    <Flex direction="column" align="center" justify="center">
-      <Flex justify="space-around" w="full" maxW={theme.sizes.container.xl}>
+    <Flex direction="column" align="center" justify="center" w="full">
+      <Flex justify="space-around" w="full" maxW={theme.sizes.container.xl} px={2}>
         {daysOfWeek.map((day, j) => (
           <Week day={day} theme={theme} key={j} />
         ))}
@@ -590,6 +590,7 @@ export const CalendarGrid = ({ dates, type }) => {
           justify="space-around"
           w="full"
           maxW={theme.sizes.container.xl}
+          px={2}
           mb={0}>
           {week.map((day, j) => {
             const isToday = day && today === day.gregorian
