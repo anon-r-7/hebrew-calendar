@@ -40,8 +40,11 @@
   font-style: normal;
 }
 
-:focus {
-  outline: none !important;
+/* Keyboard focus ring (mouse clicks don't trigger :focus-visible). Matches the
+   timeline's gold outline; Chakra components add their own on top. */
+:focus-visible {
+  outline: 2px solid var(--chakra-colors-brand-primary);
+  outline-offset: 2px;
 }
 
 .chakra-select__menu {

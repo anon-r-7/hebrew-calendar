@@ -115,8 +115,8 @@ export const Calendar = () => {
             <Heading
               size={{ base: 'md', md: 'lg' }}
               width={{ base: 'initial', md: '800' }}
-              fontWeight="700"
-              color="brand.light">
+              fontWeight="600"
+              color="brand.text">
               {heading}
             </Heading>
 
@@ -131,44 +131,6 @@ export const Calendar = () => {
         </Flex>
 
         <CalendarGrid dates={store.state.dates} type={store.state.type} />
-
-        <Flex direction="column" align="center" justify="center">
-          <Flex
-            direction="row"
-            wrap="wrap"
-            justify="center"
-            align="center"
-            gap={{ base: 3, md: 6 }}
-            m={12}
-            w="full"
-            maxW={{ base: '100%', md: 760 }}>
-            <a href="/calendar">
-              <Text fontSize="md" color="brand.light">
-                Calendar
-              </Text>
-            </a>
-            <a href="/holidays">
-              <Text fontSize="md" color="brand.grey">
-                Holidays
-              </Text>
-            </a>
-            <a href="/days-from">
-              <Text fontSize="md" color="brand.grey">
-                Days From
-              </Text>
-            </a>
-            <a href="/days-between">
-              <Text fontSize="md" color="brand.grey">
-                Days Between
-              </Text>
-            </a>
-            <a href="/timeline" target="_blank" rel="noopener noreferrer">
-              <Text fontSize="md" color="brand.grey">
-                Biblical Timeline
-              </Text>
-            </a>
-          </Flex>
-        </Flex>
       </Box>
     </>
   )

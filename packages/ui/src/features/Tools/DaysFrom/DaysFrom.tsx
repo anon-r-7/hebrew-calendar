@@ -61,89 +61,56 @@ export const DaysFrom = () => {
   // Move this hook outside of tableRow
   const isMobile = useBreakpointValue({ base: true, md: false })
 
-  const tableRow = ([one, two, three, four, five], key, header, labels) => {
-    const backgroundColor = key % 2 === 0 ? '#f0f0f0' : 'white'
-
-    return (
-      <Grid
-        templateColumns={{ base: '1fr', md: '100px 125px 125px 125px 40%' }}
-        gap={4}
-        pt={4}
-        pb={4}
-        pl={8}
-        pr={8}
-        background={backgroundColor}
-        key={key}
-        w="100%">
-        <Box>
-          {isMobile && (
-            <Text fontWeight="700" fontFamily={'Fustat-Regular'}>
-              {labels[0]}:
-            </Text>
-          )}
-          <Text
-            textAlign={isMobile ? 'left' : 'center'}
-            fontWeight={header ? '700' : '300'}
-            fontFamily={'Fustat-Regular'}>
-            {one}
-          </Text>
-        </Box>
-        <Box>
-          {isMobile && (
-            <Text fontWeight="700" fontFamily={'Fustat-Regular'}>
-              {labels[1]}:
-            </Text>
-          )}
-          <Text
-            fontWeight={header ? '700' : '300'}
-            fontFamily={'Fustat-Regular'}>
-            {two}
-          </Text>
-        </Box>
-        <Box>
-          {isMobile && (
-            <Text fontWeight="700" fontFamily={'Fustat-Regular'}>
-              {labels[2]}:
-            </Text>
-          )}
-          <Text
-            fontWeight={header ? '700' : '300'}
-            fontFamily={'Fustat-Regular'}>
-            {three}
-          </Text>
-        </Box>
-        <Box>
-          {isMobile && (
-            <Text fontWeight="700" fontFamily={'Fustat-Regular'}>
-              {labels[3]}:
-            </Text>
-          )}
-          <Text
-            fontWeight={header ? '700' : '300'}
-            fontFamily={'Fustat-Regular'}>
-            {four}
-          </Text>
-        </Box>
-        {five?.length ? (
-          <Box>
+  const tableRow = (cells, key, header, labels) => (
+    <Grid
+      key={key}
+      templateColumns={{ base: '1fr', md: '100px 125px 125px 125px 40%' }}
+      gap={4}
+      px={{ base: 4, md: 8 }}
+      py={header ? 3 : 3.5}
+      w="100%"
+      bg={
+        header
+          ? 'brand.backgroundAlt'
+          : key % 2 === 0
+          ? 'transparent'
+          : 'brand.surface'
+      }
+      borderBottom="1px solid"
+      borderColor={header ? 'brand.primary' : 'brand.borderMuted'}
+      transition="background .12s ease"
+      _hover={header ? undefined : { bg: 'brand.backgroundAlt' }}>
+      {cells.map((cell, i) =>
+        i === 4 && !String(cell || '').length ? null : (
+          <Box key={i}>
             {isMobile && (
-              <Text fontWeight="700" fontFamily={'Fustat-Regular'}>
-                {labels[4]}:
+              <Text
+                fontSize="10px"
+                fontWeight="600"
+                letterSpacing="0.06em"
+                textTransform="uppercase"
+                color="brand.gray"
+                mb={0.5}>
+                {labels[i]}
               </Text>
             )}
             <Text
-              fontWeight={header ? '700' : '300'}
-              fontFamily={'Fustat-Regular'}>
-              {five}
+              fontSize={header ? '11px' : '14px'}
+              fontWeight={header ? '600' : i === 0 ? '500' : '400'}
+              letterSpacing={header ? '0.08em' : undefined}
+              textTransform={header ? 'uppercase' : undefined}
+              color={header ? 'brand.textSecondary' : 'brand.text'}
+              className={!header && (i === 1 || i === 2) ? 'mono' : undefined}>
+              {cell}
             </Text>
           </Box>
-        ) : null}
-      </Grid>
-    )
-  }
+        )
+      )}
+    </Grid>
+  )
 
   return (
-    <Flex direction="row" justify="center" background="white">
+    <Flex direction="row" justify="center" background="brand.background">
       <Flex
         direction={{ base: 'column', md: 'column' }}
         pt={12}
@@ -189,13 +156,12 @@ export const DaysFrom = () => {
             mt={{ base: 6, md: 6 }}
             bg="brand.primary"
             fontWeight="500"
-            fontFamily="Fustat-Regular"
-            borderRadius="0"
-            color="white"
+            borderRadius="md"
+            color="brand.onPrimary"
             mb={2}
             sx={{
               ':hover': {
-                bg: 'brand.accent' // Use Chakra's color tokens or any CSS color
+                bg: 'brand.primaryLight' // Use Chakra's color tokens or any CSS color
               }
             }}>
             Search
@@ -203,7 +169,14 @@ export const DaysFrom = () => {
         </FormControl>
 
         {store.state.dates.length ? (
-          <Box mt={4}>
+          <Box
+            mt={4}
+            borderRadius="lg"
+            overflow="hidden"
+            border="1px solid"
+            borderColor="brand.border"
+            boxShadow="brand.base"
+            bg="brand.surfaceRaised">
             {!isMobile &&
               tableRow(
                 ['Days From', 'Gregorian', 'Hebrew', 'Day', 'Events'],

@@ -16,7 +16,7 @@ export const Loading = ({ loading }) => {
         alignItems="center"
         zIndex="9999" // Ensure it's on top of everything
       >
-        <Spinner size="xl" color="white" />
+        <Spinner size="xl" color="brand.primary" />
       </Box>
     )
   )

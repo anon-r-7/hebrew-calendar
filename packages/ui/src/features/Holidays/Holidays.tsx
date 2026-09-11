@@ -63,8 +63,8 @@ export const Holidays = () => {
           maxW={{ base: '100%', md: theme.sizes.container.xl }}>
           <Heading
             size={{ base: 'md', md: 'lg' }}
-            fontWeight="700"
-            color="brand.light">
+            fontWeight="600"
+            color="brand.text">
             Holidays
           </Heading>
         </Flex>
@@ -76,44 +76,6 @@ export const Holidays = () => {
         onSubmit={onSubmit}
       />
       <List store={store} />
-
-      <Flex direction="column" align="center" justify="center">
-        <Flex
-          direction="row"
-          wrap="wrap"
-          justify="center"
-          align="center"
-          gap={{ base: 3, md: 6 }}
-          m={12}
-          w="full"
-          maxW={{ base: '100%', md: 760 }}>
-          <a href="/calendar">
-            <Text fontSize="md" color="brand.grey">
-              Calendar
-            </Text>
-          </a>
-          <a href="/holidays">
-            <Text fontSize="md" color="brand.light">
-              Holidays
-            </Text>
-          </a>
-          <a href="/days-from">
-            <Text fontSize="md" color="brand.grey">
-              Days From
-            </Text>
-          </a>
-          <a href="/days-between">
-            <Text fontSize="md" color="brand.light">
-              Days Between
-            </Text>
-          </a>
-          <a href="/timeline" target="_blank" rel="noopener noreferrer">
-            <Text fontSize="md" color="brand.grey">
-              Biblical Timeline
-            </Text>
-          </a>
-        </Flex>
-      </Flex>
     </Box>
   )
 }

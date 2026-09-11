@@ -54,7 +54,7 @@ export const DaysBetween = () => {
   const buttonWidth = useBreakpointValue({ base: '97%', md: '140px' })
 
   return (
-    <Flex direction="row" justify="center" background="white">
+    <Flex direction="row" justify="center" background="brand.background">
       <Flex
         direction={{ base: 'column', md: 'column' }}
         pt={12}
@@ -93,20 +93,50 @@ export const DaysBetween = () => {
             mt={{ base: 6, md: 6 }}
             bg="brand.primary"
             fontWeight="500"
-            fontFamily="Fustat-Regular"
-            borderRadius="0"
-            color="white"
+            borderRadius="md"
+            color="brand.onPrimary"
             mb={2}
             sx={{
               ':hover': {
-                bg: 'brand.accent' // Use Chakra's color tokens or any CSS color
+                bg: 'brand.primaryLight' // Use Chakra's color tokens or any CSS color
               }
             }}>
             Search
           </Button>
         </FormControl>
 
-        {store.state.diff ? <Text>{store.state.diff} days between</Text> : null}
+        {store.state.diff ? (
+          <Flex
+            mt={8}
+            direction="column"
+            align="center"
+            justify="center"
+            bg="brand.surfaceRaised"
+            border="1px solid"
+            borderColor="brand.border"
+            borderRadius="lg"
+            boxShadow="brand.base"
+            py={{ base: 8, md: 10 }}
+            px={6}>
+            <Text
+              className="mono"
+              fontFamily="heading"
+              fontSize={{ base: '44px', md: '64px' }}
+              fontWeight="600"
+              lineHeight="1"
+              color="brand.primary">
+              {store.state.diff}
+            </Text>
+            <Text
+              mt={3}
+              fontSize="11px"
+              letterSpacing="0.14em"
+              textTransform="uppercase"
+              color="brand.textSecondary">
+              Days Between
+            </Text>
+          </Flex>
+        ) : null}
       </Flex>
     </Flex>
   )

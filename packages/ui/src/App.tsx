@@ -2,6 +2,7 @@ import React from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
 
 import { Routes } from '@ui/Routes'
+import { AppHeader } from '@ui/components/AppHeader'
 import { Calendar } from '@ui/features/Calendar/Calendar'
 import { Holidays } from '@ui/features/Holidays/Holidays'
 import { DaysFromLanding } from '@ui/features/Tools/DaysFromLanding'
@@ -9,6 +10,7 @@ import { DaysBetweenLanding } from '@ui/features/Tools/DaysBetweenLanding'
 
 export const App = () => (
   <>
+    <AppHeader />
     <Switch>
       <Route
         exact

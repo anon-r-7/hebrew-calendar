@@ -4,62 +4,39 @@ export const Button = defineStyleConfig({
   baseStyle: {
     fontWeight: '600',
     borderRadius: 'full',
-    textTransform: 'uppercase',
-    fontFamily: 'Fustat-ExtraBold',
-    transition: 'all 0.2s ease-in-out'
+    letterSpacing: '.01em',
+    fontFamily: 'body',
+    transition: 'all .16s ease'
   },
   sizes: {
-    md: {
-      fontSize: '14px',
-      px: '24px',
-      py: '12px'
-    },
-    sm: {
-      fontSize: '13px',
-      px: '20px',
-      py: '10px'
-    }
+    md: { fontSize: '14px', px: '20px', py: '10px', h: 'auto' },
+    sm: { fontSize: '13px', px: '14px', py: '7px', h: 'auto' }
   },
   variants: {
     solid: {
       bg: 'brand.primary',
-      color: 'white',
-      _hover: {
-        bg: 'brand.primaryLight'
-      },
-      _active: {
-        bg: 'brand.primaryDark'
-      }
+      color: 'brand.onPrimary',
+      _hover: { bg: 'brand.primaryLight', _disabled: { bg: 'brand.primary' } },
+      _active: { bg: 'brand.primaryDark' }
     },
     outline: {
-      border: '2px solid',
-      borderColor: 'brand.primary',
-      color: 'brand.primary',
-      bg: 'transparent',
-      _hover: {
-        bg: 'brand.surface'
-      },
-      _active: {
-        bg: 'brand.primaryLight'
-      }
+      border: '1px solid',
+      borderColor: 'brand.border',
+      color: 'brand.text',
+      bg: 'brand.surfaceRaised',
+      _hover: { borderColor: 'brand.primary', bg: 'brand.surface' },
+      _active: { bg: 'brand.surface' }
     },
     ghost: {
-      color: 'brand.primary',
+      color: 'brand.text',
       bg: 'transparent',
-      _hover: {
-        bg: 'brand.surface'
-      }
+      _hover: { bg: 'brand.surface' }
     },
     subtle: {
       bg: 'brand.surface',
       color: 'brand.text',
-      _hover: {
-        bg: 'brand.primaryLight'
-      }
+      _hover: { bg: 'brand.backgroundAlt' }
     }
   },
-  defaultProps: {
-    size: 'md',
-    variant: 'solid'
-  }
+  defaultProps: { size: 'md', variant: 'solid' }
 })

@@ -60,9 +60,8 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
       <Flex flexDirection={{ base: 'column', md: 'row' }}>
         <Flex justifyContent={{ base: 'flex-end', md: '' }}>
           <NumberInput
-            bg="white"
+            bg="brand.surfaceRaised"
             size={inputSize}
-            fontFamily={'Fustat-Regular'}
             max={
               apiControls.type === 'gregorian'
                 ? apiControls.era === 'ad'
@@ -88,9 +87,8 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
             </NumberInputStepper>
           </NumberInput>
           <NumberInput
-            bg="white"
+            bg="brand.surfaceRaised"
             size={inputSize}
-            fontFamily={'Fustat-Regular'}
             max={
               apiControls.type === 'hebrew' &&
               isHebrewLeapYear(apiControls.start.split('-')[0])
@@ -118,11 +116,10 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
 
           {apiControls.type === 'gregorian' && (
             <Select
-              bg="white"
+              bg="brand.surfaceRaised"
               size={inputSize}
-              fontFamily={'Fustat-Regular'}
-              color={'black'}
-              borderRadius="0"
+              color={'brand.text'}
+              borderRadius="md"
               w={{ base: '33%', md: '80px' }}
               mr={{ base: 2, md: 2 }}
               mb={{ base: '3', md: 0 }}
@@ -136,11 +133,10 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
 
         <Flex>
           <Select
-            bg="white"
+            bg="brand.surfaceRaised"
             size={inputSize}
-            fontFamily={'Fustat-Regular'}
-            color={'black'}
-            borderRadius="0"
+            color={'brand.text'}
+            borderRadius="md"
             w={{ base: '33%', md: '140px' }}
             mr={{ base: 2, md: 2 }}
             mb={{ base: '3', md: 0 }}
@@ -150,11 +146,10 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
             <option value="hebrew">Hebrew</option>
           </Select>
           <Select
-            bg="white"
+            bg="brand.surfaceRaised"
             size={inputSize}
-            fontFamily={'Fustat-Regular'}
-            color={'black'}
-            borderRadius="0"
+            color={'brand.text'}
+            borderRadius="md"
             w={{ base: '33%', md: '90px' }}
             mr={{ base: 2, md: 2 }}
             mb={{ base: '3', md: 0 }}
@@ -172,13 +167,12 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
             mr={2}
             bg="brand.primary"
             fontWeight="500"
-            fontFamily="Fustat-Regular"
-            borderRadius="0"
-            color="white"
+            borderRadius="md"
+            color="brand.onPrimary"
             mb={marginBottom}
             sx={{
               ':hover': {
-                bg: '#105d89' // Use Chakra's color tokens or any CSS color
+                bg: 'brand.primaryLight' // Use Chakra's color tokens or any CSS color
               }
             }}>
             Search

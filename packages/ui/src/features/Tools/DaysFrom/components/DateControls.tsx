@@ -53,11 +53,10 @@ export const DateControls = ({ apiControls, setApiControls }) => {
               TYPE
             </FormLabel>
             <Select
-              bg="white"
+              bg="brand.surfaceRaised"
               size={inputSize}
-              fontFamily={'Fustat-Light'}
-              color={'black'}
-              borderRadius="0"
+              color={'brand.text'}
+              borderRadius="md"
               w={{ base: '100%', md: '140px' }}
               mr={{ base: 2, md: 2 }}
               mb={{ base: 3, md: 0 }}
@@ -73,11 +72,10 @@ export const DateControls = ({ apiControls, setApiControls }) => {
               CALENDAR
             </FormLabel>
             <Select
-              bg="white"
+              bg="brand.surfaceRaised"
               size={inputSize}
-              fontFamily={'Fustat-Light'}
-              color={'black'}
-              borderRadius="0"
+              color={'brand.text'}
+              borderRadius="md"
               w={{ base: '100%', md: '140px' }}
               mr={{ base: 2, md: 2 }}
               mb={{ base: 3, md: 0 }}
@@ -96,11 +94,10 @@ export const DateControls = ({ apiControls, setApiControls }) => {
                 Era
               </FormLabel>
               <Select
-                bg="white"
+                bg="brand.surfaceRaised"
                 size={inputSize}
-                fontFamily={'Fustat-Light'}
-                color={'black'}
-                borderRadius="0"
+                color={'brand.text'}
+                borderRadius="md"
                 w={{ base: '100%', md: '70px' }}
                 mr={{ base: 2, md: 2 }}
                 mb={{ base: '3', md: 0 }}
@@ -117,9 +114,8 @@ export const DateControls = ({ apiControls, setApiControls }) => {
               YEAR
             </FormLabel>
             <NumberInput
-              bg="white"
+              bg="brand.surfaceRaised"
               size={inputSize}
-              fontFamily={'Fustat-Light'}
               max={
                 apiControls.type === 'gregorian'
                   ? apiControls.era === 'ad'
@@ -149,9 +145,8 @@ export const DateControls = ({ apiControls, setApiControls }) => {
                   MONTH
                 </FormLabel>
                 <NumberInput
-                  bg="white"
+                  bg="brand.surfaceRaised"
                   size={inputSize}
-                  fontFamily={'Fustat-Light'}
                   w={{ base: '100%', md: '140px' }}
                   max={
                     apiControls.type === 'hebrew' &&
@@ -182,9 +177,8 @@ export const DateControls = ({ apiControls, setApiControls }) => {
                   DAY
                 </FormLabel>
                 <NumberInput
-                  bg="white"
+                  bg="brand.surfaceRaised"
                   size={inputSize}
-                  fontFamily={'Fustat-Light'}
                   max={31}
                   min={1}
                   w={{ base: '100%', md: '140px' }}
@@ -206,11 +200,10 @@ export const DateControls = ({ apiControls, setApiControls }) => {
                 EVENT
               </FormLabel>
               <Select
-                bg="white"
+                bg="brand.surfaceRaised"
                 size={inputSize}
-                fontFamily={'Fustat-Light'}
-                color={'black'}
-                borderRadius="0"
+                color={'brand.text'}
+                borderRadius="md"
                 w={{ base: '100%', md: '180px' }}
                 mr={{ base: 2, md: 2 }}
                 mb={{ base: 3, md: 0 }}

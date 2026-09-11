@@ -15,6 +15,35 @@ import {
 import { daysOfWeek } from '@ui/utils/date'
 import { EmptyCalendar } from './EmptyCalendar'
 
+// Drawer-style label/value rows, mirroring the timeline's event drawer (`dl/dt/dd`):
+// uppercase mono-ish micro-labels beside the value, generous baseline grid.
+const DL = (props) => (
+  <Box
+    as="dl"
+    display="grid"
+    gridTemplateColumns="max-content 1fr"
+    gap="8px 14px"
+    alignItems="baseline"
+    m={0}
+    {...props}
+  />
+)
+const DT = (props) => (
+  <Text
+    as="dt"
+    fontSize="10px"
+    letterSpacing="0.09em"
+    textTransform="uppercase"
+    color="brand.gray"
+    whiteSpace="nowrap"
+    m={0}
+    {...props}
+  />
+)
+const DD = (props) => (
+  <Text as="dd" fontSize="13px" color="brand.text" m={0} {...props} />
+)
+
 const isPrimaryMonth = (date, primaryDate) => {
   if (!date) return false
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -199,11 +228,12 @@ const Event = ({ event, datesGrid, day }) => {
           w="full"
           mt={1}
           p={1}
-          fontWeight="500"
-          fontFamily="Fustat-Light"
+          fontWeight="600"
           fontSize={{ base: '10', md: '12' }}
-          bg={'brand.primary'}
-          color="white"
+          bg="brand.feastBg"
+          color="brand.feastText"
+          border="1px solid"
+          borderColor="brand.feastBorder"
           textAlign="center"
           borderTopLeftRadius={continueLeft ? 0 : 12}
           borderBottomLeftRadius={continueLeft ? 0 : 12}
@@ -217,32 +247,53 @@ const Event = ({ event, datesGrid, day }) => {
         </Box>
       </PopoverTrigger>
       <PopoverContent
-        _focus={{ outline: 'none' }}
+        _focus={{ outline: 'none', boxShadow: 'brand.lift' }}
+        _focusVisible={{ outline: 'none', boxShadow: 'brand.lift' }}
         sx={{
           display: isOpen ? 'flex' : 'none',
-          bg: 'white',
-          borderColor: 'white', // Ensure this color is visible
-          borderWidth: '0', // Adjusted to be visible
-          boxShadow: 's', // Adding a shadow for emphasis
+          bg: 'brand.surfaceRaised',
+          borderColor: 'brand.border',
+          borderWidth: '1px',
+          borderRadius: 'md',
+          boxShadow: 'brand.lift',
           outline: 'none'
         }}>
-        <PopoverBody style={{ fontFamily: 'Fustat-Regular' }}>
-          <Text style={{ fontWeight: '700' }}>{event.name}</Text>
-          <Text style={{ fontSize: 14 }}>
-            <b>Hebrew Date:</b> {day.yy}-{day.mm}-{day.dd}
+        <PopoverBody px={4} py={3}>
+          <Text
+            fontFamily="heading"
+            fontSize="18px"
+            fontWeight="600"
+            lineHeight="1.15"
+            color="brand.text"
+            mb={eventDetails.hebrew ? 0.5 : 2.5}>
+            {event.name}
           </Text>
-          <Text style={{ fontSize: 14 }}>
-            <b>Gregorian Date:</b> {day.gregorian}
-          </Text>
-          <Text style={{ fontSize: 14 }}>
-            <b>Hebrew:</b> {eventDetails.hebrew}
-          </Text>
-          <Text style={{ fontSize: 14 }}>
-            <b>English:</b> {eventDetails.english}
-          </Text>
-          <Text style={{ fontSize: 14 }}>
-            <b>Pronunciation:</b> {eventDetails.pronunciation}
-          </Text>
+          {eventDetails.hebrew && (
+            <Text fontSize="15px" color="brand.primary" mb={2.5}>
+              {eventDetails.hebrew}
+            </Text>
+          )}
+          <DL>
+            <DT>Hebrew</DT>
+            <DD className="mono">
+              {day.yy}-{String(day.mm).padStart(2, '0')}-
+              {String(day.dd).padStart(2, '0')}
+            </DD>
+            <DT>Gregorian</DT>
+            <DD className="mono">{day.gregorian}</DD>
+            {eventDetails.english && (
+              <>
+                <DT>English</DT>
+                <DD>{eventDetails.english}</DD>
+              </>
+            )}
+            {eventDetails.pronunciation && (
+              <>
+                <DT>Say</DT>
+                <DD>{eventDetails.pronunciation}</DD>
+              </>
+            )}
+          </DL>
         </PopoverBody>
       </PopoverContent>
     </Popover>
@@ -262,33 +313,17 @@ const Details = ({
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const Astronomy = ({ parent, type, isHeader, hour, min, sec }) => {
+    const cellColor = isHeader ? 'brand.primaryLight' : 'brand.text'
+    const cellWeight = isHeader ? 700 : 300
     return (
       <Flex flexDirection="row">
-        <Text
-          style={{
-            flex: 2,
-            fontSize: 12,
-            fontWeight: isHeader ? 700 : 300,
-            color: isHeader ? theme.colors.brand.primaryLight : 'black'
-          }}>
+        <Text flex={2} fontSize="xs" fontWeight={cellWeight} color={cellColor}>
           {parent === 'Type' ? 'Type' : parent === 'sun' ? 'Solar' : 'Lunar'}
         </Text>
-        <Text
-          style={{
-            flex: 3,
-            fontSize: 12,
-            fontWeight: isHeader ? 700 : 300,
-            color: isHeader ? theme.colors.brand.primaryLight : 'black'
-          }}>
+        <Text flex={3} fontSize="xs" fontWeight={cellWeight} color={cellColor}>
           {type}
         </Text>
-        <Text
-          style={{
-            flex: 2,
-            fontSize: 12,
-            fontWeight: isHeader ? 700 : 300,
-            color: isHeader ? theme.colors.brand.primaryLight : 'black'
-          }}>
+        <Text flex={2} fontSize="xs" fontWeight={cellWeight} color={cellColor}>
           {isHeader
             ? 'Time'
             : `${String(hour).padStart(2, '0')}:${String(min).padStart(
@@ -308,28 +343,30 @@ const Details = ({
       _focus={{ outline: 'none' }}>
       <PopoverTrigger>
         <Text
-          fontFamily={isPrimary ? 'Fustat-Regular' : 'Fustat-Light'}
+          color="brand.text"
           fontWeight={isPrimary ? '500' : '300'}
           position="absolute"
           top="0"
           right="1"
           borderBottomWidth={1}
-          borderBottomColor={'#ccc'}
+          borderBottomColor="brand.border"
           fontSize={'xs'}>
           {primaryDate}
         </Text>
       </PopoverTrigger>
       <PopoverContent
-        _focus={{ outline: 'none' }}
+        _focus={{ outline: 'none', boxShadow: 'brand.lift' }}
+        _focusVisible={{ outline: 'none', boxShadow: 'brand.lift' }}
         sx={{
           display: isOpen ? 'flex' : 'none',
-          bg: 'white',
-          borderColor: 'white', // Ensure this color is visible
-          borderWidth: '0', // Adjusted to be visible
-          boxShadow: 's', // Adding a shadow for emphasis
+          bg: 'brand.surfaceRaised',
+          borderColor: 'brand.border',
+          borderWidth: '1px',
+          borderRadius: 'md',
+          boxShadow: 'brand.lift',
           outline: 'none'
         }}>
-        <PopoverBody style={{ fontFamily: 'Fustat-Regular' }}>
+        <PopoverBody>
           <Flex flexDirection="row" justifyContent={'space-between'}>
             <Text style={{ fontSize: 12, fontWeight: '300' }}>
               {type === 'gregorian' ? 'Hebrew' : 'Gregorian'} {secondaryYear}/
@@ -436,8 +473,7 @@ const Day = ({ day, datesGrid, type, isPrimary, theme }) => {
         theme={theme}
       />
       <Text
-        color={'#777'}
-        fontFamily={isPrimary ? 'Fustat-Regular' : 'Fustat-Light'}
+        color="brand.textSecondary"
         fontWeight={isPrimary ? '500' : '300'}
         position="absolute"
         top="0"
@@ -533,7 +569,13 @@ export const CalendarGrid = ({ dates, type }) => {
 
   const primaryDate = datesGrid[firstDayIndex][type]
 
-  const today = new Date().toISOString().split('T')[0]
+  // Local calendar date (NOT toISOString(), which is UTC — that made "today" flip to
+  // tomorrow after ~7pm Central). Uses the viewer's own timezone.
+  const now = new Date()
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
+    2,
+    '0'
+  )}-${String(now.getDate()).padStart(2, '0')}`
 
   return (
     <Flex direction="column" align="center" justify="center">
@@ -561,21 +603,27 @@ export const CalendarGrid = ({ dates, type }) => {
                 m={0}
                 bg={
                   isToday
-                    ? '#ffefc0'
+                    ? 'brand.cellToday'
                     : !isPrimaryMonth(day ? day[type] : null, primaryDate)
-                    ? '#ccc'
+                    ? 'brand.cellMuted'
                     : isDayOfRest(day)
-                    ? '#c7dfec'
-                    : 'brand.light'
+                    ? 'brand.cellRest'
+                    : 'brand.cell'
                 }
-                border="0.5px solid"
-                borderColor="brand.gray"
+                border="1px solid"
+                borderColor="brand.border"
+                boxShadow={
+                  isToday
+                    ? 'inset 0 0 0 2px var(--chakra-colors-brand-primary)'
+                    : undefined
+                }
+                position="relative"
+                zIndex={isToday ? 1 : undefined}
                 borderRadius={{ base: 'none', md: 'none' }}
                 display="flex"
                 flexDirection="column"
                 alignItems="center"
-                justifyContent="center"
-                boxShadow={day ? theme.shadows.brand.surface : 'none'}>
+                justifyContent="center">
                 <Day
                   day={day}
                   datesGrid={datesGrid}
@@ -607,12 +655,11 @@ const Week = ({ day, theme }) => {
       h="24px" // Fixed height for header cells
       p={2}
       m={1}
-      color="brand.light"
+      color="brand.textSecondary"
       display="flex"
       flexDirection="column"
       alignItems="center"
-      justifyContent="center"
-      boxShadow={theme.shadows.brand.surface}>
+      justifyContent="center">
       <Text fontSize="md" fontWeight="700">
         {dayDisplay}
       </Text>

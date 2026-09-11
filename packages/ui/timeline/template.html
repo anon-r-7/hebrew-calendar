@@ -1,4 +1,7 @@
 <title>Anno Mundi Timeline</title>
+<!-- Share the calendar app's color-mode key so light/dark stays consistent across the
+     whole site. Runs before paint to avoid a flash. Defaults to dark (like the app). -->
+<script>(function(){try{var k='chakra-ui-color-mode';var t=localStorage.getItem(k);if(t!=='light'&&t!=='dark'){t='dark';localStorage.setItem(k,t);}document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Fonts load async (media=print + onload) so the page NEVER blocks on Google Fonts.
@@ -358,6 +361,9 @@ a{ color:inherit; }
 <div class="page">
   <div class="controls">
     <div class="controls-row toprow">
+      <a class="icon-btn" id="home" href="/" title="Back to Hebrew Feasts" aria-label="Back to Hebrew Feasts" style="text-decoration:none">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V20h4v-6h5v6h4v-9.5"/></svg>
+      </a>
       <input class="search" id="search" type="search" placeholder="Search events, people, sources&#8230;" autocomplete="off" aria-label="Search the timeline">
       <span class="spacer"></span>
       <span class="ckey" id="ckey"></span>
@@ -790,14 +796,14 @@ a{ color:inherit; }
   }
 
   // ---- THEME TOGGLE ----
+  // Shares "chakra-ui-color-mode" with the calendar app (applied pre-paint in <head>),
+  // so light/dark is consistent across the whole site.
   const themeBtn = document.getElementById("theme");
-  try{ const saved = localStorage.getItem("am-theme"); if(saved) document.documentElement.setAttribute("data-theme",saved); }catch(e){}
   themeBtn.addEventListener("click",()=>{
-    const cur = document.documentElement.getAttribute("data-theme");
-    const sysDark = window.matchMedia("(prefers-color-scheme:dark)").matches;
-    const next = cur ? (cur==="dark"?"light":"dark") : (sysDark?"light":"dark");
+    const cur = document.documentElement.getAttribute("data-theme")||"dark";
+    const next = cur==="dark"?"light":"dark";
     document.documentElement.setAttribute("data-theme",next);
-    try{ localStorage.setItem("am-theme",next); }catch(e){}
+    try{ localStorage.setItem("chakra-ui-color-mode",next); }catch(e){}
   });
 
   // ---- INIT ----

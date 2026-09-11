@@ -22,20 +22,33 @@ const serveStaticTimeline = {
   }
 }
 
-export default defineConfig({
+export default defineConfig(({ command }) => {
+  const isDev = command === 'serve'
+  return {
   build: {
     target: 'es2018',
     minify: true,
     outDir: '../build',
   },
   define: {
-    envApiURl: JSON.stringify(apiUrl),
+    // In dev, talk to a same-origin relative `/v1` so the reverse proxy below handles
+    // it (no CORS). In a production build, keep baking the real API URL as before.
+    envApiUrl: JSON.stringify(isDev ? '' : apiUrl),
   },
   envPrefix: `${prefix}_`,
   plugins: [reactRefresh(), serveStaticTimeline],
   root: './src',
   server: {
-    port: 3005
+    port: 3005,
+    // Reverse-proxy the API so the browser never makes a cross-origin request.
+    // `/v1/...` -> `${UI_API_URL}/v1/...` (defaults to http://localhost:8080).
+    proxy: {
+      '/v1': {
+        target: apiUrl,
+        changeOrigin: true,
+        secure: false
+      }
+    }
   },
   resolve: {
     alias: {
@@ -53,5 +66,6 @@ export default defineConfig({
         })
       ]
     }
+  }
   }
 })

@@ -34,11 +34,10 @@ export const OptionControls = ({ apiControls, setApiControls }) => {
               DIRECTION
             </FormLabel>
             <Select
-              bg="white"
+              bg="brand.surfaceRaised"
               size={inputSize}
-              fontFamily={'Fustat-Regular'}
-              color={'black'}
-              borderRadius="0"
+              color={'brand.text'}
+              borderRadius="md"
               w={{ base: '100%', md: '140px' }}
               mr={{ base: 2, md: 0 }}
               mb={{ base: 3, md: 0 }}
@@ -56,9 +55,8 @@ export const OptionControls = ({ apiControls, setApiControls }) => {
               DAYS FROM DATE
             </FormLabel>
             <NumberInput
-              bg="white"
+              bg="brand.surfaceRaised"
               size={inputSize}
-              fontFamily={'Fustat-Regular'}
               w={{ base: '100%', md: '140px' }}
               onChange={(valueString) => handleChange('days', valueString)}
               min={15}
@@ -77,9 +75,8 @@ export const OptionControls = ({ apiControls, setApiControls }) => {
               BUFFER (+/-)
             </FormLabel>
             <NumberInput
-              bg="white"
+              bg="brand.surfaceRaised"
               size={inputSize}
-              fontFamily={'Fustat-Regular'}
               w={{ base: '100%', md: '140px' }}
               min={0}
               max={7}
