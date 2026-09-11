@@ -41,7 +41,7 @@ export const Calendar = () => {
 
     return {
       start: `${year}-${month}-01`,
-      era: 'ad',
+      era: searchParams.get('era') === 'bc' ? 'bc' : 'ad',
       type: searchParams.get('type') || defaultApiControls.type,
       with_events:
         searchParams.get('with_events') === 'false'
@@ -74,7 +74,31 @@ export const Calendar = () => {
     }
   }, [])
 
+  // Reflect the current selection in the URL so the view is shareable —
+  // copy/paste the link and it opens the same month for anyone.
+  const syncUrl = () => {
+    try {
+      const params = new URLSearchParams()
+      params.set('start', apiControls.start)
+      if (apiControls.type && apiControls.type !== 'gregorian') {
+        params.set('type', apiControls.type)
+      }
+      if (apiControls.era === 'bc') params.set('era', 'bc')
+      if (apiControls.with_astronomy === 'true') {
+        params.set('with_events', 'true')
+      } else if (apiControls.with_events === false) {
+        params.set('with_events', 'false')
+      }
+      const next = `${window.location.pathname}?${params.toString()}`
+      if (next !== window.location.pathname + window.location.search) {
+        window.history.replaceState({}, '', next)
+      }
+    } catch (e) {}
+  }
+
   const onSubmit = () => {
+    syncUrl()
+
     const [start, end] =
       apiControls.type === 'gregorian'
         ? getMonthRangeGregorian(apiControls.start, apiControls.era)

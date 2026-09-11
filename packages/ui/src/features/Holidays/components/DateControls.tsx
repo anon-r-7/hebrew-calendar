@@ -7,98 +7,46 @@ import {
   NumberInputStepper,
   NumberIncrementStepper,
   NumberDecrementStepper,
-  Select,
-  Stack,
-  useBreakpointValue,
-  useTheme
+  useBreakpointValue
 } from '@chakra-ui/react'
 
 export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
-  const theme = useTheme()
-
   const handleChange = (key, value) => {
-    setApiControls((prev) => ({
-      ...prev,
-      [key]: value
-    }))
+    setApiControls((prev) => ({ ...prev, [key]: value }))
   }
 
-  const buttonSize = useBreakpointValue({ base: 'lg', md: 'sm' })
-  const inputSize = useBreakpointValue({ base: 'lg', md: 'sm' })
-  const marginSide = useBreakpointValue({ base: '2', md: '2' })
-  const marginBottom = useBreakpointValue({ base: '2', md: '0' })
-  const orientation = useBreakpointValue({ base: 'vertical', md: 'horizontal' })
+  const size = useBreakpointValue({ base: 'md', md: 'sm' })
 
+  // Holidays are always Gregorian — just a year + search, centered like the table below.
   return (
-    <Stack
-      direction={orientation}
-      justifyContent="center"
-      align="center"
-      w="full"
-      maxW={{ base: '100%', md: theme.sizes.container.xl }}
-      p={2}
-      spacing={4}>
-      <Flex flexDirection={{ base: 'column', md: 'row' }}>
-        <Flex justifyContent={{ base: 'flex-end', md: '' }}>
-          <NumberInput
-            bg="brand.surfaceRaised"
-            size={inputSize}
-            max={
-              apiControls.type === 'gregorian'
-                ? apiControls.era === 'ad'
-                  ? 4200
-                  : 4004
-                : 7960
-            }
-            min={apiControls.type === 'gregorian' ? 1 : 1}
-            w={{
-              base: apiControls.type === 'gregorian' ? '33%' : '50%',
-              md: '90px'
-            }}
-            onChange={(value) => handleChange('year', value)}
-            value={apiControls.year}
-            mr={marginSide}
-            mb={{ base: 2, md: 0 }}>
-            <NumberInputField />
-            <NumberInputStepper>
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
-          </NumberInput>
-          <Select
-            bg="brand.surfaceRaised"
-            size={inputSize}
-            color={'brand.text'}
-            borderRadius="md"
-            w={{ base: '33%', md: '140px' }}
-            mr={{ base: 2, md: 2 }}
-            mb={{ base: '3', md: 0 }}
-            onChange={(e) => handleChange('type', e.target.value)}
-            value={apiControls.type}>
-            <option value="gregorian">Gregorian</option>
-            <option value="hebrew">Hebrew</option>
-          </Select>
-          <Button
-            size={buttonSize}
-            onClick={onSubmit}
-            w={{ base: '33%', md: '140px' }}
-            height={{ base: '47px', md: 'initial ' }}
-            mt={{ base: 0.25, md: 0 }}
-            mr={2}
-            bg="brand.primary"
-            fontWeight="500"
-            borderRadius="md"
-            color="brand.onPrimary"
-            mb={marginBottom}
-            sx={{
-              ':hover': {
-                bg: 'brand.primaryLight'
-              }
-            }}>
-            Search
-          </Button>
-        </Flex>
-      </Flex>
-    </Stack>
+    <Flex w="full" justify="center" align="center" gap={2} py={2}>
+      <NumberInput
+        bg="brand.surfaceRaised"
+        size={size}
+        max={apiControls.era === 'bc' ? 4004 : 4200}
+        min={1}
+        w={{ base: '120px', md: '120px' }}
+        flex="none"
+        onChange={(value) => handleChange('year', value)}
+        value={apiControls.year}>
+        <NumberInputField />
+        <NumberInputStepper>
+          <NumberIncrementStepper />
+          <NumberDecrementStepper />
+        </NumberInputStepper>
+      </NumberInput>
+      <Button
+        size={size}
+        onClick={onSubmit}
+        w={{ base: '120px', md: '140px' }}
+        flex="none"
+        bg="brand.primary"
+        fontWeight="500"
+        borderRadius="md"
+        color="brand.onPrimary"
+        sx={{ ':hover': { bg: 'brand.primaryLight' } }}>
+        Search
+      </Button>
+    </Flex>
   )
 }

@@ -87,9 +87,10 @@ export const getMonthRangeGregorian = (start, era) => {
 }
 
 export const isHebrewLeapYear = (year) => {
-  // Calculate the position of the year in the current 19-year cycle
-  // Year 1 of the cycle was 5758 in the provided data, so adjust the input year accordingly
-  const cycleYear = ((year - 5758) % 19) + 1
+  // Calculate the position of the year in the current 19-year cycle.
+  // NOTE: Hebrew years were re-epoched so 4004 BC = year 1 (a +243 shift), so the
+  // metonic-cycle anchor that used to be 5758 is now 5758 + 243 = 6001.
+  const cycleYear = ((year - 6001) % 19) + 1
 
   // Define the leap years in the cycle
   const leapYears = [3, 6, 8, 11, 14, 17, 19]

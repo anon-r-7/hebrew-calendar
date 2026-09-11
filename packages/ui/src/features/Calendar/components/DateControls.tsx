@@ -69,7 +69,7 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
       <NumberInput
         bg="brand.surfaceRaised"
         size={size}
-        max={isGregorian ? (apiControls.era === 'ad' ? 4200 : 4004) : 7960}
+        max={isGregorian ? (apiControls.era === 'ad' ? 4200 : 4004) : 8203}
         min={1}
         w={{ base: '86px', md: '90px' }}
         flex="none"
