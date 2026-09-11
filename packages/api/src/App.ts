@@ -3,6 +3,7 @@ import bodyParser from 'body-parser'
 import cors from 'cors'
 import morgan from 'morgan'
 import Routes from '@api/routes'
+import syncHandler from '@api/routes/sync/proxy'
 import { logger } from '@api/utils/logger'
 
 const port = process.env.SERVER_PORT ? process.env.SERVER_PORT : 5000
@@ -20,6 +21,10 @@ export default () => {
       credentials: true
     })
   )
+
+  // First-party GA4 proxy (see routes/sync/proxy.ts). Mounted before the JSON
+  // parser with a raw body parser, since gtag beacons are text/plain, not JSON.
+  app.use('/sync', express.raw({ type: '*/*', limit: '512kb' }), syncHandler)
 
   app.use(bodyParser.json())
 

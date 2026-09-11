@@ -247,9 +247,8 @@ const PREAMBLE =
   '<head>\n' +
   '<meta charset="utf-8">\n' +
   '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n' +
-  '<meta http-equiv="Content-Security-Policy" content="script-src \'self\' \'unsafe-inline\' https://www.googletagmanager.com https://www.google-analytics.com; style-src \'self\' https://fonts.googleapis.com \'unsafe-inline\'; font-src \'self\' https://fonts.gstatic.com;">\n' +
-  '<script async src="https://www.googletagmanager.com/gtag/js?id=G-MH4XYVN0M8"></script>\n' +
-  '<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());if(/(^|\\.)hebrewfeasts\\.com$/.test(location.hostname)){gtag("config","G-MH4XYVN0M8")}</script>\n' +
+  '<meta http-equiv="Content-Security-Policy" content="script-src \'self\' \'unsafe-inline\' https://api.hebrewfeasts.com; style-src \'self\' https://fonts.googleapis.com \'unsafe-inline\'; font-src \'self\' https://fonts.gstatic.com;">\n' +
+  '<script>(function(){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}window.gtag=gtag;gtag("js",new Date());if(!/(^|\\.)hebrewfeasts\\.com$/.test(location.hostname))return;var s=document.createElement("script");s.async=true;s.src="https://api.hebrewfeasts.com/sync/gtag/js?id=G-MH4XYVN0M8";document.head.appendChild(s);gtag("config","G-MH4XYVN0M8",{transport_url:"https://api.hebrewfeasts.com/sync"})})();</script>\n' +
   '<meta name="description" content="A calendar for all Jewish Feasts back to 1 AD">\n' +
   '<meta name="author" content="Hebrew Feasts">\n' +
   '<meta name="keywords" content="Hebrew Feasts">\n' +
