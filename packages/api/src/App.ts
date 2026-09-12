@@ -16,6 +16,7 @@ export default () => {
       origin: [
         'https://hebrewfeasts.com',
         'https://admin.hebrewfeasts.com',
+        'http://localhost:3005',
         'http://localhost:3006'
       ],
       credentials: true

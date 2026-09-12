@@ -1,7 +1,9 @@
 import api from '@ui/api/dates'
+import type { Unit } from '@ui/features/Calendar/types'
 
 interface Payload {
   type: type
+  unit: Unit
   start: string
   end: string
   era_start: string
@@ -22,9 +24,13 @@ export const getDaysBetweenDates = async ({
 }: Data) => {
   try {
     asyncManager.start()
-    const diff = await api.getDaysBetweenDates(payload)
+    // detail=true: the number in the chosen unit plus everything the breakdown table needs
+    const result = await api.getDaysBetweenDates({ ...payload, detail: true })
+    // an API that predates detail= answers with the bare number; fail cleanly, don't crash the page
+    if (typeof result !== 'object' || result === null || typeof result.diff !== 'number')
+      throw new Error('days-between-dates did not return a detail object')
     asyncManager.success()
-    store.update({ diff, type: payload.type })
+    store.update({ result, type: payload.type })
     asyncManager.success()
   } catch (error) {
     asyncManager.fail(

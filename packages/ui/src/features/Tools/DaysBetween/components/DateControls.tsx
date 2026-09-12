@@ -48,8 +48,8 @@ export const DateControls = ({ apiControls, setApiControls }) => {
     <>
       <Stack direction={orientation} align="center" w="full">
         <Flex w="100%" flexDirection={{ base: 'column', md: 'row' }}>
-          <Flex w="100%">
-            <FormControl id="day" mr={marginSide} mb={{ base: 2, md: 0 }}>
+          <Flex>
+            <FormControl id="calendar" mr={marginSide} mb={{ base: 2, md: 0 }}>
               <FormLabel fontSize="11" pl="2">
                 CALENDAR
               </FormLabel>
@@ -65,6 +65,25 @@ export const DateControls = ({ apiControls, setApiControls }) => {
                 value={apiControls.type}>
                 <option value="gregorian">Gregorian</option>
                 <option value="hebrew">Hebrew</option>
+              </Select>
+            </FormControl>
+
+            <FormControl id="unit" mr={marginSide} mb={{ base: 2, md: 0 }}>
+              <FormLabel fontSize="11" pl="2">
+                UNIT
+              </FormLabel>
+              <Select
+                bg="brand.surfaceRaised"
+                size={inputSize}
+                color={'brand.text'}
+                borderRadius="md"
+                w={{ base: '100%', md: '140px' }}
+                mr={{ base: 2, md: 2 }}
+                mb={{ base: 3, md: 0 }}
+                onChange={(e) => handleChange('unit', e.target.value)}
+                value={apiControls.unit}>
+                <option value="days">Days</option>
+                <option value="new_moons">New Moons</option>
               </Select>
             </FormControl>
           </Flex>

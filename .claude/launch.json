@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ui",
+      "runtimeExecutable": "env",
+      "runtimeArgs": ["UI_API_URL=https://api.hebrewfeasts.com", "yarn", "workspace", "hebrew-feasts-ui", "start"],
+      "port": 3005
+    }
+  ]
+}

@@ -5,6 +5,7 @@ export interface HebrewDates {
   gregorian: Date
   day_of_week: string
   day_index: number
+  month_index: number
   dd: number
   mm: number
   yy: number
@@ -22,6 +23,7 @@ export class HebrewDatesModel
   public gregorian!: Date
   public day_of_week!: string
   public day_index!: number
+  public month_index!: number
   public dd!: number
   public mm!: number
   public yy!: number
@@ -40,6 +42,9 @@ export default (sequelize: Sequelize) => {
         type: DataTypes.STRING
       },
       day_index: {
+        type: DataTypes.BIGINT
+      },
+      month_index: {
         type: DataTypes.BIGINT
       },
       dd: {

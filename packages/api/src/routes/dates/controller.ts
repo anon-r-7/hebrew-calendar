@@ -19,6 +19,8 @@ import {
   findByHebrewEventAndYear,
   findByGregorianEventAndYear,
   findAllByIndexRange,
+  findMonthByIndex,
+  findAllByMonthIndexAndDays,
   findGregorianEventsByYear,
   findHebrewEventsByYear
 } from '@api/models/HebrewDates/methods'
@@ -181,9 +183,11 @@ class DatesController {
       const direction =
         typeof req.query.direction === 'string'
           ? req.query.direction
-          : 'forward'
+          : 'future'
       const include_first_day =
         req.query.include_first_day && req.query.include_first_day === 'true'
+      // 'days' (day_index) or 'new_moons' (month_index)
+      const unit = req.query.unit === 'new_moons' ? 'new_moons' : 'days'
 
       let start_date
 
@@ -249,6 +253,69 @@ class DatesController {
         return
       }
 
+      if (unit === 'new_moons') {
+        // N new moons from a date = the same day of the month, N months later (or earlier).
+        // "Include first month" counts the start month as month 1, like include_first_day.
+        // No buffer in this mode: normally exactly one date comes back; when the target
+        // month has no such day, a message plus the nearest corresponding days come back.
+        let month_index = Number(start_date.month_index)
+        if (include_first_day)
+          month_index = direction === 'future' ? month_index - 1 : month_index + 1
+
+        const match_month =
+          direction === 'future'
+            ? Number(month_index + days)
+            : Number(month_index - days)
+        const dd = Number(start_date.dd)
+
+        const month = await findMonthByIndex(match_month)
+        if (!month) {
+          next(new HttpException(404, 'Invalid date range'))
+          return
+        }
+
+        const withDistance = (rows) =>
+          rows.map((row) => ({
+            ...row,
+            // Math.abs accounts for direction 'forward' or 'past'
+            new_moons_from_month_index: Math.abs(
+              Number(row.month_index) - month_index
+            )
+          }))
+
+        const exact = await findAllByMonthIndexAndDays(match_month, [dd])
+        if (exact.length) {
+          res.json({ message: null, dates: withDistance(exact) })
+          logger.info('getDate Success')
+          return
+        }
+
+        let message: string
+        let nearest
+        if (dd > month.last_dd && month.last_dd >= 29) {
+          // the month is shorter than the start's day of month: its last day, then as many
+          // days of the following month as the overflow (Hebrew months are 29 or 30 days,
+          // so in practice the last day and the 1st of the next month)
+          const overflow = dd - month.last_dd
+          nearest = await findAllByIndexRange(
+            month.last_day_index,
+            month.last_day_index + overflow
+          )
+          message = `The ${
+            direction === 'past' ? 'previous' : 'next'
+          } new moon's month has only ${month.last_dd} days, so it has no day ${dd}. Below are the nearest corresponding days:`
+        } else {
+          // the day exists in the calendar but has no row: one of the 42 Julian century leap
+          // days a Postgres date cannot hold. Show the days either side of it.
+          nearest = await findAllByMonthIndexAndDays(match_month, [dd - 1, dd + 1])
+          message = `Day ${dd} of that month has no entry in the calendar (it falls on a Julian leap day the table cannot store). Below are the nearest days:`
+        }
+
+        res.json({ message, dates: withDistance(nearest) })
+        logger.info('getDate Success')
+        return
+      }
+
       let day_index = Number(start_date.day_index)
       if (include_first_day)
         day_index = direction === 'future' ? day_index - 1 : day_index + 1
@@ -261,7 +328,12 @@ class DatesController {
       const start_index = Number(match_index - buffer)
       const end_index = Number(match_index + buffer)
 
-      if (!start_index || !end_index || start_index > end_index) {
+      // day 0 (1-07-30, the eve of creation) is a valid index, so test for numbers, not truthiness
+      if (
+        !Number.isFinite(start_index) ||
+        !Number.isFinite(end_index) ||
+        start_index > end_index
+      ) {
         next(new HttpException(404, 'Invalid date range'))
         return
       }
@@ -308,6 +380,11 @@ class DatesController {
         typeof req.query.era_end === 'string' ? req.query.era_end : ''
       const include_first_day =
         req.query.include_first_day && req.query.include_first_day === 'true'
+      // 'days' (day_index) or 'new_moons' (month_index); detail=true returns the breakdown
+      // object instead of the bare number (the bare number stays the default for callers
+      // like the spreadsheet's getDays()).
+      const unit = req.query.unit === 'new_moons' ? 'new_moons' : 'days'
+      const detail = req.query.detail === 'true'
 
       let start_date, end_date
 
@@ -345,13 +422,54 @@ class DatesController {
         return
       }
 
-      const start_index = Number(start_date.day_index)
-      const end_index = Number(end_date.day_index)
+      const first = include_first_day ? 1 : 0
+      const days =
+        Math.abs(Number(end_date.day_index) - Number(start_date.day_index)) +
+        first
+      const new_moons =
+        Math.abs(
+          Number(end_date.month_index) - Number(start_date.month_index)
+        ) + first
+      const years_civil = Math.abs(Number(end_date.yy) - Number(start_date.yy))
+      const diff = unit === 'new_moons' ? new_moons : days
 
-      let diff = Math.abs(end_index - start_index)
-      if (include_first_day) diff = diff + 1
+      // fractional new moons: each date as month_index + (dd - 1) / days in its month, so
+      // the 15th -> 15th of two 30-day months is N.0 and the 15th -> 14th is N.9667
+      const position = async (row) => {
+        const month = await findMonthByIndex(Number(row.month_index))
+        const length = month ? month.last_dd : 30
+        return Number(row.month_index) + (Number(row.dd) - 1) / length
+      }
+      const new_moons_fraction =
+        Math.abs((await position(end_date)) - (await position(start_date))) + first
 
-      res.json(diff)
+      if (!detail) {
+        res.json(diff)
+        logger.info('getDate Success')
+        return
+      }
+
+      const pick = ({ gregorian, day_of_week, day_index, month_index, yy, mm, dd }) => ({
+        gregorian,
+        day_of_week,
+        day_index: Number(day_index),
+        month_index: Number(month_index),
+        yy,
+        mm,
+        dd
+      })
+
+      res.json({
+        unit,
+        diff,
+        days,
+        new_moons,
+        new_moons_fraction,
+        years_civil,
+        include_first_day: !!include_first_day,
+        start: pick(start_date),
+        end: pick(end_date)
+      })
 
       logger.info('getDate Success')
     } catch (error: any) {

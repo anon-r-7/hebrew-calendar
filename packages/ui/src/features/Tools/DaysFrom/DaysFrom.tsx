@@ -30,10 +30,11 @@ const getDate = () => {
 const defaultApiControls = {
   category: 'date', // 'date', 'event'
   type: 'gregorian',
+  unit: 'days', // 'days' | 'new_moons'
   event: 'pesach',
   start: getDate(),
   era: 'ad',
-  buffer: 3,
+  buffer: 0,
   days: 10,
   include_first_day: true,
   direction: 'future'
@@ -60,6 +61,11 @@ export const DaysFrom = () => {
 
   // Move this hook outside of tableRow
   const isMobile = useBreakpointValue({ base: true, md: false })
+
+  // the unit of the search whose results are showing (not the control's current value)
+  const resultUnit = store.state.unit === 'new_moons' ? 'new_moons' : 'days'
+  const fromLabel = resultUnit === 'new_moons' ? 'New Moons From' : 'Days From'
+  const columnLabels = [fromLabel, 'Gregorian', 'Hebrew', 'Day', 'Events']
 
   const tableRow = (cells, key, header, labels) => (
     <Grid
@@ -124,7 +130,9 @@ export const DaysFrom = () => {
           mb={2}
           fontWeight="700"
           color="brand.primary">
-          Days From Date
+          {apiControls.unit === 'new_moons'
+            ? 'New Moons From Date'
+            : 'Days From Date'}
         </Heading>
 
         <Box mt={4}>
@@ -168,6 +176,22 @@ export const DaysFrom = () => {
           </Button>
         </FormControl>
 
+        {store.state.message ? (
+          <Box
+            mt={4}
+            px={{ base: 4, md: 6 }}
+            py={3}
+            borderRadius="md"
+            border="1px solid"
+            borderColor="brand.feastBorder"
+            bg="brand.feastBg"
+            color="brand.feastText"
+            fontSize="14px"
+            fontWeight="500">
+            {store.state.message}
+          </Box>
+        ) : null}
+
         {store.state.dates.length ? (
           <Box
             mt={4}
@@ -178,16 +202,12 @@ export const DaysFrom = () => {
             boxShadow="brand.base"
             bg="brand.surfaceRaised">
             {!isMobile &&
-              tableRow(
-                ['Days From', 'Gregorian', 'Hebrew', 'Day', 'Events'],
-                'header',
-                true,
-                ['Days From', 'Gregorian', 'Hebrew', 'Day', 'Events']
-              )}
+              tableRow(columnLabels, 'header', true, columnLabels)}
             {store.state.dates.map(
               (
                 {
                   days_from_day_index,
+                  new_moons_from_month_index,
                   gregorian,
                   yy,
                   mm,
@@ -198,7 +218,9 @@ export const DaysFrom = () => {
                 key
               ) => {
                 const columns = [
-                  days_from_day_index,
+                  resultUnit === 'new_moons'
+                    ? new_moons_from_month_index
+                    : days_from_day_index,
                   gregorian,
                   `${yy.toString().padStart(2, '0')}-${mm
                     .toString()
@@ -206,13 +228,7 @@ export const DaysFrom = () => {
                   day_of_week,
                   events.map((event) => event.event.name).join(', ')
                 ]
-                return tableRow(columns, key, false, [
-                  'Days From',
-                  'Gregorian',
-                  'Hebrew',
-                  'Day',
-                  'Events'
-                ])
+                return tableRow(columns, key, false, columnLabels)
               }
             )}
           </Box>

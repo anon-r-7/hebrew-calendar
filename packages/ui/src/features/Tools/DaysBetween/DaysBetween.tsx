@@ -17,6 +17,7 @@ import { getDaysBetweenDates } from './methods/api'
 
 import { DateControls } from './components/DateControls'
 import { AdvancedOptionsControls } from './components/AdvancedOptionsControls'
+import { BreakdownTable } from './components/BreakdownTable'
 
 const initialState: InitialState = { dates: [], type: 'gregorian' }
 
@@ -27,6 +28,7 @@ const getDate = () => {
 
 const defaultApiControls = {
   type: 'gregorian',
+  unit: 'days', // 'days' | 'new_moons'
   start: getDate(),
   end: getDate(),
   era_start: 'ad',
@@ -105,7 +107,7 @@ export const DaysBetween = () => {
           </Button>
         </FormControl>
 
-        {store.state.diff ? (
+        {typeof store.state.result?.diff === 'number' ? (
           <Flex
             mt={8}
             direction="column"
@@ -125,7 +127,11 @@ export const DaysBetween = () => {
               fontWeight="600"
               lineHeight="1"
               color="brand.primary">
-              {store.state.diff}
+              {store.state.result.unit === 'new_moons'
+                ? store.state.result.new_moons_fraction.toLocaleString('en-US', {
+                    maximumFractionDigits: 4
+                  })
+                : store.state.result.diff.toLocaleString('en-US')}
             </Text>
             <Text
               mt={3}
@@ -133,9 +139,15 @@ export const DaysBetween = () => {
               letterSpacing="0.14em"
               textTransform="uppercase"
               color="brand.textSecondary">
-              Days Between
+              {store.state.result.unit === 'new_moons'
+                ? 'New Moons Between'
+                : 'Days Between'}
             </Text>
           </Flex>
+        ) : null}
+
+        {typeof store.state.result?.diff === 'number' ? (
+          <BreakdownTable result={store.state.result} />
         ) : null}
       </Flex>
     </Flex>

@@ -37,7 +37,9 @@ export const AdvancedOptionsControls = ({ apiControls, setApiControls }) => {
               onChange={(e) =>
                 handleChange('include_first_day', e.target.checked)
               }>
-              Include First Day
+              {apiControls.unit === 'new_moons'
+                ? 'Include First Month'
+                : 'Include First Day'}
             </Checkbox>
           </FormControl>
         </Flex>

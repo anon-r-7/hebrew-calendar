@@ -65,6 +65,7 @@ export const findAllByGregorianWithEvents = async (
       , hd.gregorian
       , hd.day_of_week
       , hd.day_index
+      , hd.month_index
       , hd.dd
       , hd.mm
       , hd.yy,
@@ -112,6 +113,7 @@ export const findGregorianEventsByYear = async (
       , hd.gregorian
       , hd.day_of_week
       , hd.day_index
+      , hd.month_index
       , hd.dd
       , hd.mm
       , hd.yy,
@@ -226,6 +228,7 @@ export const findAllByHebrewWithEvents = async (
       , hd.gregorian
       , hd.day_of_week
       , hd.day_index
+      , hd.month_index
       , hd.dd
       , hd.mm
       , hd.yy,
@@ -270,6 +273,7 @@ export const findHebrewEventsByYear = async (year: string): Promise<any[]> => {
       , hd.gregorian
       , hd.day_of_week
       , hd.day_index
+      , hd.month_index
       , hd.dd
       , hd.mm
       , hd.yy,
@@ -398,5 +402,84 @@ export const findAllByIndexRange = async (
     type: QueryTypes.SELECT
   })
 
+  return results
+}
+
+/** Shape of one Hebrew month in the table, by month_index. */
+export interface MonthSummary {
+  month_index: number
+  first_day_index: number
+  last_day_index: number
+  first_dd: number
+  last_dd: number
+  yy: number
+  mm: number
+}
+
+export const findMonthByIndex = async (
+  month_index: number
+): Promise<MonthSummary | null> => {
+  const query = `
+    SELECT month_index,
+           min(day_index) AS first_day_index,
+           max(day_index) AS last_day_index,
+           min(dd)        AS first_dd,
+           max(dd)        AS last_dd,
+           min(yy)        AS yy,
+           min(mm)        AS mm
+    FROM hebrew_dates
+    WHERE month_index = :month_index
+    GROUP BY month_index;
+  `
+  const results: any[] = await Models.sequelize.query(query, {
+    replacements: { month_index },
+    type: QueryTypes.SELECT
+  })
+  if (!results.length) return null
+  const r = results[0]
+  return {
+    month_index: Number(r.month_index),
+    first_day_index: Number(r.first_day_index),
+    last_day_index: Number(r.last_day_index),
+    first_dd: Number(r.first_dd),
+    last_dd: Number(r.last_dd),
+    yy: Number(r.yy),
+    mm: Number(r.mm)
+  }
+}
+
+/** The rows of one month (by month_index) that fall on any of the given days of the month, with events. */
+export const findAllByMonthIndexAndDays = async (
+  month_index: number,
+  days: number[]
+): Promise<HebrewDatesModel[]> => {
+  if (!days.length) return []
+  const query = `
+    SELECT hd.*,
+           COALESCE(
+             json_agg(
+               json_build_object(
+                 'uuid', hed.uuid,
+                 'event', json_build_object(
+                   'uuid', he.uuid,
+                   'name', he.name,
+                   'short_name', he.short_name
+                 )
+               )
+             ) FILTER (WHERE hed.uuid IS NOT NULL),
+             '[]'  -- Return empty array when no events
+           ) AS events
+    FROM hebrew_dates hd
+    LEFT JOIN hebrew_event_dates hed ON hed.hebrew_date = hd.uuid
+    LEFT JOIN hebrew_events he ON he.uuid = hed.hebrew_event
+    WHERE hd.month_index = :month_index
+      AND hd.dd IN (:days)
+    GROUP BY hd.uuid
+    ORDER BY hd.day_index ASC;
+  `
+  const results: HebrewDatesModel[] = await Models.sequelize.query(query, {
+    replacements: { month_index, days },
+    type: QueryTypes.SELECT
+  })
   return results
 }

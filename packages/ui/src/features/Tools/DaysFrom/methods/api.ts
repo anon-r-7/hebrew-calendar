@@ -1,8 +1,10 @@
 import api from '@ui/api/dates'
+import type { Unit } from '@ui/features/Calendar/types'
 
 interface Payload {
   category: string
   type: type
+  unit: Unit
   era: string
   event: string
   start: string
@@ -25,9 +27,15 @@ export const getDaysFromDate = async ({
 }: Data) => {
   try {
     asyncManager.start()
-    const dates = await api.getDaysFromDate(payload)
+    // new moons never use a buffer: one date, or a message with the nearest days
+    const request =
+      payload.unit === 'new_moons' ? { ...payload, buffer: 0 } : payload
+    const response = await api.getDaysFromDate(request)
     asyncManager.success()
-    store.update({ dates, type: payload.type })
+    // days-from answers with an array; new-moons-from with { message, dates }
+    const dates = Array.isArray(response) ? response : response.dates
+    const message = Array.isArray(response) ? null : response.message
+    store.update({ dates, message, type: payload.type, unit: payload.unit })
     asyncManager.success()
   } catch (error) {
     asyncManager.fail(
