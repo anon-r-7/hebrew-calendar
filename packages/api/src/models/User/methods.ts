@@ -8,6 +8,8 @@ export const findByEmail = (email: string) =>
     where: { email: email.toLowerCase() }
   })
 
+export const findByUuid = (uuid: string) => Models.User.findOne({ where: { uuid } })
+
 export const findAll = async () => {
   const users = await Models.User.findAll()
 

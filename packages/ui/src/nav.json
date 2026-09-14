@@ -1,0 +1,35 @@
+{
+  "links": [
+    {
+      "href": "/calendar",
+      "label": "Calendar"
+    },
+    {
+      "href": "/tools/days-between",
+      "label": "Tools",
+      "match": "/tools"
+    }
+  ],
+  "signedIn": [
+    {
+      "href": "/events",
+      "label": "Events"
+    }
+  ],
+  "session": {
+    "login": {
+      "href": "/login",
+      "label": "Log in"
+    },
+    "logout": {
+      "href": "/calendar",
+      "label": "Log out"
+    }
+  },
+  "trailing": [
+    {
+      "href": "/timeline",
+      "label": "Timeline"
+    }
+  ]
+}

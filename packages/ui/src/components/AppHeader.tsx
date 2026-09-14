@@ -12,14 +12,11 @@ import {
 } from '@chakra-ui/react'
 
 import { ThemeToggle } from '@ui/components/ThemeToggle'
+import { useAuth } from '@ui/hooks/useAuth'
+import nav from '@ui/nav.json'
 
-const links = [
-  { href: '/calendar', label: 'Calendar' },
-  { href: '/holidays', label: 'Holidays' },
-  { href: '/days-from', label: 'Days From' },
-  { href: '/days-between', label: 'Days Between' },
-  { href: '/timeline', label: 'Timeline' }
-]
+// one definition for this header and the timeline's (timeline/build.mjs reads the same file)
+const baseLinks = nav.links as { href: string; label: string; match?: string }[]
 
 const HamburgerIcon = () => (
   <svg
@@ -42,6 +39,12 @@ const HamburgerIcon = () => (
 // (left) + wordmark, with the toggle on the right.
 export const AppHeader = () => {
   const { colorMode } = useColorMode()
+  const { loggedIn, logout } = useAuth()
+  const links = [...baseLinks, ...(loggedIn ? nav.signedIn : []), ...nav.trailing]
+  // sign-in / sign-out sits at the end of the nav; signing out returns to the calendar
+  const session = loggedIn
+    ? { ...nav.session.logout, onClick: logout }
+    : { ...nav.session.login, onClick: undefined }
   const path =
     typeof window !== 'undefined' ? window.location.pathname : '/calendar'
 
@@ -54,19 +57,21 @@ export const AppHeader = () => {
     } catch (e) {}
   }, [colorMode])
 
-  const isActive = (href) => path.startsWith(href)
+  const isActive = (href: string, match?: string) => path.startsWith(match || href)
 
-  const navLink = (href, label) => (
+  // the sign-in / sign-out link is never the "current page"
+  const navLink = (href, label, onClick?: () => void, match?: string, active = isActive(href, match)) => (
     <Link
-      key={href}
+      key={label}
       href={href}
+      onClick={onClick}
       fontSize="14px"
-      fontWeight={isActive(href) ? '600' : '500'}
+      fontWeight={active ? '600' : '500'}
       letterSpacing="0.01em"
       whiteSpace="nowrap"
-      color={isActive(href) ? 'brand.text' : 'brand.textSecondary'}
+      color={active ? 'brand.text' : 'brand.textSecondary'}
       borderBottom="2px solid"
-      borderColor={isActive(href) ? 'brand.primary' : 'transparent'}
+      borderColor={active ? 'brand.primary' : 'transparent'}
       pb="2px"
       _hover={{ color: 'brand.text', textDecoration: 'none' }}
       transition="color .16s ease, border-color .16s ease">
@@ -120,20 +125,32 @@ export const AppHeader = () => {
               minW="188px"
               py={2}
               zIndex={50}>
-              {links.map(({ href, label }) => (
+              {links.map(({ href, label, match }) => (
                 <MenuItem
                   key={href}
                   as="a"
                   href={href}
                   bg="transparent"
                   fontSize="15px"
-                  fontWeight={isActive(href) ? '600' : '500'}
-                  color={isActive(href) ? 'brand.primary' : 'brand.text'}
+                  fontWeight={isActive(href, match) ? '600' : '500'}
+                  color={isActive(href, match) ? 'brand.primary' : 'brand.text'}
                   _hover={{ bg: 'brand.backgroundAlt' }}
                   _focus={{ bg: 'brand.backgroundAlt' }}>
                   {label}
                 </MenuItem>
               ))}
+              <MenuItem
+                as="a"
+                href={session.href}
+                onClick={session.onClick}
+                bg="transparent"
+                fontSize="15px"
+                fontWeight="500"
+                color="brand.textSecondary"
+                _hover={{ bg: 'brand.backgroundAlt' }}
+                _focus={{ bg: 'brand.backgroundAlt' }}>
+                {session.label}
+              </MenuItem>
             </MenuList>
           </Menu>
         </Box>
@@ -158,7 +175,8 @@ export const AppHeader = () => {
           display={{ base: 'none', md: 'flex' }}
           align="center"
           gap={5}>
-          {links.map(({ href, label }) => navLink(href, label))}
+          {links.map(({ href, label, match }) => navLink(href, label, undefined, match))}
+          {navLink(session.href, session.label, session.onClick, undefined, false)}
         </Flex>
 
         <ThemeToggle ml={{ base: 1, md: 2 }} />

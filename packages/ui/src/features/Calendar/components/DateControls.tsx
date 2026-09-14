@@ -28,7 +28,7 @@ const SearchIcon = () => (
   </svg>
 )
 
-export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
+export const DateControls = ({ apiControls, setApiControls, onSubmit, dates }) => {
   const handleDateChange = (field, part, value) => {
     const dateParts = apiControls[field].split('-')
     if (part === 'year') {
@@ -42,8 +42,34 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
     }))
   }
 
+  // Switching calendars keeps the same month on screen: the loaded rows carry both
+  // dates, so the middle of the current month is looked up exactly (the 1st would often
+  // land in the previous month of the other calendar). If the rows are not
+  // loaded yet, fall back to the epoch offset (Hebrew yy = Gregorian AD year + 4003).
   const handleTypeChange = (value) => {
-    setApiControls((prev) => ({ ...prev, type: value }))
+    setApiControls((prev) => {
+      if (value === prev.type) return prev
+      const [y, m] = prev.start.split('-')
+      const rows = dates || []
+      if (value === 'hebrew') {
+        const mid = `${String(y).padStart(4, '0')}-${String(m).padStart(2, '0')}-15`
+        const row = rows.find((r) => String(r.gregorian).replace(/\s*BC$/, '') === mid && String(r.gregorian).includes('BC') === (prev.era === 'bc'))
+        const start = row
+          ? `${row.yy}-${String(row.mm).padStart(2, '0')}-01`
+          : `${prev.era === 'bc' ? 4004 - Number(y) : Number(y) + 4003}-${String(m).padStart(2, '0')}-01`
+        return { ...prev, type: 'hebrew', start }
+      }
+      const row = rows.find((r) => Number(r.yy) === Number(y) && Number(r.mm) === Number(m) && Number(r.dd) === 15)
+      if (row) {
+        const isBC = String(row.gregorian).includes('BC')
+        const [gy, gm] = String(row.gregorian).replace(/\s*BC$/, '').split('-')
+        return { ...prev, type: 'gregorian', era: isBC ? 'bc' : 'ad', start: `${Number(gy)}-${gm}-01` }
+      }
+      const gy = Number(y) - 4003
+      return gy > 0
+        ? { ...prev, type: 'gregorian', era: 'ad', start: `${gy}-${String(m).padStart(2, '0')}-01` }
+        : { ...prev, type: 'gregorian', era: 'bc', start: `${4004 - Number(y)}-${String(m).padStart(2, '0')}-01` }
+    })
   }
   const handleEraChange = (value) => {
     setApiControls((prev) => ({ ...prev, era: value }))
@@ -57,14 +83,14 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
   const isGregorian = apiControls.type === 'gregorian'
 
   return (
-    // One compact row on mobile: [year] [month] [AD/BC] [search icon].
-    // Desktop expands to the full set (adds Gregorian/Hebrew + Basic/Advanced).
+    // Mobile: [year] [month] [AD/BC] [search icon], wrapping to a second line for the
+    // Gregorian/Hebrew select. Desktop expands to the full set (adds Basic/Advanced).
     <Flex
       w="full"
       align="center"
       gap={2}
       justify={{ base: 'center', md: 'flex-end' }}
-      flexWrap="nowrap"
+      flexWrap={{ base: 'wrap', md: 'nowrap' }}
       py={2}>
       <NumberInput
         bg="brand.surfaceRaised"
@@ -114,9 +140,9 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
           size={size}
           color="brand.text"
           borderRadius="md"
-          w={{ base: '84px', md: '80px' }}
+          w={{ base: '68px', md: '80px' }}
           flex="none"
-          sx={{ '& > select': { paddingInlineEnd: '1.5rem' } }}
+          sx={{ '& > select': { paddingInlineEnd: '1.4rem', paddingInlineStart: '0.5rem' } }}
           onChange={(e) => handleEraChange(e.target.value)}
           value={apiControls.era}>
           <option value="ad">AD</option>
@@ -129,9 +155,8 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
         size={size}
         color="brand.text"
         borderRadius="md"
-        w="140px"
+        w={{ base: '128px', md: '140px' }}
         flex="none"
-        display={{ base: 'none', md: 'block' }}
         onChange={(e) => handleTypeChange(e.target.value)}
         value={apiControls.type}>
         <option value="gregorian">Gregorian</option>

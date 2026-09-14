@@ -234,8 +234,25 @@ if ((template.match(/__DATA__/g) || []).length !== 1) throw new Error('template.
 if ((template.match(/<\/style>/g) || []).length !== 1) throw new Error('template.html must contain exactly one </style>')
 
 const dataStr = JSON.stringify(data)
+
+// The header's links come from the same file the React header reads (src/nav.json), so
+// the two navs cannot drift. Signed-in links are rendered hidden and revealed by the
+// small script in template.html when a session token is present.
+const nav = JSON.parse(readFileSync(join(HERE, '..', 'src', 'nav.json'), 'utf8'))
+const anchor = ({ href, label }, extra = '') =>
+  `<a href="${href}"${href === '/timeline' ? ' class="active"' : ''}${extra}>${label}</a>`
+const navHtml = [
+  ...nav.links.map((l) => anchor(l)),
+  ...nav.signedIn.map((l) => anchor(l, ' data-auth="in" hidden')),
+  ...nav.trailing.map((l) => anchor(l)),
+  anchor(nav.session.login, ' data-auth="out"'),
+  anchor(nav.session.logout, ' data-auth="in" data-logout hidden')
+].join('\n        ')
+
 const content = template
   .replace('__DATA__', () => dataStr)                                   // fn form: no $-substitution
+  .replace('__NAV__', () => navHtml)
+  .replace('__MENU__', () => navHtml)
   .replace('<title>Anno Mundi Timeline</title>', `<title>${TITLE}</title>`)
 
 // The <head> matches the calendar app (src/index.html): same title, description, OG /

@@ -1,5 +1,6 @@
 import React from 'react'
 import {
+  Link,
   Box,
   Flex,
   Text,
@@ -17,6 +18,42 @@ import { EmptyCalendar } from './EmptyCalendar'
 
 // Drawer-style label/value rows, mirroring the timeline's event drawer (`dl/dt/dd`):
 // uppercase mono-ish micro-labels beside the value, generous baseline grid.
+import { useAuth } from '@ui/hooks/useAuth'
+import { Routes } from '@ui/Routes'
+
+// Links out of a day popover into the tools (and, when signed in, a new event), carrying
+// the clicked date in whichever calendar the grid is showing.
+const DateActions = ({ day, type }) => {
+  const { loggedIn } = useAuth()
+  const hebrew = `${day.yy}-${String(day.mm).padStart(2, '0')}-${String(day.dd).padStart(2, '0')}`
+  const isBC = String(day.gregorian).includes('BC')
+  const gregorian = String(day.gregorian).replace(/\s*BC$/, '')
+  const params = new URLSearchParams(
+    type === 'hebrew' ? { type: 'hebrew', start: hebrew } : { type: 'gregorian', start: gregorian, era: isBC ? 'bc' : 'ad' }
+  ).toString()
+  const eventParams = params.replace('start=', 'date=') + '&new=1'
+  const action = (href, label) => (
+    <Link
+      key={label}
+      href={href}
+      fontSize="12px"
+      fontWeight="600"
+      letterSpacing="0.04em"
+      textTransform="uppercase"
+      color="brand.primary"
+      _hover={{ textDecoration: 'underline' }}>
+      {label}
+    </Link>
+  )
+  return (
+    <Flex gap={4} mt={3} pt={2.5} borderTop="1px solid" borderColor="brand.borderMuted" wrap="wrap">
+      {action(`${Routes.DaysFrom}?${params}`, 'Days From')}
+      {action(`${Routes.DaysBetween}?${params}`, 'Days Between')}
+      {loggedIn ? action(`${Routes.Events}?${eventParams}`, '+ Event') : null}
+    </Flex>
+  )
+}
+
 const DL = (props) => (
   <Box
     as="dl"
@@ -185,7 +222,7 @@ const isDayOfRest = (day) => {
   return isRest
 }
 
-const Event = ({ event, datesGrid, day }) => {
+const Event = ({ event, datesGrid, day, type }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   const eventName = useBreakpointValue({
@@ -294,6 +331,7 @@ const Event = ({ event, datesGrid, day }) => {
               </>
             )}
           </DL>
+          <DateActions day={day} type={type} />
         </PopoverBody>
       </PopoverContent>
     </Popover>
@@ -301,6 +339,7 @@ const Event = ({ event, datesGrid, day }) => {
 }
 
 const Details = ({
+  day,
   primaryDate,
   secondaryDate,
   primaryYear,
@@ -404,6 +443,7 @@ const Details = ({
                 />
               ))}
           </Flex>
+          <DateActions day={day} type={type} />
         </PopoverBody>
       </PopoverContent>
     </Popover>
@@ -471,6 +511,7 @@ const Day = ({ day, datesGrid, type, isPrimary, theme }) => {
         isPrimary={isPrimary}
         type={type}
         theme={theme}
+        day={day}
       />
       <Text
         color="brand.textSecondary"
@@ -484,7 +525,7 @@ const Day = ({ day, datesGrid, type, isPrimary, theme }) => {
       </Text>
       <Box mt={5}>
         {events.map((event, k) => (
-          <Event event={event} day={day} datesGrid={datesGrid} key={k} />
+          <Event event={event} day={day} datesGrid={datesGrid} type={type} key={k} />
         ))}
       </Box>
     </Box>

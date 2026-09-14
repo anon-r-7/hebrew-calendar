@@ -420,23 +420,11 @@ a{ color:inherit; }
       </button>
       <a class="brand" href="/calendar">Hebrew Feasts</a>
       <span class="sp"></span>
-      <nav class="appnav">
-        <a href="/calendar">Calendar</a>
-        <a href="/holidays">Holidays</a>
-        <a href="/days-from">Days From</a>
-        <a href="/days-between">Days Between</a>
-        <a href="/timeline" class="active">Timeline</a>
-      </nav>
+      <nav class="appnav">__NAV__</nav>
       <button class="icon-btn appfilter" id="appfilter" aria-label="Filter and search" aria-expanded="false" title="Filter &amp; search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="21 4 3 4 10 12.5 10 19 14 21 14 12.5 21 4"/></svg></button>
       <button class="icon-btn" id="theme" title="Toggle light / dark" aria-label="Toggle light or dark theme">&#9680;</button>
     </div>
-    <div class="appmenu" id="appmenu">
-      <a href="/calendar">Calendar</a>
-      <a href="/holidays">Holidays</a>
-      <a href="/days-from">Days From</a>
-      <a href="/days-between">Days Between</a>
-      <a href="/timeline" class="active">Timeline</a>
-    </div>
+    <div class="appmenu" id="appmenu">__MENU__</div>
   </header>
   <div class="controls">
     <div class="controls-row toprow">
@@ -884,6 +872,11 @@ a{ color:inherit; }
   });
 
   // ---- APP HEADER: mobile hamburger nav + mobile "Filter" drawer ----
+  (function(){
+    var signedIn=false; try{ signedIn=!!localStorage.getItem("auth_token"); }catch(e){}
+    document.querySelectorAll("[data-auth]").forEach(function(a){ a.hidden = (a.getAttribute("data-auth")==="in") !== signedIn; });
+    document.querySelectorAll("[data-logout]").forEach(function(a){ a.addEventListener("click", function(){ try{ localStorage.removeItem("auth_token"); }catch(e){} }); });
+  })();
   const ham = document.getElementById("appham"), appmenu = document.getElementById("appmenu");
   if(ham && appmenu){
     ham.addEventListener("click",(e)=>{ e.stopPropagation();

@@ -4,9 +4,9 @@ import { Switch, Route, Redirect } from 'react-router-dom'
 import { Routes } from '@ui/Routes'
 import { AppHeader } from '@ui/components/AppHeader'
 import { Calendar } from '@ui/features/Calendar/Calendar'
-import { Holidays } from '@ui/features/Holidays/Holidays'
-import { DaysFromLanding } from '@ui/features/Tools/DaysFromLanding'
-import { DaysBetweenLanding } from '@ui/features/Tools/DaysBetweenLanding'
+import { ToolsLanding } from '@ui/features/Tools/ToolsLanding'
+import { Login } from '@ui/features/Admin/Login'
+import { Events } from '@ui/features/Admin/Events'
 
 export const App = () => (
   <>
@@ -23,31 +23,16 @@ export const App = () => (
       />
       <Route
         exact
-        path={Routes.Holidays}
-        render={(props) => (
-          <>
-            <Holidays {...props} />
-          </>
-        )}
+        path={[Routes.DaysBetween, Routes.DaysFrom, Routes.Holidays]}
+        render={(props) => <ToolsLanding {...props} />}
       />
-      <Route
-        exact
-        path={Routes.DaysFrom}
-        render={(props) => (
-          <>
-            <DaysFromLanding {...props} />
-          </>
-        )}
-      />
-      <Route
-        exact
-        path={Routes.DaysBetween}
-        render={(props) => (
-          <>
-            <DaysBetweenLanding {...props} />
-          </>
-        )}
-      />
+      <Redirect exact from={Routes.Tools} to={Routes.DaysBetween} />
+      <Redirect exact from={Routes.LegacyHolidays} to={Routes.Holidays} />
+      <Redirect exact from={Routes.LegacyDaysBetween} to={Routes.DaysBetween} />
+      <Redirect exact from={Routes.LegacyDaysFrom} to={Routes.DaysFrom} />
+
+      <Route exact path={Routes.Login} render={(props) => <Login {...props} />} />
+      <Route exact path={Routes.Events} render={(props) => <Events {...props} />} />
 
       <Redirect to={Routes.Calendar} />
     </Switch>

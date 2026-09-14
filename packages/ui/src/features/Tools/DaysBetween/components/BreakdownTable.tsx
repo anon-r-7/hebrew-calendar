@@ -4,9 +4,9 @@ import { Box, Flex, Grid, Text } from '@chakra-ui/react'
 import type { BetweenResult } from '@ui/features/Calendar/types'
 
 // A whole-number result divisible by any of these gets a label next to it.
-const DIVISORS = [7, 12, 13, 49, 70, 90, 91, 360, 364, 1260, 2000, 2548, 8190]
+export const DIVISORS = [7, 12, 13, 40, 49, 70, 90, 91, 360, 364, 1260, 2000, 2548, 8190]
 
-interface Row {
+export interface Row {
   label: string
   note?: string
   // exact rational num/den so "whole number" is decided by arithmetic, not by rounding
@@ -14,7 +14,9 @@ interface Row {
   den: number
 }
 
-const rows = ({ days, new_moons, new_moons_fraction, years_civil }: BetweenResult): Row[] => [
+type Measures = Pick<BetweenResult, 'days' | 'new_moons' | 'new_moons_fraction' | 'years_civil'>
+
+export const measureRows = ({ days, new_moons, new_moons_fraction, years_civil }: Measures): Row[] => [
   { label: 'Days Between', num: days, den: 1 },
   { label: 'Half Days Between', num: days * 2, den: 1 },
   { label: 'Weeks Between', note: '÷ 7', num: days, den: 7 },
@@ -40,9 +42,9 @@ const rows = ({ days, new_moons, new_moons_fraction, years_civil }: BetweenResul
   }
 ]
 
-const isWhole = ({ num, den }: Row) => num % den === 0
-const divisorsOf = (n: number) => (n > 0 ? DIVISORS.filter((d) => n % d === 0) : [])
-const format = (row: Row) =>
+export const isWhole = ({ num, den }: Row) => num % den === 0
+export const divisorsOf = (n: number) => (n > 0 ? DIVISORS.filter((d) => n % d === 0) : [])
+export const format = (row: Row) =>
   isWhole(row)
     ? (row.num / row.den).toLocaleString('en-US')
     : (row.num / row.den).toLocaleString('en-US', {
@@ -59,7 +61,7 @@ export const BreakdownTable = ({ result }: { result: BetweenResult }) => (
     borderColor="brand.border"
     boxShadow="brand.base"
     bg="brand.surfaceRaised">
-    {rows(result).map((row, i) => {
+    {measureRows(result).map((row, i) => {
       const whole = isWhole(row)
       const divisors = whole ? divisorsOf(row.num / row.den) : []
       return (
@@ -70,7 +72,7 @@ export const BreakdownTable = ({ result }: { result: BetweenResult }) => (
           px={{ base: 4, md: 8 }}
           py={3.5}
           w="100%"
-          bg={i % 2 === 0 ? 'transparent' : 'brand.surface'}
+          bg="transparent"
           borderBottom="1px solid"
           borderColor="brand.borderMuted"
           transition="background .12s ease"

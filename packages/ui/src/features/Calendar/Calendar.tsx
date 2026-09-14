@@ -55,7 +55,7 @@ export const Calendar = () => {
   }
 
   useEffect(() => {
-    if (reload) onSubmit()
+    if (reload) onSubmit(false)
   }, [reload])
 
   useEffect(() => {
@@ -96,8 +96,9 @@ export const Calendar = () => {
     } catch (e) {}
   }
 
-  const onSubmit = () => {
-    syncUrl()
+  // fromUser: only a search the user submits is written into the address bar
+  const onSubmit = (fromUser = true) => {
+    if (fromUser) syncUrl()
 
     const [start, end] =
       apiControls.type === 'gregorian'
@@ -146,9 +147,10 @@ export const Calendar = () => {
 
             <Box style={{ marginTop: 12 }}>
               <DateControls
+                dates={store.state.dates}
                 apiControls={apiControls}
                 setApiControls={setApiControls}
-                onSubmit={onSubmit}
+                onSubmit={() => onSubmit(true)}
               />
             </Box>
           </Flex>

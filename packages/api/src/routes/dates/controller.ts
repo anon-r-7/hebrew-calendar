@@ -33,6 +33,7 @@ import {
 import { findAllByGregorian as findSun } from '@api/models/Sun/methods'
 
 import { feasts } from '@api/constants/feasts'
+import { breakdown } from '@api/utils/breakdown'
 
 class DatesController {
   public getDates = async (req: Request, res: Response, next: NextFunction) => {
@@ -422,26 +423,17 @@ class DatesController {
         return
       }
 
-      const first = include_first_day ? 1 : 0
-      const days =
-        Math.abs(Number(end_date.day_index) - Number(start_date.day_index)) +
-        first
-      const new_moons =
-        Math.abs(
-          Number(end_date.month_index) - Number(start_date.month_index)
-        ) + first
-      const years_civil = Math.abs(Number(end_date.yy) - Number(start_date.yy))
-      const diff = unit === 'new_moons' ? new_moons : days
-
-      // fractional new moons: each date as month_index + (dd - 1) / days in its month, so
-      // the 15th -> 15th of two 30-day months is N.0 and the 15th -> 14th is N.9667
-      const position = async (row) => {
+      const withLength = async (row) => {
         const month = await findMonthByIndex(Number(row.month_index))
-        const length = month ? month.last_dd : 30
-        return Number(row.month_index) + (Number(row.dd) - 1) / length
+        return { ...row, month_length: month ? month.last_dd : 30 }
       }
-      const new_moons_fraction =
-        Math.abs((await position(end_date)) - (await position(start_date))) + first
+      const calc = breakdown(
+        await withLength(start_date),
+        await withLength(end_date),
+        !!include_first_day
+      )
+      const { days, new_moons, new_moons_fraction, years_civil } = calc
+      const diff = unit === 'new_moons' ? new_moons : days
 
       if (!detail) {
         res.json(diff)
@@ -462,6 +454,7 @@ class DatesController {
       res.json({
         unit,
         diff,
+        ...calc,
         days,
         new_moons,
         new_moons_fraction,

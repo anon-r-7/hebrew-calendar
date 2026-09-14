@@ -1,83 +1,28 @@
 import { Router } from 'express'
 import { BaseRoute } from '@api/routes'
-import authMiddlware from '@api/middleware/auth'
-
-let controllerInstance
-try {
-  const Controller = require('./controller').default
-  controllerInstance = new Controller()
-} catch (err) {
-  console.error('[events route] Failed to instantiate controller:', err)
-  throw err
-}
+import authMiddleware from '@api/middleware/auth'
+import Controller from './controller'
 
 class Route implements BaseRoute {
   public path = '/events'
   public router = Router()
-  public controller = controllerInstance
+  public controller = new Controller()
 
   constructor() {
-    try {
-      this.initializeRoutes()
-    } catch (err) {
-      console.error('[events route] Failed during route initialization:', err)
-      throw err
-    }
+    this.initializeRoutes()
   }
 
   private initializeRoutes() {
-    try {
-      this.router.get(
-        `${this.path}/users`,
-        authMiddlware,
-        this.controller.getUsers
-      )
-      this.router.post(
-        `${this.path}/entry`,
-        authMiddlware,
-        this.controller.createEntry
-      )
-      this.router.patch(
-        `${this.path}/entry/:uuid`,
-        authMiddlware,
-        this.controller.updateEntry
-      )
-      this.router.get(
-        `${this.path}/entry`,
-        authMiddlware,
-        this.controller.listEntry
-      )
-      this.router.delete(
-        `${this.path}/entry/:uuid`,
-        authMiddlware,
-        this.controller.removeEntry
-      )
-      this.router.post(`${this.path}/sync`, authMiddlware, this.controller.sync)
-      this.router.get(
-        `${this.path}/sync`,
-        authMiddlware,
-        this.controller.syncStatus
-      )
-      this.router.patch(
-        `${this.path}/pair/:uuid`,
-        authMiddlware,
-        this.controller.updatePair
-      )
-      this.router.get(
-        `${this.path}/pair`,
-        authMiddlware,
-        this.controller.listPairs
-      )
+    // everything here is behind the admin login
+    this.router.get(`${this.path}`, authMiddleware, this.controller.list)
+    this.router.post(`${this.path}`, authMiddleware, this.controller.create)
+    this.router.patch(`${this.path}/:uuid`, authMiddleware, this.controller.update)
+    this.router.delete(`${this.path}/:uuid`, authMiddleware, this.controller.remove)
 
-      this.router.get(
-        `${this.path}/filter-meta`,
-        authMiddlware,
-        this.controller.getFilterMeta
-      )
-    } catch (err) {
-      console.error('[events route] Error registering routes:', err)
-      throw err
-    }
+    this.router.get(`${this.path}/pairs`, authMiddleware, this.controller.listPairs)
+    this.router.post(`${this.path}/pairs`, authMiddleware, this.controller.createPair)
+    this.router.patch(`${this.path}/pairs/:uuid`, authMiddleware, this.controller.updatePair)
+    this.router.delete(`${this.path}/pairs/:uuid`, authMiddleware, this.controller.removePair)
   }
 }
 

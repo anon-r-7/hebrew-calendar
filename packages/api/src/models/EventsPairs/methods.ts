@@ -1,328 +1,170 @@
+import { QueryTypes } from 'sequelize'
 import Models from '@api/models'
-import { pgPool } from '@api/models/pool'
-import { mapSide } from './utils'
-import { EventPairsParams } from './interface'
+import { breakdown, BREAKDOWN_FIELDS, BreakdownField } from '@api/utils/breakdown'
 
-export const setFavorite = async (uuid: string, favorite: string) => {
-  const pair = await Models.EventsPairs.findByPk(uuid)
-  if (!pair) return null
-  await pair.update({ favorite })
-  return pair
+// one side of a pair: the event and its date, plus its Hebrew month's length
+const side = (p: string) => `
+  e${p}.uuid AS ${p}_uuid, e${p}.name AS ${p}_name, e${p}.description AS ${p}_description,
+  h${p}.gregorian AS ${p}_gregorian, h${p}.day_of_week AS ${p}_day_of_week,
+  h${p}.day_index AS ${p}_day_index, h${p}.month_index AS ${p}_month_index,
+  h${p}.yy AS ${p}_yy, h${p}.mm AS ${p}_mm, h${p}.dd AS ${p}_dd,
+  (SELECT max(dd) FROM hebrew_dates m WHERE m.month_index = h${p}.month_index) AS ${p}_month_length,
+  (SELECT COALESCE(json_agg(he.name ORDER BY he.name), '[]')
+     FROM hebrew_event_dates hed
+     JOIN hebrew_events he ON he.uuid = hed.hebrew_event
+    WHERE hed.hebrew_date = h${p}.uuid AND he.short_name <> 'shabbat') AS ${p}_holidays`
+
+const CALC_COLUMNS = BREAKDOWN_FIELDS.map((f) => `p.${f}`).join(', ')
+
+const PAIR_SQL = `
+  SELECT p.uuid, p.include_first_day, p.favorite, p.created_by, p.created_at, ${CALC_COLUMNS}, ${side('a')}, ${side('b')}
+  FROM events_pairs p
+  JOIN events ea ON ea.uuid = p.a
+  JOIN hebrew_dates ha ON ha.uuid = ea.hebrew_date
+  JOIN events eb ON eb.uuid = p.b
+  JOIN hebrew_dates hb ON hb.uuid = eb.hebrew_date`
+
+const pickSide = (row: any, p: string) => ({
+  uuid: row[`${p}_uuid`],
+  name: row[`${p}_name`],
+  description: row[`${p}_description`],
+  gregorian: row[`${p}_gregorian`],
+  day_of_week: row[`${p}_day_of_week`],
+  day_index: Number(row[`${p}_day_index`]),
+  month_index: Number(row[`${p}_month_index`]),
+  yy: row[`${p}_yy`],
+  mm: row[`${p}_mm`],
+  dd: row[`${p}_dd`],
+  month_length: Number(row[`${p}_month_length`]),
+  holidays: row[`${p}_holidays`] || []
+})
+
+// the stored numbers, as the UI's breakdown object (numeric columns arrive as strings)
+const storedBreakdown = (row: any) => {
+  const out: any = { include_first_day: row.include_first_day }
+  for (const f of BREAKDOWN_FIELDS) out[f] = row[f] === null || row[f] === undefined ? null : Number(row[f])
+  return out
 }
 
-const convertNamedParams = (sql: string, replacements: Record<string, any>) => {
-  const values: any[] = []
-  const nameToIndex: Record<string, number> = {}
+const unflatten = (row: any) => ({
+  uuid: row.uuid,
+  include_first_day: row.include_first_day,
+  favorite: !!row.favorite,
+  created_by: row.created_by,
+  created_at: row.created_at,
+  a: pickSide(row, 'a'),
+  b: pickSide(row, 'b'),
+  breakdown: storedBreakdown(row)
+})
 
-  const convertedSql = sql.replace(/(::\w+)|:(\w+)/g, (_, cast, name) => {
-    if (cast) return cast // preserve PostgreSQL casts (::type)
-    if (!(name in nameToIndex)) {
-      nameToIndex[name] = values.push(replacements[name])
-    }
-    return `$${nameToIndex[name]}`
-  })
-
-  return { convertedSql, values }
+export interface PairFilter {
+  event?: string // pairs involving this event
+  favorite?: boolean // only favorites
+  q?: string // name search on either side
+  field?: BreakdownField
+  min?: number
+  max?: number
+  whole?: boolean // field is a whole number
+  divisible_by?: number // field is a whole number divisible by this
+  sort?: BreakdownField | 'created_at'
+  dir?: 'asc' | 'desc'
+  limit?: number
+  offset?: number
 }
 
-export const listWithFilters = async (q: EventPairsParams) => {
-  const page = Math.max(1, Number(q.page ?? 1))
-  const limit = Math.min(500, Number(q.limit ?? 50))
-  const offset = (page - 1) * limit
+const isField = (f: any): f is BreakdownField => BREAKDOWN_FIELDS.includes(f)
 
+export const listPairs = async (filter: PairFilter = {}): Promise<any[]> => {
   const where: string[] = []
   const replacements: any = {}
-
-  if (q.events_pairs_uuid) {
-    where.push('uuid = :events_pairs_uuid')
-    replacements.events_pairs_uuid = q.events_pairs_uuid
+  if (filter.event) {
+    where.push('(p.a = :event OR p.b = :event)')
+    replacements.event = filter.event
   }
-
-  const gSrc = q.gregorian_source === 'user' ? 'user' : 'system'
-
-  if (q.gregorian_from && q.gregorian_to) {
-    where.push(`(
-      (a_source = :gsrc AND a_gdate BETWEEN :gfrom AND :gto)
-      OR
-      (b_source = :gsrc AND b_gdate BETWEEN :gfrom AND :gto)
-    )`)
-    replacements.gsrc = gSrc
-    replacements.gfrom = q.gregorian_from
-    replacements.gto = q.gregorian_to
-  } else if (q.gregorian) {
-    where.push(`(
-      (a_source = :gsrc AND a_gdate = :g)
-      OR
-      (b_source = :gsrc AND b_gdate = :g)
-    )`)
-    replacements.gsrc = gSrc
-    replacements.g = q.gregorian
-  } else {
-    if (q.gregorian_before) {
-      where.push(`(
-        (a_source = :gsrc AND a_gdate <= :gbefore)
-        OR
-        (b_source = :gsrc AND b_gdate <= :gbefore)
-      )`)
-      replacements.gsrc = gSrc
-      replacements.gbefore = q.gregorian_before
+  if (filter.favorite) where.push('p.favorite = true')
+  if (filter.q) {
+    where.push('(ea.name ILIKE :pattern OR eb.name ILIKE :pattern)')
+    replacements.pattern = `%${filter.q}%`
+  }
+  if (filter.field && isField(filter.field)) {
+    const col = `p.${filter.field}`
+    if (Number.isFinite(filter.min)) {
+      where.push(`${col} >= :min`)
+      replacements.min = filter.min
     }
-    if (q.gregorian_after) {
-      where.push(`(
-        (a_source = :gsrc AND a_gdate >= :gafter)
-        OR
-        (b_source = :gsrc AND b_gdate >= :gafter)
-      )`)
-      replacements.gsrc = gSrc
-      replacements.gafter = q.gregorian_after
+    if (Number.isFinite(filter.max)) {
+      where.push(`${col} <= :max`)
+      replacements.max = filter.max
+    }
+    if (filter.whole || filter.divisible_by) where.push(`${col} = floor(${col})`)
+    if (filter.divisible_by && Number.isFinite(filter.divisible_by) && filter.divisible_by > 0) {
+      where.push(`mod(${col}::bigint, :divisor) = 0`)
+      replacements.divisor = Math.floor(filter.divisible_by)
     }
   }
+  const sortCol = filter.sort && (isField(filter.sort) ? `p.${filter.sort}` : filter.sort === 'created_at' ? 'p.created_at' : null)
+  const order = sortCol ? `${sortCol} ${filter.dir === 'asc' ? 'ASC' : 'DESC'} NULLS LAST, p.created_at DESC` : 'p.created_at DESC'
+  const limit = Number.isFinite(filter.limit) ? Math.min(Math.max(Number(filter.limit), 1), 1000) : 500
+  const offset = Number.isFinite(filter.offset) ? Math.max(Number(filter.offset), 0) : 0
 
-  if (q.exclude_after_feasts === 'true') {
-    where.push(`(
-      (a_system_meta IS NULL OR a_system_meta != 'after')
-      AND
-      (b_system_meta IS NULL OR b_system_meta != 'after')
-    )`)
-  }
-
-  if (q.exclude_before_feasts === 'true') {
-    where.push(`(
-      (a_system_meta IS NULL OR a_system_meta != 'before')
-      AND
-      (b_system_meta IS NULL OR b_system_meta != 'before')
-    )`)
-  }
-
-  if (q.require_user_source === 'true') {
-    where.push(`(
-      a_source = 'user'
-      AND
-      b_source = 'user'
-    )`)
-  }
-
-  if (q.tags) {
-    const tags = q.tags.split(',').map((tag: string, i: number) => {
-      const key = `tag${i}`
-      replacements[key] = `%${tag.trim()}%`
-      return `(a_tags ILIKE :${key} OR b_tags ILIKE :${key})`
-    })
-    where.push(tags.join(' AND '))
-  }
-
-  const uuidKeys = [
-    'events_entry_uuid',
-    'hebrew_events_uuid',
-    'created_by_uuid'
-  ]
-  uuidKeys.forEach((key) => {
-    const value = q[key as keyof EventPairsParams]
-    if (value) {
-      where.push(`(a_${key} = :${key}0 OR b_${key} = :${key}1)`)
-      replacements[`${key}0`] = value
-      replacements[`${key}1`] = value
-    }
-  })
-
-  if (q.exact_rev_years === 'true') where.push('exact_rev_years = true')
-  if (q.exact_enoch_years === 'true') where.push('exact_enoch_years = true')
-  if (q.exact_weeks === 'true') where.push('exact_weeks = true')
-
-  if (q.days) {
-    where.push('ep.diff = :d')
-    replacements.d = Number(q.days)
-  }
-
-  if (q.days_from || q.days_to) {
-    const days_from = q.days_from || q.days_to
-    const days_to = q.days_to || q.days_from
-
-    where.push('ep.diff BETWEEN :days_from AND :days_to')
-    replacements.days_from = Number(days_from)
-    replacements.days_to = Number(days_to)
-  }
-
-  if (q.weeks) {
-    where.push('weeks = :w')
-    replacements.w = Number(q.weeks)
-  }
-
-  if (q.weeks_from || q.weeks_to) {
-    const weeks_from = q.weeks_from || q.weeks_to
-    const weeks_to = q.weeks_to || q.weeks_from
-
-    where.push('weeks BETWEEN :weeks_from AND :weeks_to')
-    replacements.weeks_from = Number(weeks_from)
-    replacements.weeks_to = Number(weeks_to)
-  }
-
-  if (q.revelation_years) {
-    where.push('rev_years = :ry')
-    replacements.ry = Number(q.revelation_years)
-  }
-
-  if (q.revelation_years_from || q.revelation_years_to) {
-    const ry_from = q.revelation_years_from || q.revelation_years_to
-    const ry_to = q.revelation_years_to || q.revelation_years_from
-
-    where.push(
-      'rev_years BETWEEN :revelation_years_from AND :revelation_years_to'
-    )
-    replacements.revelation_years_from = Number(ry_from)
-    replacements.revelation_years_to = Number(ry_to)
-  }
-
-  if (q.enochian_years) {
-    where.push('enoch_years = :ey')
-    replacements.ey = Number(q.enochian_years)
-  }
-
-  if (q.enochian_years_from || q.enochian_years_to) {
-    const ey_from = q.enochian_years_from || q.enochian_years_to
-    const ey_to = q.enochian_years_to || q.enochian_years_from
-
-    where.push(
-      'enoch_years BETWEEN :enochian_years_from AND :enochian_years_to'
-    )
-    replacements.enochian_years_from = Number(ey_from)
-    replacements.enochian_years_to = Number(ey_to)
-  }
-
-  if (q.favorite === 'true') {
-    where.push('ep.favorite = :fav')
-    replacements.fav = true
-  }
-
-  if (q.name) {
-    const words = q.name.trim().split(/\s+/).filter(Boolean)
-    words.forEach((word, i) => {
-      const key = `name${i}`
-      replacements[key] = `%${word}%`
-      where.push(`(ea.name ILIKE :${key} OR eb.name ILIKE :${key})`)
-    })
-  }
-
-  const whereSQL = where.length ? `WHERE ${where.join(' AND ')}` : ''
-
-  const orderKey = q.order ?? 'diff'
-  const orderSQL =
-    {
-      diff: 'ORDER BY diff ASC',
-      diff_desc: 'ORDER BY diff DESC',
-      gregorian: 'ORDER BY a_gdate ASC',
-      gregorian_desc: 'ORDER BY a_gdate DESC'
-    }[orderKey] ?? 'ORDER BY diff ASC'
-
-  const query = `
-    SELECT
-      epv.*,
-      ep.favorite as favorite_live,
-      ea.name AS a_name_live,
-      ea.description AS a_description_live,
-      eb.name AS b_name_live,
-      eb.description AS b_description_live,
-
-      CASE
-        WHEN epv.a_gdate < DATE '0001-01-01' THEN TO_CHAR(epv.a_gdate, 'YYYY-MM-DD') || ' BC'
-        ELSE TO_CHAR(epv.a_gdate, 'YYYY-MM-DD')
-      END AS a_gdate_string,
-      CASE
-        WHEN epv.b_gdate < DATE '0001-01-01' THEN TO_CHAR(epv.b_gdate, 'YYYY-MM-DD') || ' BC'
-        ELSE TO_CHAR(epv.b_gdate, 'YYYY-MM-DD')
-      END AS b_gdate_string
-
-    FROM events_pair_view epv
-    LEFT JOIN events_pairs ep ON ep.uuid = epv.uuid
-    LEFT JOIN events_entry ea ON ea.uuid = epv.a_events_entry_uuid
-    LEFT JOIN events_entry eb ON eb.uuid = epv.b_events_entry_uuid
-    ${whereSQL}
-    ${orderSQL}
-    OFFSET :off LIMIT :lim
-  `
-
-  const countQuery = `
-    SELECT COUNT(*)::bigint AS count
-    FROM events_pair_view epv
-    LEFT JOIN events_pairs ep ON ep.uuid = epv.uuid
-    LEFT JOIN events_entry ea ON ea.uuid = epv.a_events_entry_uuid
-    LEFT JOIN events_entry eb ON eb.uuid = epv.b_events_entry_uuid
-    ${whereSQL}
-  `
-
-  const { convertedSql: finalQuery, values: finalValues } = convertNamedParams(
-    query,
-    { ...replacements, off: offset, lim: limit }
+  const rows: any[] = await Models.sequelize.query(
+    `${PAIR_SQL}${where.length ? ` WHERE ${where.join(' AND ')}` : ''} ORDER BY ${order} LIMIT ${limit} OFFSET ${offset};`,
+    { replacements, type: QueryTypes.SELECT }
   )
-
-  const { convertedSql: finalCountQuery, values: finalCountValues } =
-    convertNamedParams(countQuery, { ...replacements })
-
-  const client = await pgPool.connect()
-
-  let rows = [],
-    count = 0
-
-  try {
-    const response = await client.query(finalQuery, finalValues)
-    const countResponse = await client.query(finalCountQuery, finalCountValues)
-
-    rows = response.rows
-    count = Number(countResponse.rows[0].count)
-  } finally {
-    client.release()
-  }
-
-  rows = rows.map((r) => {
-    const sideA = mapSide('a', {
-      ...r,
-      name: r.a_name_live ?? r.a_name,
-      description: r.a_description_live ?? r.a_description
-    })
-
-    const sideB = mapSide('b', {
-      ...r,
-      name: r.b_name_live ?? r.b_name,
-      description: r.b_description_live ?? r.b_description
-    })
-
-    // Ensure user is always on side A if one is system and the other is user
-    const [finalA, finalB] =
-      sideA.source === 'system' && sideB.source === 'user'
-        ? [sideB, sideA]
-        : [sideA, sideB]
-
-    return {
-      events_pairs_uuid: r.uuid,
-      favorite: r.favorite_live,
-      calculations: {
-        diff: r.diff,
-        half_days: r.half_days,
-        weeks: Number(r.weeks),
-        revelation_years: Number(r.rev_years),
-        enochian_years: Number(r.enoch_years)
-      },
-      isExact: {
-        weeks: r.exact_weeks,
-        revelation_years: r.exact_rev_years,
-        enochian_years: r.exact_enoch_years
-      },
-      dates: [finalA, finalB]
-    }
-  })
-
-  const hasNext = offset + limit < Number(count)
-  const hasPrev = page > 1
-  return {
-    meta: {
-      count: { total: Number(count), current: rows.length },
-      page: {
-        current: page,
-        next: hasNext ? page + 1 : null,
-        prev: hasPrev ? page - 1 : null,
-        limit
-      }
-    },
-    rows
-  }
+  return rows.map(unflatten)
 }
+
+export const findPair = async (uuid: string): Promise<any | null> => {
+  const rows: any[] = await Models.sequelize.query(`${PAIR_SQL} WHERE p.uuid = :uuid;`, {
+    replacements: { uuid },
+    type: QueryTypes.SELECT
+  })
+  return rows.length ? unflatten(rows[0]) : null
+}
+
+/** Recompute and store the maths for the given pairs (all pairs when none given). */
+export const recalcPairs = async (where: { uuid?: string; event?: string } = {}): Promise<number> => {
+  const clauses: string[] = []
+  const replacements: any = {}
+  if (where.uuid) {
+    clauses.push('p.uuid = :uuid')
+    replacements.uuid = where.uuid
+  }
+  if (where.event) {
+    clauses.push('(p.a = :event OR p.b = :event)')
+    replacements.event = where.event
+  }
+  const rows: any[] = await Models.sequelize.query(
+    `${PAIR_SQL}${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''};`,
+    { replacements, type: QueryTypes.SELECT }
+  )
+  for (const row of rows) {
+    const calc = breakdown(pickSide(row, 'a'), pickSide(row, 'b'), row.include_first_day)
+    const values: any = {}
+    for (const f of BREAKDOWN_FIELDS) values[f] = calc[f]
+    await Models.EventsPairs.update(values, { where: { uuid: row.uuid } })
+  }
+  return rows.length
+}
+
+export const createPair = async (values: {
+  a: string
+  b: string
+  include_first_day: boolean
+  created_by: string | null
+}) => {
+  const created = await Models.EventsPairs.create(values)
+  await recalcPairs({ uuid: created.uuid })
+  return findPair(created.uuid)
+}
+
+export const updatePair = async (uuid: string, values: { favorite?: boolean; include_first_day?: boolean }) => {
+  const [count] = await Models.EventsPairs.update(values, { where: { uuid } })
+  if (!count) return null
+  // counting the first day changes every stored measure
+  if (values.include_first_day !== undefined) await recalcPairs({ uuid })
+  return findPair(uuid)
+}
+
+export const deletePair = async (uuid: string): Promise<number> =>
+  Models.EventsPairs.destroy({ where: { uuid } })

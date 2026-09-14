@@ -19,7 +19,7 @@ export const DateControls = ({ apiControls, setApiControls, onSubmit }) => {
 
   // Holidays are always Gregorian — just a year + search, centered like the table below.
   return (
-    <Flex w="full" justify="center" align="center" gap={2} py={2}>
+    <Flex w="full" justify="flex-start" align="center" gap={2} pt={5} pb={1}>
       <NumberInput
         bg="brand.surfaceRaised"
         size={size}

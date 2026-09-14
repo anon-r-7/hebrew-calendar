@@ -67,7 +67,7 @@ export const List = ({ store }) => {
       gap={4}
       px={{ base: 4, md: 8 }}
       py={3.5}
-      bg={index % 2 === 0 ? 'transparent' : 'brand.surface'}
+      bg="transparent"
       borderBottom="1px solid"
       borderColor="brand.borderMuted"
       transition="background .12s ease"
@@ -101,7 +101,7 @@ export const List = ({ store }) => {
     <Flex direction="row" justify="center" background="brand.background">
       <Flex
         direction="column"
-        pt={12}
+        pt={2}
         pb={12}
         pl={padding}
         pr={padding}

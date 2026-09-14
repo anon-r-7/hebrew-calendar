@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import { useLocation } from 'react-router-dom'
+import { readDatePrefill } from '@ui/utils/prefill'
 import {
   Flex,
   Box,
@@ -41,7 +43,14 @@ export const DaysBetween = () => {
   const asyncManager = useAsyncManager()
   const theme = useTheme()
 
-  const [apiControls, setApiControls] = useState(defaultApiControls)
+  // opened from a calendar day: that date becomes the start (and the end, so both share a calendar)
+  const { search } = useLocation()
+  const [apiControls, setApiControls] = useState(() => {
+    const prefill = readDatePrefill(search)
+    return prefill
+      ? { ...defaultApiControls, type: prefill.type, start: prefill.date, end: prefill.date, era_start: prefill.era, era_end: prefill.era }
+      : defaultApiControls
+  })
 
   const onSubmit = () => {
     getDaysBetweenDates({
@@ -59,21 +68,13 @@ export const DaysBetween = () => {
     <Flex direction="row" justify="center" background="brand.background">
       <Flex
         direction={{ base: 'column', md: 'column' }}
-        pt={12}
+        pt={6}
         pb={12}
         pl={padding}
         pr={padding}
         w="full"
         maxW={{ base: '100%', md: theme.sizes.container.xl }}>
-        <Heading
-          size={{ base: 'sm', md: 'md' }}
-          mb={2}
-          fontWeight="700"
-          color="brand.primary">
-          Days Between Dates
-        </Heading>
-
-        <Box mt={4}>
+        <Box>
           <DateControls
             apiControls={apiControls}
             setApiControls={setApiControls}

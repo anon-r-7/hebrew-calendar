@@ -54,7 +54,6 @@ import HebrewDatesModel from './HebrewDates'
 import HebrewEventsModel from './HebrewEvents'
 import HebrewEventDatesModel from './HebrewEventDates'
 import EventsModel from './Events'
-import EventsEntryModel from './EventsEntry'
 import EventsPairsModel from './EventsPairs'
 import UserModel from './User'
 import MoonModel from './Moon'
@@ -65,7 +64,6 @@ let HebrewDates,
   HebrewEvents,
   HebrewEventDates,
   Events,
-  EventsEntry,
   EventsPairs,
   User,
   Moon,
@@ -76,7 +74,6 @@ try {
   HebrewEvents = HebrewEventsModel(sequelize)
   HebrewEventDates = HebrewEventDatesModel(sequelize)
   Events = EventsModel(sequelize)
-  EventsEntry = EventsEntryModel(sequelize)
   EventsPairs = EventsPairsModel(sequelize)
   User = UserModel(sequelize)
   Moon = MoonModel(sequelize)
@@ -106,47 +103,16 @@ try {
     as: 'hebrewDate'
   })
 
-  User.hasMany(EventsEntry, { foreignKey: 'created_by', as: 'entries' })
-  EventsEntry.belongsTo(User, { foreignKey: 'created_by', as: 'creator' })
+  User.hasMany(Events, { foreignKey: 'created_by', as: 'events' })
+  Events.belongsTo(User, { foreignKey: 'created_by', as: 'creator' })
 
-  HebrewDates.hasMany(EventsEntry, { foreignKey: 'hebrew_date', as: 'entries' })
-  EventsEntry.belongsTo(HebrewDates, {
-    foreignKey: 'hebrew_date',
-    as: 'hebrewDateEntry'
-  })
+  HebrewDates.hasMany(Events, { foreignKey: 'hebrew_date', as: 'namedEvents' })
+  Events.belongsTo(HebrewDates, { foreignKey: 'hebrew_date', as: 'date' })
 
   Events.hasMany(EventsPairs, { foreignKey: 'a', as: 'pairsAsA' })
   Events.hasMany(EventsPairs, { foreignKey: 'b', as: 'pairsAsB' })
   EventsPairs.belongsTo(Events, { foreignKey: 'a', as: 'eventA' })
   EventsPairs.belongsTo(Events, { foreignKey: 'b', as: 'eventB' })
-
-  /* ---------- Events <-> EventsEntry (user-created events) ---------- */
-  Events.belongsTo(EventsEntry, {
-    foreignKey: 'source_row', // Events.source_row → EventsEntry.uuid
-    targetKey: 'uuid',
-    as: 'userEntry',
-    constraints: false // polymorphic – keep FK flexible
-  })
-  EventsEntry.hasOne(Events, {
-    foreignKey: 'source_row',
-    sourceKey: 'uuid',
-    as: 'eventRef',
-    constraints: false
-  })
-
-  /* ---------- Events <-> HebrewEventDates (system events) ---------- */
-  Events.belongsTo(HebrewEventDates, {
-    foreignKey: 'source_row', // Events.source_row → HebrewEventDates.uuid
-    targetKey: 'uuid',
-    as: 'systemDate',
-    constraints: false
-  })
-  HebrewEventDates.hasOne(Events, {
-    foreignKey: 'source_row',
-    sourceKey: 'uuid',
-    as: 'eventRef',
-    constraints: false
-  })
 } catch (err) {
   logger.error('[models] Error setting up associations:', err)
   process.exit(1)
@@ -158,7 +124,6 @@ export default {
   sequelize,
   User,
   Events,
-  EventsEntry,
   EventsPairs,
   HebrewDates,
   HebrewEvents,

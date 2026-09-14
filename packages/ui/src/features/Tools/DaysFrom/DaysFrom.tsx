@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import { useLocation } from 'react-router-dom'
+import { readDatePrefill } from '@ui/utils/prefill'
 import {
   Flex,
   Box,
@@ -45,7 +47,14 @@ export const DaysFrom = () => {
   const asyncManager = useAsyncManager()
   const theme = useTheme()
 
-  const [apiControls, setApiControls] = useState(defaultApiControls)
+  // opened from a calendar day: that date becomes the start
+  const { search } = useLocation()
+  const [apiControls, setApiControls] = useState(() => {
+    const prefill = readDatePrefill(search)
+    return prefill
+      ? { ...defaultApiControls, type: prefill.type, start: prefill.date, era: prefill.era }
+      : defaultApiControls
+  })
 
   const onSubmit = () => {
     getDaysFromDate({
@@ -75,13 +84,7 @@ export const DaysFrom = () => {
       px={{ base: 4, md: 8 }}
       py={header ? 3 : 3.5}
       w="100%"
-      bg={
-        header
-          ? 'brand.backgroundAlt'
-          : key % 2 === 0
-          ? 'transparent'
-          : 'brand.surface'
-      }
+      bg={header ? 'brand.backgroundAlt' : 'transparent'}
       borderBottom="1px solid"
       borderColor={header ? 'brand.primary' : 'brand.borderMuted'}
       transition="background .12s ease"
@@ -119,23 +122,13 @@ export const DaysFrom = () => {
     <Flex direction="row" justify="center" background="brand.background">
       <Flex
         direction={{ base: 'column', md: 'column' }}
-        pt={12}
+        pt={6}
         pb={12}
         pl={padding}
         pr={padding}
         w="full"
         maxW={{ base: '100%', md: theme.sizes.container.xl }}>
-        <Heading
-          size={{ base: 'sm', md: 'md' }}
-          mb={2}
-          fontWeight="700"
-          color="brand.primary">
-          {apiControls.unit === 'new_moons'
-            ? 'New Moons From Date'
-            : 'Days From Date'}
-        </Heading>
-
-        <Box mt={4}>
+        <Box>
           <DateControls
             apiControls={apiControls}
             setApiControls={setApiControls}
