@@ -68,6 +68,7 @@ export interface PairFilter {
   divisible_by?: string
   sort?: string
   dir?: 'asc' | 'desc'
+  limit?: number
 }
 
 const listEvents = async (q = '') =>

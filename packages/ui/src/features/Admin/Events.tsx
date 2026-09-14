@@ -96,10 +96,30 @@ export const Events = () => {
   const [onlyWhole, setOnlyWhole] = useState<string[]>([])
   const toggleIn = (list: any[], set: (v: any[]) => void, item: any) =>
     set(list.includes(item) ? list.filter((x) => x !== item) : [...list, item])
+  // events Event A is already paired with (any direction), fetched fresh whenever A changes or
+  // a pair is saved/removed, so the Event B list only offers new combinations
+  const [pairedWithA, setPairedWithA] = useState<Set<string>>(new Set())
+  useEffect(() => {
+    if (!a) {
+      setPairedWithA(new Set())
+      return
+    }
+    let stale = false
+    admin
+      .listPairs({ event: a.uuid, limit: 1000 })
+      .then((list) => {
+        if (stale) return
+        setPairedWithA(new Set(list.map((p) => (p.a.uuid === a.uuid ? p.b.uuid : p.a.uuid))))
+      })
+      .catch(() => {})
+    return () => {
+      stale = true
+    }
+  }, [a, pairs])
   const candidateFilter = useMemo(() => {
     if (!a) return undefined
     return (e: AdminEvent) => {
-      if (e.uuid === a.uuid) return false
+      if (e.uuid === a.uuid || pairedWithA.has(e.uuid)) return false
       const calc = breakdown(a, e, includeFirst)
       const wholeOf: Record<string, number> = {
         weeks: calc.weeks,
@@ -110,7 +130,7 @@ export const Events = () => {
       // OR: any one of the chosen measures coming out whole is enough
       return onlyWhole.length === 0 || onlyWhole.some((k) => isWholeNumber(wholeOf[k]))
     }
-  }, [a, includeFirst, onlyWhole])
+  }, [a, includeFirst, onlyWhole, pairedWithA])
   const [pairError, setPairError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [showForm, setShowForm] = useState(false)
@@ -237,7 +257,7 @@ export const Events = () => {
     setPairError(null)
     try {
       await admin.createPair({ a: a.uuid, b: b.uuid, include_first_day: includeFirst })
-      setA(null)
+      // keep Event A so the next pair can be made against the same anchor; only B resets
       setB(null)
       await load()
     } catch (err: any) {

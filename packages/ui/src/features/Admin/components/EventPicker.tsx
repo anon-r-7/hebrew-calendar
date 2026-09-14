@@ -95,6 +95,33 @@ export const EventRow = ({ event, action, fixedHeight }: { event: AdminEvent; ac
   </Box>
 )
 
+/** ← previous / next → on a selected card; shows the neighbour's name, disabled at the ends */
+const StepButton = ({ dir, target, onClick }: { dir: 'prev' | 'next'; target: AdminEvent | null; onClick: () => void }) => (
+  <Text
+    as="button"
+    type="button"
+    onClick={onClick}
+    disabled={!target}
+    title={target ? target.name : undefined}
+    display="flex"
+    alignItems="center"
+    gap={1.5}
+    minW={0}
+    fontSize="11px"
+    color={target ? 'brand.primary' : 'brand.gray'}
+    cursor={target ? 'pointer' : 'default'}
+    textAlign={dir === 'prev' ? 'left' : 'right'}
+    flexDirection={dir === 'prev' ? 'row' : 'row-reverse'}
+    _hover={target ? { color: 'brand.text' } : undefined}>
+    <Text as="span" fontSize="14px" lineHeight="1" flex="none">
+      {dir === 'prev' ? '←' : '→'}
+    </Text>
+    <Text as="span" noOfLines={1} minW={0}>
+      {target ? target.name : dir === 'prev' ? 'First' : 'Last'}
+    </Text>
+  </Text>
+)
+
 /** A searchable list of events; the chosen one stays shown under the search box. */
 export const EventPicker = ({
   label,
@@ -111,7 +138,7 @@ export const EventPicker = ({
   filterFn?: (event: AdminEvent) => boolean
 }) => {
   const [query, setQuery] = useState('')
-  const { matches, total } = useMemo(() => {
+  const { matches, total, narrowed } = useMemo(() => {
     const q = query.trim().toLowerCase()
     const narrowed = filterFn ? events.filter(filterFn) : events
     const list = q
@@ -119,8 +146,13 @@ export const EventPicker = ({
           (e) => e.name.toLowerCase().includes(q) || hebrewLabel(e).includes(q) || e.gregorian.includes(q)
         )
       : narrowed
-    return { matches: list.slice(0, 50), total: list.length }
+    return { matches: list.slice(0, 50), total: list.length, narrowed }
   }, [events, query, filterFn])
+  // prev/next through the (filtered) list in its own order, so you can step Event A along
+  // and watch the Event B candidates change under the "only whole" filters
+  const at = value ? narrowed.findIndex((e) => e.uuid === value.uuid) : -1
+  const prev = at > 0 ? narrowed[at - 1] : null
+  const next = at >= 0 && at < narrowed.length - 1 ? narrowed[at + 1] : null
 
   return (
     <Box w="full">
@@ -162,6 +194,13 @@ export const EventPicker = ({
               </Text>
             }
           />
+          <Flex justify="space-between" align="center" gap={3} mt={2.5} pt={2} borderTop="1px solid" borderColor="brand.borderMuted">
+            <StepButton dir="prev" target={prev} onClick={() => prev && onChange(prev)} />
+            <Text fontSize="10px" letterSpacing="0.08em" color="brand.textSecondary" flex="none">
+              {at >= 0 ? `${at + 1} / ${narrowed.length}` : ''}
+            </Text>
+            <StepButton dir="next" target={next} onClick={() => next && onChange(next)} />
+          </Flex>
         </Box>
       ) : null}
       {value ? null : (
