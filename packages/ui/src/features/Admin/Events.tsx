@@ -131,8 +131,6 @@ export const Events = () => {
       return onlyWhole.length === 0 || onlyWhole.some((k) => isWholeNumber(wholeOf[k]))
     }
   }, [a, includeFirst, onlyWhole, pairedWithA])
-  const [pairError, setPairError] = useState<string | null>(null)
-  const [saving, setSaving] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [showPairForm, setShowPairForm] = useState(false)
   const [tab, setTab] = useState(0)
@@ -161,21 +159,20 @@ export const Events = () => {
   }
   const stopEdit = () => setEditing(null)
 
-  // new events are saved in the background so you can keep typing; the panel in the
-  // corner shows each one's progress and clears finished ones after a moment
-  type Job = { id: number; name: string; status: 'queued' | 'saving' | 'saved' | 'failed'; error?: string }
+  // events and pairs are saved in the background so you can keep going; the panel in the
+  // corner shows each job's progress and clears finished ones after a moment
+  type Job = { id: number; kind: 'event' | 'pair'; name: string; status: 'queued' | 'saving' | 'saved' | 'failed'; error?: string }
   const [jobs, setJobs] = useState<Job[]>([])
   const nextId = React.useRef(1)
   const setJob = (id: number, patch: Partial<Job>) =>
     setJobs((list) => list.map((j) => (j.id === id ? { ...j, ...patch } : j)))
-  const enqueue = (event: NewEvent, uuid?: string) => {
+  const runJob = (kind: Job['kind'], name: string, work: () => Promise<unknown>) => {
     const id = nextId.current++
-    setJobs((list) => [...list, { id, name: event.name, status: 'queued' }])
+    setJobs((list) => [...list, { id, kind, name, status: 'queued' }])
     ;(async () => {
       setJob(id, { status: 'saving' })
       try {
-        if (uuid) await admin.updateEvent(uuid, event)
-        else await admin.createEvent(event)
+        await work()
         setJob(id, { status: 'saved' })
         await load()
         setTimeout(() => setJobs((list) => list.filter((j) => j.id !== id)), 4000)
@@ -184,6 +181,8 @@ export const Events = () => {
       }
     })()
   }
+  const enqueue = (event: NewEvent, uuid?: string) =>
+    runJob('event', event.name, () => (uuid ? admin.updateEvent(uuid, event) : admin.createEvent(event)))
 
   const { logout: endSession } = useAuth()
   const logout = useCallback(() => {
@@ -251,20 +250,14 @@ export const Events = () => {
     await load()
   }
 
-  const savePair = async () => {
+  const savePair = () => {
     if (!a || !b) return
-    setSaving(true)
-    setPairError(null)
-    try {
-      await admin.createPair({ a: a.uuid, b: b.uuid, include_first_day: includeFirst })
-      // keep Event A so the next pair can be made against the same anchor; only B resets
-      setB(null)
-      await load()
-    } catch (err: any) {
-      setPairError(err?.response?.data?.message || 'Could not save the pair.')
-    } finally {
-      setSaving(false)
-    }
+    const pair = { a: a.uuid, b: b.uuid, include_first_day: includeFirst }
+    // keep Event A so the next pair can be made against the same anchor; only B resets,
+    // and it leaves the Event B list immediately rather than after the save lands
+    setB(null)
+    setPairedWithA((set) => new Set(set).add(pair.b))
+    runJob('pair', `${a.name} → ${b.name}`, () => admin.createPair(pair))
   }
 
   const favoritePair = async (uuid: string, favorite: boolean) => {
@@ -538,7 +531,6 @@ export const Events = () => {
               <Button
                 size="sm"
                 isDisabled={!a || !b || a.uuid === b.uuid}
-                isLoading={saving}
                 onClick={savePair}
                 bg="brand.primary"
                 color="brand.onPrimary"
@@ -551,11 +543,6 @@ export const Events = () => {
               {a && b && a.uuid === b.uuid ? (
                 <Text fontSize="13px" color="brand.textSecondary">
                   Pick two different events.
-                </Text>
-              ) : null}
-              {pairError ? (
-                <Text fontSize="13px" color="red.400">
-                  {pairError}
                 </Text>
               ) : null}
             </Flex>
@@ -677,7 +664,7 @@ export const Events = () => {
           boxShadow="brand.lift"
           overflow="hidden">
           <Text px={4} py={2} fontSize="10px" fontWeight="600" letterSpacing="0.12em" textTransform="uppercase" color="brand.textSecondary" bg="brand.backgroundAlt" borderBottom="1px solid" borderColor="brand.borderMuted">
-            Saving events
+            {jobs.every((j) => j.kind === 'pair') ? 'Saving pairs' : jobs.every((j) => j.kind === 'event') ? 'Saving events' : 'Saving'}
           </Text>
           {jobs.map((j) => (
             <Flex key={j.id} px={4} py={2} align="center" gap={3} borderBottom="1px solid" borderColor="brand.borderMuted">
