@@ -1,7 +1,42 @@
 import { client } from './client'
 
+/** one thing the cycles engine found about a span (see api utils/analysis.js) */
+export interface Hit {
+  family: 'ladder' | 'classic' | 'years' | 'moon'
+  label: string
+  detail?: string
+  period: number
+  k?: number
+  r?: number
+  d?: number
+  offset: number
+  flags: string[]
+  score: number
+}
+
+export interface Analysis {
+  version: number
+  days: number
+  rung: { value: number; k: number; remainder: number; nearest: { k: number; r: number; d: number; offset: number } | null }
+  hebrew_years: number
+  same_month_day: boolean
+  jubilee_class: boolean
+  hits: Hit[]
+  best: string | null
+  score: number
+}
+
+export interface FromCreation {
+  days: number
+  y364: number
+  y360: number
+  day1: { rung: Analysis['rung']; best: string | null; score: number; hits: Hit[] }
+  day8: { rung: Analysis['rung']; best: string | null; score: number; hits: Hit[] }
+}
+
 export interface AdminEvent {
   uuid: string
+  from_creation?: FromCreation
   name: string
   description: string | null
   created_by_name?: string | null
@@ -24,6 +59,10 @@ export interface AdminPair {
   created_at: string
   a: AdminEvent
   b: AdminEvent
+  analysis: Analysis | null
+  score: number
+  hebrew_years: number | null
+  same_month_day: boolean
   breakdown: {
     days: number
     half_days: number
@@ -69,6 +108,41 @@ export interface PairFilter {
   sort?: string
   dir?: 'asc' | 'desc'
   limit?: number
+  // cycles engine
+  tol?: number
+  min_score?: string
+  family?: string
+  flag?: string
+  same_month_day?: boolean
+}
+
+export interface Candidate {
+  event: AdminEvent
+  analysis: Analysis
+}
+export interface CycleGroup {
+  residue: number
+  size: number
+  members: { event: AdminEvent; k: number; offset: number; span: number }[]
+}
+export interface Projection {
+  anchor: { name: string; day_index: number }
+  period: number
+  kind: 'rung' | 'multiple' | 'fraction'
+  truncated: boolean
+  forward: {
+    k: number
+    step: number
+    label: string
+    day_index: number
+    y364: number
+    y360: number
+    date: { gregorian: string; era: 'ad' | 'bc'; day_of_week: string; yy: number; mm: number; dd: number } | null
+    // holidays that fall on the rung date itself (shabbat excluded)
+    holidays: string[]
+    near: { event: AdminEvent; offset: number }[]
+  }[]
+  backward: { event: AdminEvent; direction: 'before' | 'after'; analysis: Analysis }[]
 }
 
 const listEvents = async (q = '') =>
@@ -104,4 +178,25 @@ const setPairFavorite = (uuid: string, favorite: boolean) => updatePair(uuid, { 
 
 const deletePair = async (uuid: string) => client({ method: 'DELETE', url: `events/pairs/${uuid}` })
 
-export default { listEvents, createEvent, updateEvent, deleteEvent, listPairs, createPair, updatePair, setPairFavorite, deletePair }
+/** every other event analysed against this one, ranked, minus its existing partners */
+const candidates = async (uuid: string, tol: number) =>
+  (await client({ method: 'GET', url: `events/${uuid}/candidates`, params: { tol } })).data as {
+    anchor: AdminEvent
+    tolerance: number
+    candidates: Candidate[]
+  }
+
+/** same-rung groups under a period (days, or y49 / y50 / y7) from an anchor (creation1 | creation8 | event uuid) */
+const cycles = async (period: string | number, tol: number, anchor: string) =>
+  (await client({ method: 'GET', url: 'events/cycles', params: { period, tol, anchor } })).data as {
+    anchor: { name: string; day_index: number; yy: number }
+    period: number
+    tolerance: number
+    year_mode: boolean
+    groups: CycleGroup[]
+  }
+
+const project = async (anchor: string, period?: string | number) =>
+  (await client({ method: 'GET', url: 'events/project', params: period ? { anchor, period } : { anchor } })).data as Projection
+
+export default { listEvents, createEvent, updateEvent, deleteEvent, listPairs, createPair, updatePair, setPairFavorite, deletePair, candidates, cycles, project }

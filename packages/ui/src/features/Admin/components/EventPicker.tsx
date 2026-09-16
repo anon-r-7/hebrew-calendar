@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react'
 import { Box, Flex, Input, Text } from '@chakra-ui/react'
 
-import { AdminEvent } from '@ui/api/admin'
+import { AdminEvent, Candidate } from '@ui/api/admin'
+import { HitRow, ScoreBadge } from './Hits'
 
 export const hebrewLabel = (e: { yy: number; mm: number; dd: number }) =>
   `${e.yy}-${String(e.mm).padStart(2, '0')}-${String(e.dd).padStart(2, '0')}`
@@ -128,7 +129,10 @@ export const EventPicker = ({
   events,
   value,
   onChange,
-  filterFn
+  filterFn,
+  candidates,
+  loading,
+  error
 }: {
   label: string
   events: AdminEvent[]
@@ -136,18 +140,25 @@ export const EventPicker = ({
   onChange: (event: AdminEvent | null) => void
   // narrows the candidates (e.g. Event B against a chosen Event A); the count shown is after it
   filterFn?: (event: AdminEvent) => boolean
+  // ranked mode: the list is the server's analysis of every candidate against Event A, best
+  // first, each row showing its score and hits; `events` is ignored while this is set
+  candidates?: Candidate[]
+  loading?: boolean
+  error?: string | null
 }) => {
   const [query, setQuery] = useState('')
+  const byUuid = useMemo(() => new Map((candidates || []).map((c) => [c.event.uuid, c])), [candidates])
   const { matches, total, narrowed } = useMemo(() => {
     const q = query.trim().toLowerCase()
-    const narrowed = filterFn ? events.filter(filterFn) : events
+    const base = candidates ? candidates.map((c) => c.event) : events
+    const narrowed = filterFn ? base.filter(filterFn) : base
     const list = q
       ? narrowed.filter(
           (e) => e.name.toLowerCase().includes(q) || hebrewLabel(e).includes(q) || e.gregorian.includes(q)
         )
       : narrowed
-    return { matches: list.slice(0, 50), total: list.length, narrowed }
-  }, [events, query, filterFn])
+    return { matches: list.slice(0, 80), total: list.length, narrowed }
+  }, [events, candidates, query, filterFn])
   // prev/next through the (filtered) list in its own order, so you can step Event A along
   // and watch the Event B candidates change under the "only whole" filters
   const at = value ? narrowed.findIndex((e) => e.uuid === value.uuid) : -1
@@ -160,9 +171,9 @@ export const EventPicker = ({
         <Text fontSize="11" fontWeight="500">
           {label}
         </Text>
-        {!value && filterFn ? (
+        {!value && (filterFn || candidates) ? (
           <Text fontSize="11px" color="brand.textSecondary">
-            {total} {total === 1 ? 'match' : 'matches'}
+            {loading ? 'analysing…' : `${total} ${total === 1 ? 'candidate' : 'candidates'}`}
           </Text>
         ) : null}
       </Flex>
@@ -220,7 +231,15 @@ export const EventPicker = ({
         borderColor="brand.borderMuted"
         borderRadius="md"
         bg="brand.surfaceRaised">
-        {matches.length ? (
+        {error ? (
+          <Text px={3} py={2} fontSize="13px" color="red.400">
+            {error}
+          </Text>
+        ) : loading && !matches.length ? (
+          <Text px={3} py={2} fontSize="13px" color="brand.textSecondary">
+            Analysing every event against {label.toLowerCase().replace('event b', 'Event A')}…
+          </Text>
+        ) : matches.length ? (
           matches.map((e) => (
             <Box
               key={e.uuid}
@@ -232,7 +251,11 @@ export const EventPicker = ({
               borderColor="brand.borderMuted"
               _hover={{ bg: 'brand.backgroundAlt' }}
               onClick={() => onChange(e)}>
-              <EventRow event={e} />
+              <EventRow
+                event={e}
+                action={byUuid.get(e.uuid) ? <ScoreBadge score={byUuid.get(e.uuid)!.analysis.score} size="sm" /> : undefined}
+              />
+              {byUuid.get(e.uuid) ? <HitRow analysis={byUuid.get(e.uuid)!.analysis} max={3} compact mt={1.5} /> : null}
             </Box>
           ))
         ) : (

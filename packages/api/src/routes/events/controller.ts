@@ -6,6 +6,7 @@ import { createSafeJsDate, isValidHebrewDateFormat, parseHebrewDate } from '@api
 import { findByGregorian, findByHebrew } from '@api/models/HebrewDates/methods'
 import * as Events from '@api/models/Events/methods'
 import * as Pairs from '@api/models/EventsPairs/methods'
+import * as Cycles from '@api/models/Events/cycles'
 
 class EventsController {
   public list = async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -97,7 +98,47 @@ class EventsController {
     }
   }
 
-  /** query: event, q, field, min, max, whole, divisible_by, sort, dir, limit, offset */
+  /** query: tol (0–3) — every other event analysed against :uuid, ranked by score, minus existing partners */
+  public candidates = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const out = await Cycles.candidates(req.params.uuid, req.query.tol, req.query.mode === 'upto' ? 'upto' : 'exact')
+      if (!out) return next(new HttpException(404, 'Event not found'))
+      res.json(out)
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  /** query: period (days, or y49 / y50 / y7 for Hebrew-year residues), tol (0–3), anchor (creation1 | creation8 | event uuid) */
+  public cycles = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const out = await Cycles.cycles({
+        period: typeof req.query.period === 'string' ? req.query.period : undefined,
+        tol: req.query.tol,
+        anchor: typeof req.query.anchor === 'string' ? req.query.anchor : undefined,
+        mode: req.query.mode === 'upto' ? 'upto' : 'exact'
+      })
+      if (!out) return next(new HttpException(404, 'Anchor not found'))
+      res.json(out)
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  /** query: anchor (creation1 | creation8 | event uuid), period (8190, a multiple or a fraction of it) — the anchor
+   *  stepped along that period as dates, and every event backward in rungs */
+  public project = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    try {
+      const out = await Cycles.project(typeof req.query.anchor === 'string' ? req.query.anchor : undefined, req.query.period)
+      if (!out) return next(new HttpException(404, 'Anchor not found'))
+      res.json(out)
+    } catch (err) {
+      next(err)
+    }
+  }
+
+  /** query: event, q, field, min, max, whole, divisible_by, sort, dir, limit, offset,
+   *  tol, min_score, family, flag, hebrew_years, same_month_day */
   public listPairs = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const s = (k: string) => (typeof req.query[k] === 'string' ? (req.query[k] as string) : undefined)
@@ -115,7 +156,14 @@ class EventsController {
           sort: s('sort') as any,
           dir: s('dir') === 'asc' ? 'asc' : 'desc',
           limit: n('limit'),
-          offset: n('offset')
+          offset: n('offset'),
+          tol: n('tol'),
+          mode: s('mode') === 'upto' ? 'upto' : 'exact',
+          min_score: n('min_score'),
+          family: s('family'),
+          flag: s('flag'),
+          hebrew_years: n('hebrew_years'),
+          same_month_day: s('same_month_day') === 'true'
         })
       )
     } catch (err) {

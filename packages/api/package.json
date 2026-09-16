@@ -12,6 +12,8 @@
     "db:migrate": "npx sequelize-cli db:migrate",
     "db:migrate:undo": "npx sequelize-cli db:migrate:undo:all",
     "db:migrate:undo:last": "npx sequelize-cli db:migrate:undo",
+    "pairs:generate": "node -r tsconfig-paths/register -r ts-node/register src/scripts/generatePairs.ts",
+    "analyze:pairs": "node -r tsconfig-paths/register -r ts-node/register src/scripts/analyzePairs.ts",
     "db:seed": "npx sequelize-cli db:seed:all",
     "db:seed:undo": "npx sequelize-cli db:seed:undo:all",
     "prettier": "prettier --check \"src/**/**/*.ts*\"",

@@ -19,6 +19,11 @@ class Route implements BaseRoute {
     this.router.patch(`${this.path}/:uuid`, authMiddleware, this.controller.update)
     this.router.delete(`${this.path}/:uuid`, authMiddleware, this.controller.remove)
 
+    // cycles engine
+    this.router.get(`${this.path}/cycles`, authMiddleware, this.controller.cycles)
+    this.router.get(`${this.path}/project`, authMiddleware, this.controller.project)
+    this.router.get(`${this.path}/:uuid/candidates`, authMiddleware, this.controller.candidates)
+
     this.router.get(`${this.path}/pairs`, authMiddleware, this.controller.listPairs)
     this.router.post(`${this.path}/pairs`, authMiddleware, this.controller.createPair)
     this.router.patch(`${this.path}/pairs/:uuid`, authMiddleware, this.controller.updatePair)

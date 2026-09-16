@@ -21,6 +21,12 @@ export interface EventsPair {
   new_moons_fraction?: number
   new_moon_years?: number
   new_moon_years_fraction?: number
+  // cycles engine (utils/analysis.js)
+  analysis?: any
+  score?: number
+  analysis_version?: number
+  hebrew_years?: number | null
+  same_month_day?: boolean
 }
 
 export type EventsPairCreation = Optional<EventsPair, 'uuid' | 'created_by' | 'include_first_day'>
@@ -54,6 +60,11 @@ export default (sequelize: Sequelize) => {
       new_moons_fraction: DataTypes.DECIMAL(14, 6),
       new_moon_years: DataTypes.DECIMAL(14, 6),
       new_moon_years_fraction: DataTypes.DECIMAL(14, 6),
+      analysis: DataTypes.JSONB,
+      score: { type: DataTypes.DECIMAL(8, 2), defaultValue: 0 },
+      analysis_version: { type: DataTypes.INTEGER, defaultValue: 0 },
+      hebrew_years: DataTypes.INTEGER,
+      same_month_day: { type: DataTypes.BOOLEAN, defaultValue: false },
       created_at: { allowNull: false, type: DataTypes.DATE, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') }
     },
     { sequelize, modelName: 'EventsPair', tableName: 'events_pairs', timestamps: false }

@@ -1,22 +1,11 @@
 import React from 'react'
-import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
-  Box,
-  Button,
-  Flex,
-  Grid,
-  Text,
-  useDisclosure
-} from '@chakra-ui/react'
+import { Box, Button, Flex, Grid, Text } from '@chakra-ui/react'
 
 import { AdminPair } from '@ui/api/admin'
 import { measureRows, isWhole, divisorsOf, format, Row } from '@ui/features/Tools/DaysBetween/components/BreakdownTable'
 import { EventSummary } from './EventPicker'
+import { HitRow, RungPosition, ScoreBadge } from './Hits'
+import { OffsetBadge } from './ToleranceControl'
 
 // solid for the headline, outline in the detail strip so the number stays the loudest thing
 const Badge = ({ d, solid }: { d: number; solid?: boolean }) => (
@@ -62,30 +51,31 @@ const Stat = ({ row, unit }: { row: Row; unit: string }) => {
   )
 }
 
-// six columns, each a short caption over one or two stacked measures (days is the headline)
+// five columns, each a short caption over one or two stacked measures (days is the headline);
+// new moons are the fractional reading (position within the month), the whole-month count is dropped
 const COLUMNS: { caption: string; rows: { label: string; unit: string }[] }[] = [
-  { caption: 'Time', rows: [{ label: 'Half Days Between', unit: 'half days' }, { label: 'Weeks Between', unit: 'weeks' }] },
-  { caption: 'Enochian', rows: [{ label: 'Years Between (Enochian)', unit: 'years' }, { label: 'Months Between (Enochian)', unit: 'months' }] },
   { caption: 'Revelation', rows: [{ label: 'Years Between (Revelation)', unit: 'years' }, { label: 'Months Between (Revelation)', unit: 'months' }] },
-  { caption: 'Civil', rows: [{ label: 'Years Between (Civil)', unit: 'years' }] },
-  { caption: 'New moons', rows: [{ label: 'New Moons Between', unit: 'moons' }, { label: 'New Moon Years', unit: 'years' }] },
-  { caption: 'New moons · fractional', rows: [{ label: 'New Moons Between (fractional)', unit: 'moons' }, { label: 'New Moon Years (fractional)', unit: 'years' }] }
+  { caption: 'Enochian', rows: [{ label: 'Years Between (Enochian)', unit: 'years' }, { label: 'Months Between (Enochian)', unit: 'months' }] },
+  { caption: 'Hebrew', rows: [{ label: 'Years Between (Hebrew)', unit: 'years' }] },
+  { caption: 'New moons', rows: [{ label: 'New Moons Between (fractional)', unit: 'moons' }, { label: 'New Moon Years (fractional)', unit: 'years' }] },
+  { caption: 'Time', rows: [{ label: 'Weeks Between', unit: 'weeks' }, { label: 'Half Days Between', unit: 'half days' }] }
 ]
 
 export const PairCard = ({
   pair,
   onDelete,
   onFavorite,
-  onIncludeFirst,
   highlightFavorite = true,
   showDetails = true,
-  onToggle
+  onToggle,
+  tolerance = 0
 }: {
   pair: AdminPair
   onDelete: () => void
   onFavorite: (favorite: boolean) => void
-  onIncludeFirst: (include: boolean) => Promise<void>
   showDetails?: boolean
+  // the list's tolerance: at 0 every hit is exact and the offset column is not shown
+  tolerance?: number
   // when given, clicking the card's header opens/closes its details (global Details off)
   onToggle?: () => void
   // off while the list is already filtered to favorites, where every card would glow
@@ -94,18 +84,8 @@ export const PairCard = ({
   const rows = measureRows(pair.breakdown)
   const byLabel = Object.fromEntries(rows.map((r) => [r.label, r]))
   const days = byLabel['Days Between']
-  const confirm = useDisclosure()
-  const cancelRef = React.useRef<HTMLButtonElement>(null)
-  const [busy, setBusy] = React.useState(false)
-  const flip = async () => {
-    setBusy(true)
-    try {
-      await onIncludeFirst(!pair.include_first_day)
-      confirm.onClose()
-    } finally {
-      setBusy(false)
-    }
-  }
+  const analysis = pair.analysis
+  const best = analysis?.hits[0]
   return (
     <Box mb={3} borderRadius="lg" border="1px solid" borderColor={pair.favorite && highlightFavorite ? 'brand.primary' : 'brand.border'} bg="brand.surfaceRaised" boxShadow="brand.base" overflow="hidden">
       <Box
@@ -139,8 +119,8 @@ export const PairCard = ({
           <Grid
             flex="1"
             minW={0}
-            templateColumns={{ base: '1fr', md: 'minmax(0, 1fr) 24px minmax(0, 1fr)' }}
-            columnGap={{ base: 0, md: 4 }}
+            templateColumns={{ base: '1fr', md: 'minmax(0, 1fr) 20px minmax(0, 1fr)' }}
+            columnGap={{ base: 0, md: 3 }}
             rowGap={2}
             alignItems={{ base: 'stretch', md: 'center' }}>
             <EventSummary event={pair.a} compact />
@@ -156,6 +136,13 @@ export const PairCard = ({
             </Flex>
             <EventSummary event={pair.b} compact />
           </Grid>
+          {/* its own column between Event B and the numbers, so the badge lines up from card to
+              card; only when the list is at ±1 … ±3 (at 0 every hit is exact) */}
+          {tolerance > 0 ? (
+            <Box flex="none" w={{ base: 'auto', md: '64px' }} textAlign={{ base: 'left', md: 'center' }}>
+              <OffsetBadge offset={best ? best.offset : null} />
+            </Box>
+          ) : null}
           {/* fixed width on desktop: otherwise the badge row makes this column a different
               width on every card, which shifts the A | → | B grid from card to card */}
           <Box flex="none" w={{ base: 'auto', md: '240px' }} textAlign={{ base: 'left', md: 'right' }} pt={{ base: 1, md: 0 }} borderTop={{ base: '1px solid', md: 'none' }} borderColor="brand.borderMuted" mt={{ base: 1, md: 0 }}>
@@ -167,50 +154,20 @@ export const PairCard = ({
                 days
               </Text>
             </Flex>
-            <Text
-              as="button"
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                confirm.onOpen()
-              }}
-              display="block"
-              fontSize="10px"
-              letterSpacing="0.12em"
-              textTransform="uppercase"
-              color={pair.include_first_day ? 'brand.primary' : 'brand.textSecondary'}
-              mt={1}
-              ml={{ base: 0, md: 'auto' }}
-              borderBottom="1px dotted"
-              borderColor="currentColor"
-              title="Change whether the first day is counted"
-              _hover={{ color: 'brand.text' }}>
-              {pair.include_first_day ? 'incl. first day' : 'excl. first day'}
-            </Text>
-            <AlertDialog isOpen={confirm.isOpen} leastDestructiveRef={cancelRef} onClose={confirm.onClose} isCentered>
-              <AlertDialogOverlay>
-                <AlertDialogContent bg="brand.surfaceRaised" borderColor="brand.border" borderWidth="1px">
-                  <AlertDialogHeader fontFamily="heading" fontSize="lg" color="brand.text">
-                    {pair.include_first_day ? 'Stop counting the first day?' : 'Count the first day?'}
-                  </AlertDialogHeader>
-                  <AlertDialogBody fontSize="14px" color="brand.textSecondary">
-                    Every measure on this pair will be recomputed — days becomes{' '}
-                    <Text as="span" className="mono" color="brand.text">
-                      {(pair.breakdown.days + (pair.include_first_day ? -1 : 1)).toLocaleString('en-US')}
-                    </Text>
-                    .
-                  </AlertDialogBody>
-                  <AlertDialogFooter gap={2}>
-                    <Button ref={cancelRef} size="sm" variant="ghost" onClick={confirm.onClose}>
-                      Cancel
-                    </Button>
-                    <Button size="sm" bg="brand.primary" color="brand.onPrimary" isLoading={busy} onClick={flip} sx={{ ':hover': { bg: 'brand.primaryLight' } }}>
-                      {pair.include_first_day ? 'Exclude it' : 'Include it'}
-                    </Button>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialogOverlay>
-            </AlertDialog>
+            {analysis ? (
+              <Flex align="baseline" gap={2} justify={{ base: 'flex-start', md: 'flex-end' }} mt={1.5}>
+                <ScoreBadge score={analysis.score} />
+                {best ? (
+                  <Text className="mono" fontSize="12px" color={best.flags.includes('named') ? 'brand.primary' : 'brand.text'} title={best.detail || best.label}>
+                    {best.label}
+                  </Text>
+                ) : (
+                  <Text fontSize="11px" color="brand.textSecondary">
+                    nothing within tolerance
+                  </Text>
+                )}
+              </Flex>
+            ) : null}
             {divisorsOf(days.num).length ? (
               <Flex justify={{ base: 'flex-start', md: 'flex-end' }} gap={1} mt={1.5} wrap="wrap">
                 {divisorsOf(days.num).map((d) => (
@@ -221,9 +178,24 @@ export const PairCard = ({
           </Box>
         </Flex>
       </Box>
+      {showDetails && analysis ? (
+        <Flex px={{ base: 4, md: 6 }} py={3} borderTop="1px solid" borderColor="brand.borderMuted" align="center" gap={4} wrap="wrap">
+          <Text fontSize="10px" fontWeight="600" letterSpacing="0.1em" textTransform="uppercase" color="brand.textSecondary">
+            Cycles
+          </Text>
+          {/* the hits are the whole story; the rung position only when no hit already says it */}
+          {analysis.hits.length ? <HitRow analysis={analysis} /> : null}
+          {!analysis.hits.some((h) => h.family === 'ladder') ? <RungPosition analysis={analysis} /> : null}
+          {!analysis.hits.length ? (
+            <Text fontSize="11px" color="brand.textSecondary">
+              nothing at this tolerance
+            </Text>
+          ) : null}
+        </Flex>
+      ) : null}
       {showDetails ? (
       <Grid
-        templateColumns={{ base: 'repeat(2, 1fr)', md: 'repeat(6, 1fr)' }}
+        templateColumns={{ base: 'repeat(2, 1fr)', md: 'repeat(5, 1fr)' }}
         columnGap={{ base: 4, md: 6 }}
         rowGap={2.5}
         alignItems="start"

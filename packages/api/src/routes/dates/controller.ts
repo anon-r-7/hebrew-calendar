@@ -34,6 +34,8 @@ import { findAllByGregorian as findSun } from '@api/models/Sun/methods'
 
 import { feasts } from '@api/constants/feasts'
 import { breakdown } from '@api/utils/breakdown'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const engine = require('@api/utils/analysis.js')
 
 class DatesController {
   public getDates = async (req: Request, res: Response, next: NextFunction) => {
@@ -427,11 +429,11 @@ class DatesController {
         const month = await findMonthByIndex(Number(row.month_index))
         return { ...row, month_length: month ? month.last_dd : 30 }
       }
-      const calc = breakdown(
-        await withLength(start_date),
-        await withLength(end_date),
-        !!include_first_day
-      )
+      const startRow = await withLength(start_date)
+      const endRow = await withLength(end_date)
+      const calc = breakdown(startRow, endRow, !!include_first_day)
+      // the cycles engine reading of the same span (rungs of 8190, year layer), ±3 days
+      const analysis = engine.analyzePair(startRow, endRow)
       const { days, new_moons, new_moons_fraction, years_civil } = calc
       const diff = unit === 'new_moons' ? new_moons : days
 
@@ -460,6 +462,7 @@ class DatesController {
         new_moons_fraction,
         years_civil,
         include_first_day: !!include_first_day,
+        analysis,
         start: pick(start_date),
         end: pick(end_date)
       })

@@ -20,6 +20,7 @@ import { getDaysBetweenDates } from './methods/api'
 import { DateControls } from './components/DateControls'
 import { AdvancedOptionsControls } from './components/AdvancedOptionsControls'
 import { BreakdownTable } from './components/BreakdownTable'
+import { CyclesPanel } from './components/CyclesPanel'
 
 const initialState: InitialState = { dates: [], type: 'gregorian' }
 
@@ -148,7 +149,10 @@ export const DaysBetween = () => {
         ) : null}
 
         {typeof store.state.result?.diff === 'number' ? (
-          <BreakdownTable result={store.state.result} />
+          <>
+            <BreakdownTable result={store.state.result} />
+            <CyclesPanel analysis={(store.state.result as any).analysis} />
+          </>
         ) : null}
       </Flex>
     </Flex>

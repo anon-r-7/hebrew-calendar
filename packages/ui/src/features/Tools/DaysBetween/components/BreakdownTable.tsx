@@ -24,7 +24,7 @@ export const measureRows = ({ days, new_moons, new_moons_fraction, years_civil }
   { label: 'Months Between (Enochian)', note: '12 per 364-day year', num: days * 12, den: 364 },
   { label: 'Years Between (Revelation)', note: '360-day years', num: days, den: 360 },
   { label: 'Months Between (Revelation)', note: '30-day months', num: days, den: 30 },
-  { label: 'Years Between (Civil)', note: 'Hebrew year', num: years_civil, den: 1 },
+  { label: 'Years Between (Hebrew)', note: 'Hebrew year', num: years_civil, den: 1 },
   { label: 'New Moons Between', note: 'month index', num: new_moons, den: 1 },
   {
     label: 'New Moons Between (fractional)',
