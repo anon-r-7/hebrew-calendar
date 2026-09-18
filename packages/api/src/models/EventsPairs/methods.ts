@@ -1,6 +1,7 @@
 import { QueryTypes } from 'sequelize'
 import Models from '@api/models'
 import { breakdown, BREAKDOWN_FIELDS, BreakdownField } from '@api/utils/breakdown'
+import { listEvents } from '@api/models/Events/methods'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const engine = require('@api/utils/analysis.js')
 
@@ -259,3 +260,62 @@ export const updatePair = async (uuid: string, values: { favorite?: boolean; inc
 
 export const deletePair = async (uuid: string): Promise<number> =>
   Models.EventsPairs.destroy({ where: { uuid } })
+
+/**
+ * Generate every pair the engine finds interesting and persist it. The standing rule, used
+ * automatically after an event is created or re-dated and by `yarn pairs:generate`:
+ * score ≥ 4.5 within ±3 days, favorite at ≥ 6. Existing pairs are skipped (either direction),
+ * so it only ever adds. `onlyEvent` restricts the scan to spans that touch one event, which
+ * is all that can have changed after a create or edit. `dryRun` reports without writing.
+ */
+export const GENERATE_DEFAULTS = { minScore: 4.5, tol: 3, favoriteAt: 6 }
+
+export interface GenerateOptions {
+  minScore?: number
+  tol?: number
+  favoriteAt?: number | null
+  onlyEvent?: string
+  dryRun?: boolean
+  log?: (line: string) => void
+}
+
+export const generatePairs = async (opts: GenerateOptions = {}) => {
+  const minScore = opts.minScore ?? GENERATE_DEFAULTS.minScore
+  const tol = Math.min(Math.max(opts.tol ?? GENERATE_DEFAULTS.tol, 0), engine.MAX_TOL)
+  const favoriteAt = opts.favoriteAt === undefined ? GENERATE_DEFAULTS.favoriteAt : opts.favoriteAt
+  const log = opts.log || (() => undefined)
+  const existing: any[] = await Models.sequelize.query('SELECT a, b FROM events_pairs;', { type: QueryTypes.SELECT })
+  const taken = new Set(existing.map((p) => [p.a, p.b].sort().join('|')))
+  const events = (await listEvents()).sort((x, y) => Number(x.day_index) - Number(y.day_index))
+  const found: { a: any; b: any; analysis: any }[] = []
+  for (let i = 0; i < events.length; i++) {
+    for (let j = i + 1; j < events.length; j++) {
+      const a = events[i]
+      const b = events[j]
+      if (opts.onlyEvent && a.uuid !== opts.onlyEvent && b.uuid !== opts.onlyEvent) continue
+      if (taken.has([a.uuid, b.uuid].sort().join('|'))) continue
+      const analysis = engine.analyzePair(a, b, tol)
+      if (analysis.score >= minScore) found.push({ a, b, analysis })
+    }
+  }
+  found.sort((x, y) => y.analysis.score - x.analysis.score)
+  log(`${events.length} events, ${found.length} new spans with score ≥ ${minScore} at ±${tol}d${taken.size ? ` (${taken.size} existing pairs skipped)` : ''}`)
+  let created = 0
+  let favorited = 0
+  for (const f of found) {
+    log(`  ${f.analysis.score.toFixed(2).padStart(6)}  ${f.a.name.slice(0, 34).padEnd(34)} → ${f.b.name.slice(0, 34).padEnd(34)}  ${f.analysis.best}`)
+    if (opts.dryRun) continue
+    try {
+      const pair = await createPair({ a: f.a.uuid, b: f.b.uuid, include_first_day: false, created_by: null })
+      created++
+      if (favoriteAt !== null && f.analysis.score >= favoriteAt && pair) {
+        await Models.EventsPairs.update({ favorite: true }, { where: { uuid: pair.uuid } })
+        favorited++
+      }
+    } catch (err: any) {
+      // a concurrent create of the same pair is fine; anything else surfaces
+      if (err?.name !== 'SequelizeUniqueConstraintError') throw err
+    }
+  }
+  return { scanned: events.length, found: found.length, created, favorited }
+}

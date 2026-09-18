@@ -105,44 +105,55 @@ export const cycles = async (opts: { period: any; tol: any; anchor?: string; mod
 }
 
 /**
- * Anchor projection. Forward: the anchor stepped along the chosen period, resolved to calendar
- * dates, with holidays on the day and events within ±14 days. Which steps:
- *   period 8190          the interesting rungs: every multiple of 44, 56, 90 or 91 (4 and 16 are too many)
- *   a multiple of 8190   every multiple of that step (k = 4 → 4, 8, 12 …)
- *   a fraction of 8190   every multiple of the fraction, but only the steps with an event within ±14 days
- * Backward: every event's reading from the anchor, best first.
+ * Anchor projection, for the Ladder and the Events views.
+ *
+ * `forward` (Ladder) steps the anchor along the period and resolves each step to a date:
+ *   8190                 the interesting rungs: every multiple of 44, 56, 90 or 91 (4 and 16 are too many)
+ *   a multiple of 8190   every step of it (k = 4 → 4, 8, 12 …)
+ *   anything else        every step, but only the ones with an event within ±14 days
+ *   a year period        no ladder (years are not a day count)
+ *
+ * `events` (Events) is every event that sits a whole number of the period from the anchor,
+ * within the tolerance, with that reading and its analysis at the same tolerance.
  */
 const INTERESTING_K = [44, 56, 90, 91]
 const MAX_ROWS = 500
+const NEAR_DAYS = 14
 
-export const project = async (anchorId: string | undefined, periodArg?: any) => {
+export const project = async (anchorId: string | undefined, periodArg?: any, tolArg?: any, modeArg?: 'exact' | 'upto') => {
   const anchor = await anchorRow(anchorId)
   if (!anchor) return null
-  const period = Number(periodArg) || RUNG
-  if (!(period > 0) || (period % RUNG !== 0 && RUNG % period !== 0)) return null
-  const [{ max_index }]: any[] = await Models.sequelize.query('SELECT max(day_index) AS max_index FROM hebrew_dates;', { type: QueryTypes.SELECT })
-  const maxIdx = Number(max_index)
+  const yearMode = typeof periodArg === 'string' && /^y\d+$/.test(periodArg)
+  const period = yearMode ? Number(String(periodArg).slice(1)) : Number(periodArg) || RUNG
+  if (!(period > 0)) return null
+  const t = clampTol(tolArg)
+  const mode: 'exact' | 'upto' = modeArg === 'upto' ? 'upto' : 'exact'
   const base = Number(anchor.day_index)
   const events = await listEvents()
-  const kind = period === RUNG ? 'rung' : period % RUNG === 0 ? 'multiple' : 'fraction'
-  // steps as multiples of the period, expressed in rungs
+  const kind = yearMode ? 'years' : period === RUNG ? 'rung' : period % RUNG === 0 ? 'multiple' : RUNG % period === 0 ? 'fraction' : 'other'
+
+  // ---- forward: the ladder
+  const [{ max_index }]: any[] = await Models.sequelize.query('SELECT max(day_index) AS max_index FROM hebrew_dates;', { type: QueryTypes.SELECT })
+  const maxIdx = Number(max_index)
   const targets: { k: number; step: number; day_index: number }[] = []
-  if (kind === 'rung') {
-    const maxK = Math.floor((maxIdx - base) / RUNG)
-    const ks = new Set<number>()
-    for (const m of INTERESTING_K) for (let k = m; k <= maxK; k += m) ks.add(k)
-    for (const k of [...ks].sort((a, b) => a - b)) targets.push({ k, step: k, day_index: base + k * RUNG })
-  } else {
-    for (let m = 1; base + m * period <= maxIdx && targets.length < MAX_ROWS * 4; m++) targets.push({ k: (m * period) / RUNG, step: m, day_index: base + m * period })
+  if (!yearMode) {
+    if (kind === 'rung') {
+      const maxK = Math.floor((maxIdx - base) / RUNG)
+      const ks = new Set<number>()
+      for (const m of INTERESTING_K) for (let k = m; k <= maxK; k += m) ks.add(k)
+      for (const k of [...ks].sort((a, b) => a - b)) targets.push({ k, step: k, day_index: base + k * RUNG })
+    } else {
+      for (let m = 1; base + m * period <= maxIdx && targets.length < MAX_ROWS * 8; m++) targets.push({ k: (m * period) / RUNG, step: m, day_index: base + m * period })
+    }
   }
   const nearOf = (idx: number) =>
     events
       .map((e) => ({ event: e, offset: Number(e.day_index) - idx }))
-      .filter((x) => Math.abs(x.offset) <= 14)
+      .filter((x) => Math.abs(x.offset) <= NEAR_DAYS)
       .sort((x, y) => Math.abs(x.offset) - Math.abs(y.offset))
-  let picked = targets.map((t) => ({ ...t, near: nearOf(t.day_index) }))
-  // fractions: thousands of steps from Creation; keep the ones something lands on
-  if (kind === 'fraction') picked = picked.filter((t) => t.near.length)
+  let picked = targets.map((x) => ({ ...x, near: nearOf(x.day_index) }))
+  // every step of a small period is thousands of rows; keep the ones something lands on
+  if (kind === 'fraction' || kind === 'other') picked = picked.filter((x) => x.near.length)
   const truncated = picked.length > MAX_ROWS
   picked = picked.slice(0, MAX_ROWS)
   const rows: any[] = picked.length
@@ -155,36 +166,72 @@ export const project = async (anchorId: string | undefined, periodArg?: any) => 
                    JOIN hebrew_events he ON he.uuid = hed.hebrew_event
                   WHERE hed.hebrew_date = hd.uuid AND he.short_name <> 'shabbat') AS holidays
            FROM hebrew_dates hd WHERE hd.day_index IN (:idx);`,
-        { replacements: { idx: picked.map((t) => t.day_index) }, type: QueryTypes.SELECT }
+        { replacements: { idx: picked.map((x) => x.day_index) }, type: QueryTypes.SELECT }
       )
     : []
-  const byIdx = new Map(rows.map((r) => [Number(r.day_index), r]))
-  const d = RUNG / period
-  const forward = picked.map((t) => {
-    const date = byIdx.get(t.day_index) || null
-    const label =
-      kind === 'fraction'
-        ? `${t.step} × ${period} = ${Number.isInteger(t.k) ? t.k : `${t.step}/${d}`} rung${t.k === 1 ? '' : 's'}`
-        : engine.NAMED_K[t.k] || `${t.k * 22.5} y364 = ${t.k * 22.75} y360`
+  // bigint columns arrive as strings from a raw query; the payload should be numbers throughout
+  const byIdx = new Map(rows.map((r) => [Number(r.day_index), { ...r, day_index: Number(r.day_index) }]))
+  const forward = picked.map((x) => {
+    const date = byIdx.get(x.day_index) || null
     return {
-      k: t.k,
-      step: t.step,
-      label,
-      day_index: t.day_index,
-      y364: t.k * 22.5,
-      y360: t.k * 22.75,
+      k: x.k,
+      step: x.step,
+      label: engine.NAMED_K[x.k] || `${x.k * 22.5} y364 = ${x.k * 22.75} y360`,
+      day_index: x.day_index,
+      y364: (x.step * period) / 364,
+      y360: (x.step * period) / 360,
       date,
       holidays: date ? date.holidays || [] : [],
-      near: t.near
+      near: x.near
     }
   })
-  const backward = events
+
+  // ---- events: every event read against this period, closest to a whole multiple first.
+  // Not filtered — from most anchors nothing is exact, and an empty list teaches nothing. The
+  // tolerance filters each event's hit chips and flags the rows that land in the bucket.
+  const list = events
     .filter((e) => e.uuid !== (anchor as any).uuid)
     .map((e) => {
-      const [a, b] = Number(e.day_index) < Number(anchor.day_index) ? [e, anchor] : [anchor, e]
-      const analysis = engine.analyzePair(a, b, MAX_TOL)
-      return { event: e, direction: Number(e.day_index) < Number(anchor.day_index) ? 'before' : 'after', analysis }
+      const [a, b] = Number(e.day_index) < base ? [e, anchor] : [anchor, e]
+      const analysis = engine.analyzePair(a, b, t, mode)
+      const days = Math.abs(Number(e.day_index) - base)
+      const step = yearMode
+        ? (() => {
+            const dy = Math.abs(Number(e.yy) - Number(anchor.yy))
+            const m = Math.round(dy / period)
+            return { m, offset: m * period - dy, unit: 'years' as const }
+          })()
+        : (() => {
+            const { m, off } = engine.nearest(days, period)
+            return { m, offset: off, unit: 'days' as const }
+          })()
+      return {
+        event: e,
+        direction: Number(e.day_index) < base ? 'before' : 'after',
+        days,
+        step,
+        // does this event sit on the period, at the tolerance in view?
+        on_period: step.m >= 1 && engine.inTolerance(step.offset, t, mode),
+        analysis
+      }
     })
-    .sort((x, y) => y.analysis.score - x.analysis.score || x.analysis.days - y.analysis.days)
-  return { anchor: { name: anchor.name, day_index: anchor.day_index }, period, kind, truncated, forward, backward }
+    // an event closer to the anchor than half a period sits on no multiple of it
+    .filter((x) => x.step.m >= 1)
+    .sort(
+      (x, y) =>
+        Math.abs(x.step.offset) - Math.abs(y.step.offset) ||
+        y.analysis.score - x.analysis.score ||
+        x.days - y.days
+    )
+
+  return {
+    anchor: { name: anchor.name, day_index: anchor.day_index },
+    period,
+    kind,
+    tolerance: t,
+    year_mode: yearMode,
+    truncated,
+    forward,
+    events: list
+  }
 }

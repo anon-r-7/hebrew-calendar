@@ -46,7 +46,9 @@ class EventsController {
         hebrew_date: row.uuid,
         created_by: req.auth?.sub || null
       })
-      res.status(201).json(event)
+      // the standing rule: every interesting pair this event makes is saved right away
+      const generated = await Pairs.generatePairs({ onlyEvent: event.uuid })
+      res.status(201).json({ ...event, generated })
     } catch (err) {
       next(err)
     }
@@ -80,9 +82,14 @@ class EventsController {
       }
       const event = await Events.updateEvent(req.params.uuid, values)
       if (!event) return next(new HttpException(404, 'Event not found'))
-      // the stored maths of every pair this event is in follow its new date
-      if (values.hebrew_date) await Pairs.recalcPairs({ event: req.params.uuid })
-      res.json(event)
+      // the stored maths of every pair this event is in follow its new date, and any pair the
+      // new date makes interesting is added (pairs that stopped being interesting are kept)
+      let generated
+      if (values.hebrew_date) {
+        await Pairs.recalcPairs({ event: req.params.uuid })
+        generated = await Pairs.generatePairs({ onlyEvent: req.params.uuid })
+      }
+      res.json(generated ? { ...event, generated } : event)
     } catch (err) {
       next(err)
     }
@@ -125,11 +132,17 @@ class EventsController {
     }
   }
 
-  /** query: anchor (creation1 | creation8 | event uuid), period (8190, a multiple or a fraction of it) — the anchor
-   *  stepped along that period as dates, and every event backward in rungs */
+  /** query: anchor (creation1 | creation8 | event uuid), period (any day period, or yN for Hebrew years),
+   *  tol — the anchor stepped along that period as dates (the ladder), and every event read against
+   *  that period from the anchor, closest to a whole multiple first */
   public project = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const out = await Cycles.project(typeof req.query.anchor === 'string' ? req.query.anchor : undefined, req.query.period)
+      const out = await Cycles.project(
+        typeof req.query.anchor === 'string' ? req.query.anchor : undefined,
+        req.query.period,
+        req.query.tol,
+        req.query.mode === 'upto' ? 'upto' : 'exact'
+      )
       if (!out) return next(new HttpException(404, 'Anchor not found'))
       res.json(out)
     } catch (err) {

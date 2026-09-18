@@ -125,10 +125,18 @@ export interface CycleGroup {
   size: number
   members: { event: AdminEvent; k: number; offset: number; span: number }[]
 }
+export interface PeriodStep {
+  m: number
+  offset: number
+  unit: 'days' | 'years'
+}
+
 export interface Projection {
   anchor: { name: string; day_index: number }
   period: number
-  kind: 'rung' | 'multiple' | 'fraction'
+  kind: 'rung' | 'multiple' | 'fraction' | 'other' | 'years'
+  tolerance: number
+  year_mode: boolean
   truncated: boolean
   forward: {
     k: number
@@ -142,7 +150,8 @@ export interface Projection {
     holidays: string[]
     near: { event: AdminEvent; offset: number }[]
   }[]
-  backward: { event: AdminEvent; direction: 'before' | 'after'; analysis: Analysis }[]
+  // every event against the anchor on the chosen period, closest to a whole multiple first
+  events: { event: AdminEvent; direction: 'before' | 'after'; days: number; step: PeriodStep; on_period: boolean; analysis: Analysis }[]
 }
 
 const listEvents = async (q = '') =>
@@ -196,7 +205,7 @@ const cycles = async (period: string | number, tol: number, anchor: string) =>
     groups: CycleGroup[]
   }
 
-const project = async (anchor: string, period?: string | number) =>
-  (await client({ method: 'GET', url: 'events/project', params: period ? { anchor, period } : { anchor } })).data as Projection
+const project = async (anchor: string, period: string | number, tol: number) =>
+  (await client({ method: 'GET', url: 'events/project', params: { anchor, period, tol } })).data as Projection
 
 export default { listEvents, createEvent, updateEvent, deleteEvent, listPairs, createPair, updatePair, setPairFavorite, deletePair, candidates, cycles, project }

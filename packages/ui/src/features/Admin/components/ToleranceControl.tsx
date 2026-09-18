@@ -34,12 +34,13 @@ export const ToleranceControl = ({ value, onChange, label = 'TOLERANCE' }: { val
 )
 
 /** "exact", "+2d", "−½d" — the signed miss, for a prominent badge */
-export const OffsetBadge = ({ offset, size = 'md' }: { offset: number | null | undefined; size?: 'sm' | 'md' }) => {
+export const OffsetBadge = ({ offset, size = 'md', neutral }: { offset: number | null | undefined; size?: 'sm' | 'md'; neutral?: boolean }) => {
   if (offset === null || offset === undefined) return null
   const exact = offset === 0
   const v = Math.abs(offset)
   const num = Number.isInteger(v) ? String(v) : v === 0.5 ? '½' : v === 0.25 ? '¼' : v === 0.75 ? '¾' : v.toFixed(2)
-  const text = exact ? 'exact' : `${offset > 0 ? '+' : '−'}${num}d`
+  // `neutral` is the baseline of a group: it is not an exact hit, it is what the rest are measured from
+  const text = exact ? (neutral ? '0d' : 'exact') : `${offset > 0 ? '+' : '−'}${num}d`
   return (
     <Text
       as="span"
@@ -51,11 +52,11 @@ export const OffsetBadge = ({ offset, size = 'md' }: { offset: number | null | u
       py={size === 'sm' ? 0.5 : 1}
       borderRadius="md"
       border="1px solid"
-      borderColor={exact ? 'brand.success' : 'brand.primary'}
-      color={exact ? 'brand.success' : 'brand.primary'}
+      borderColor={neutral ? 'brand.border' : exact ? 'brand.success' : 'brand.primary'}
+      color={neutral ? 'brand.textSecondary' : exact ? 'brand.success' : 'brand.primary'}
       bg="transparent"
       whiteSpace="nowrap"
-      title={exact ? 'lands exactly on the clean value' : `misses the clean value by ${text}`}>
+      title={neutral ? "on the group's own residue — the others are measured from it" : exact ? 'lands exactly on the clean value' : `misses the clean value by ${text}`}>
       {text}
     </Text>
   )

@@ -35,6 +35,13 @@ const PERIOD_GROUPS: { group: string; options: { value: string; label: string }[
     ]
   },
   {
+    group: 'Other periods',
+    options: [
+      { value: '2548', label: '2548 — 7 × 364, a week of Enochian years' },
+      { value: '1260', label: '1260 — half of 2520' }
+    ]
+  },
+  {
     group: 'Years',
     options: [
       { value: '360', label: 'Revelation years (360 days)' },
@@ -51,10 +58,8 @@ const VIEWS: { value: CyclesView; label: string }[] = [
   { value: 'residues', label: 'Event groupings' },
   { value: 'from', label: 'Events' }
 ]
-const onLadder = (period: string) => {
-  const n = Number(period)
-  return n > 0 && (n % RUNG === 0 || RUNG % n === 0)
-}
+// the ladder steps by days, so every day period qualifies; the year periods have none
+const onLadder = (period: string) => Number(period) > 0
 
 const Label = ({ children }: { children: React.ReactNode }) => (
   <Text fontSize="11" fontWeight="500" pl="2" mb={1}>
@@ -113,7 +118,9 @@ export const Cycles = ({ events, tol, onTolChange }: { events: AdminEvent[]; tol
     let stale = false
     setBusy(true)
     setError(null)
-    Promise.all([admin.cycles(period, tol, anchor), admin.project(anchor, onLadder(period) ? period : '8190')])
+    // groupings are anchor-independent (shifting the anchor shifts every residue equally), so they
+    // are always read from Creation day 1 — that keeps the k column stable while the anchor is hidden
+    Promise.all([admin.cycles(period, tol, 'creation1'), admin.project(anchor, period, tol)])
       .then(([c, p]) => {
         if (stale) return
         setGroups(c.groups)
@@ -174,6 +181,7 @@ export const Cycles = ({ events, tol, onTolChange }: { events: AdminEvent[]; tol
             ))}
           </Select>
         </Box>
+        {view === 'residues' ? null : (
         <Box>
           <Label>ANCHOR</Label>
           <Select size="sm" bg="brand.surfaceRaised" w={{ base: '100%', md: '300px' }} value={anchor} onChange={(e) => setAnchor(e.target.value)}>
@@ -186,9 +194,12 @@ export const Cycles = ({ events, tol, onTolChange }: { events: AdminEvent[]; tol
             ))}
           </Select>
         </Box>
-        <Box pb={1}>
-          <ToleranceControl value={tol} onChange={onTolChange} />
-        </Box>
+        )}
+        {view === 'ladder' ? null : (
+          <Box pb={1}>
+            <ToleranceControl value={tol} onChange={onTolChange} />
+          </Box>
+        )}
         {busy ? (
           <Text fontSize="11px" color="brand.textSecondary" pb={2}>
             working…
@@ -206,7 +217,7 @@ export const Cycles = ({ events, tol, onTolChange }: { events: AdminEvent[]; tol
       {/* ---- ladder: the anchor stepped along the period, as dates, with holidays and nearby events */}
       {view === 'ladder' && !onLadder(period) ? (
         <Text fontSize="13px" color="brand.textSecondary" mb={8}>
-          The ladder is for 8190, its fractions and its multiples. Pick one of those periods to see it.
+          The ladder steps forward in days from the anchor, so it needs a day period. Pick one above.
         </Text>
       ) : null}
       {view === 'ladder' && onLadder(period) && projection ? (
@@ -216,9 +227,14 @@ export const Cycles = ({ events, tol, onTolChange }: { events: AdminEvent[]; tol
               first 500 steps
             </Text>
           ) : null}
-          <Box bg="brand.surfaceRaised" border="1px solid" borderColor="brand.border" borderRadius="lg" boxShadow="brand.base" overflow="hidden" mb={8}>
+          {projection.forward.length === 0 ? (
+            <Text fontSize="13px" color="brand.textSecondary" mb={8}>
+              No step of {projection.period.toLocaleString('en-US')} days from {projection.anchor.name} has an event within two weeks.
+            </Text>
+          ) : null}
+          <Box bg="brand.surfaceRaised" border="1px solid" borderColor="brand.border" borderRadius="lg" boxShadow="brand.base" overflow="hidden" mb={8} display={projection.forward.length ? 'block' : 'none'}>
             <Grid templateColumns={{ base: '60px 1fr 1fr', md: '60px 120px 120px 110px 150px 1fr' }} gap={3} px={4} py={2} bg="brand.backgroundAlt" borderBottom="1px solid" borderColor="brand.primary">
-              <Caption>{projection.kind === 'fraction' ? 'step' : 'k'}</Caption>
+              <Caption>{projection.kind === 'rung' || projection.kind === 'multiple' ? 'k' : 'step'}</Caption>
               <Caption>Revelation</Caption>
               <Caption>Enochian</Caption>
               <Box display={{ base: 'none', md: 'block' }}>
@@ -228,7 +244,7 @@ export const Cycles = ({ events, tol, onTolChange }: { events: AdminEvent[]; tol
                 <Caption>Gregorian</Caption>
               </Box>
               <Box display={{ base: 'none', md: 'block' }}>
-                <Caption>events nearby</Caption>
+                <Caption>events ±14 days</Caption>
               </Box>
             </Grid>
             {projection.forward.map((f) => (
@@ -242,8 +258,8 @@ export const Cycles = ({ events, tol, onTolChange }: { events: AdminEvent[]; tol
                 borderBottom="1px solid"
                 borderColor="brand.borderMuted"
                 bg={f.near.length || f.holidays.length ? 'brand.goldSoft' : 'transparent'}>
-                <Text className="mono" fontSize="13px" fontWeight="600" color="brand.primary" title={`${f.k} rungs`}>
-                  {projection.kind === 'fraction' ? f.step : f.k}
+                <Text className="mono" fontSize="13px" fontWeight="600" color="brand.primary" title={`${f.k} rungs of 8190`}>
+                  {projection.kind === 'rung' || projection.kind === 'multiple' ? f.k : f.step}
                 </Text>
                 <Text className="mono" fontSize="12px" color="brand.text" title={f.label}>
                   {f.y360.toLocaleString('en-US', { maximumFractionDigits: 2 })}
@@ -299,13 +315,7 @@ export const Cycles = ({ events, tol, onTolChange }: { events: AdminEvent[]; tol
                   <EventLine event={m.event} />
                   {tol > 0 ? (
                     <Box ml="auto" flex="none" w="64px" textAlign="right">
-                      {m.offset ? (
-                        <OffsetBadge offset={m.offset} />
-                      ) : (
-                        <Text as="span" fontSize="10px" fontWeight="600" letterSpacing="0.08em" textTransform="uppercase" color="brand.textSecondary" title="the member the others are measured against">
-                          ref
-                        </Text>
-                      )}
+                      <OffsetBadge offset={m.offset} size="sm" neutral={!m.offset} />
                     </Box>
                   ) : null}
                   <Box ml={tol > 0 ? 0 : 'auto'} textAlign="right" flex="none" w={{ base: '96px', md: '120px' }}>
@@ -323,33 +333,75 @@ export const Cycles = ({ events, tol, onTolChange }: { events: AdminEvent[]; tol
         </Grid>
       ) : (
         <Text fontSize="13px" color="brand.textSecondary" mb={8}>
-          {groups ? 'No two events share a residue at this tolerance.' : 'Loading…'}
+          {groups
+            ? `No two events are a whole number of ${(meta?.period || Number(period) || RUNG).toLocaleString('en-US')} ${unit} apart at this tolerance.`
+            : 'Loading…'}
         </Text>
       )}
 
       {/* ---- every event read from the anchor, best first (±3 days) */}
       {view === 'from' && projection ? (
-        <>
-
-          <Box bg="brand.surfaceRaised" border="1px solid" borderColor="brand.border" borderRadius="lg" boxShadow="brand.base" overflow="hidden">
-            {projection.backward.slice(0, 40).map((b) => (
-              <Flex key={b.event.uuid} px={4} py={2.5} gap={3} align="flex-start" borderBottom="1px solid" borderColor="brand.borderMuted" wrap="wrap">
-                <Box w={{ base: '100%', md: '280px' }} flex="none">
-                  <EventLine event={b.event} />
-                  <Text className="mono" fontSize="10px" color="brand.textSecondary">
-                    {b.analysis.days.toLocaleString('en-US')} days {b.direction} · {b.analysis.rung.value.toFixed(3)} rungs
+        <Box bg="brand.surfaceRaised" border="1px solid" borderColor="brand.border" borderRadius="lg" boxShadow="brand.base" overflow="hidden">
+          <Grid templateColumns={{ base: '1fr', md: '280px 150px 56px 1fr' }} gap={3} px={4} py={2} bg="brand.backgroundAlt" borderBottom="1px solid" borderColor="brand.primary">
+            <Caption>event</Caption>
+            <Box display={{ base: 'none', md: 'block' }}>
+              <Caption>from {projection.anchor.name}</Caption>
+            </Box>
+            <Box display={{ base: 'none', md: 'block' }}>
+              <Caption>score</Caption>
+            </Box>
+            <Box display={{ base: 'none', md: 'block' }}>
+              <Caption>also true of this span</Caption>
+            </Box>
+          </Grid>
+          {projection.events.map((x) => (
+            <Grid
+              key={x.event.uuid}
+              templateColumns={{ base: '1fr', md: '280px 150px 56px 1fr' }}
+              gap={3}
+              px={4}
+              py={2.5}
+              alignItems="flex-start"
+              borderBottom="1px solid"
+              borderColor="brand.borderMuted"
+              bg={x.on_period ? 'brand.goldSoft' : 'transparent'}>
+              <Box minW={0}>
+                <EventLine event={x.event} />
+                <Text className="mono" fontSize="10px" color="brand.textSecondary">
+                  {x.days.toLocaleString('en-US')} days {x.direction}
+                </Text>
+              </Box>
+              <Flex align="center" gap={2} minW={0}>
+                <Text className="mono" fontSize="12px" color={x.on_period ? 'brand.text' : 'brand.textSecondary'} whiteSpace="nowrap">
+                  {x.step.m.toLocaleString('en-US')} × {projection.period.toLocaleString('en-US')}
+                  {x.step.unit === 'years' ? ' yrs' : ''}
+                </Text>
+                {/* the badge is on the tolerance scale; a miss of 385 days is just a distance */}
+                {Math.abs(x.step.offset) <= 3 ? (
+                  <OffsetBadge offset={x.step.offset} size="sm" />
+                ) : (
+                  <Text className="mono" fontSize="11px" color="brand.textSecondary" whiteSpace="nowrap">
+                    {x.step.offset > 0 ? '+' : '−'}
+                    {Math.abs(x.step.offset).toLocaleString('en-US')}
+                    {x.step.unit === 'years' ? 'y' : 'd'}
                   </Text>
-                </Box>
-                <Box w="48px" flex="none" pt={0.5}>
-                  <ScoreBadge score={b.analysis.score} size="sm" />
-                </Box>
-                <Box flex="1" minW={0}>
-                  <HitRow analysis={b.analysis} compact max={5} />
-                </Box>
+                )}
               </Flex>
-            ))}
-          </Box>
-        </>
+              <Box>
+                {x.analysis.hits.length ? (
+                  <ScoreBadge score={x.analysis.score} size="sm" />
+                ) : (
+                  <Text fontSize="12px" color="brand.textSecondary">
+                    —
+                  </Text>
+                )}
+              </Box>
+              <Box flex="1" minW={0}>
+                <HitRow analysis={x.analysis} compact max={5} />
+              </Box>
+            </Grid>
+          ))}
+        </Box>
       ) : null}
     </Box>
   )
