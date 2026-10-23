@@ -1,4 +1,4 @@
-FROM node:20 as builder
+FROM node:24.22.1 as builder
 
 # Add Build Assets
 RUN mkdir -p /usr/src/app
